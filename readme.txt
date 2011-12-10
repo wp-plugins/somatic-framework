@@ -13,9 +13,11 @@ Adds useful classes for getting the most out of Wordpress' advanced CMS features
 
 This framework is a collection of classes and functions for handling advanced custom post types cases. With just a few pre-populated arrays, it can create custom post types, their metaboxes, save routines, and any custom taxonomies.
 
+NOTE: this began life as an internal development tool, and as such, does not have much (if any documentation) just yet. It's not really end-user friendly in its current state. So if you're not running a site I have built for you personally, you probably don't need it ;-)
+
 == Installation ==
 
-Upload, activate, have a drink... but first, install and activate Scribu's excellent Posts to Posts plugin, which this framework requires!
+Upload, activate, have a drink... but first, install and activate Scribu's excellent Posts 2 Posts plugin, which this framework requires!
 
 
 == Frequently Asked Questions ==
@@ -23,6 +25,8 @@ Upload, activate, have a drink... but first, install and activate Scribu's excel
 = Do I need this plugin? =
 
 If you're using a theme or setting up a site I built for you, then very likely, yes...
+
+Otherwise, not yet ;-)
 
 == Changelog ==
 
