@@ -1,0 +1,76 @@
+=== Somatic Framework ===
+Contributors: somatic
+Tags: CMS, custom post type, metabox, custom taxonomy
+Donate link: http://somaticstudios.com.com/code
+Requires at least: 3.2
+Tested up to: 3.3
+Stable tag: 1.0
+License: GPLv2 or later
+
+Adds useful classes for getting the most out of Wordpress' advanced CMS features
+
+== Description ==
+
+This framework is a collection of classes and functions for handling advanced custom post types cases. With just a few pre-populated arrays, it can create custom post types, their metaboxes, save routines, and any custom taxonomies.
+
+== Installation ==
+
+Upload, activate, have a drink... but first, install and activate Scribu's excellent Posts to Posts plugin, which this framework requires!
+
+
+== Frequently Asked Questions ==
+
+= Do I need this plugin? =
+
+If you're using a theme or setting up a site I built for you, then very likely, yes...
+
+== Changelog ==
+
+= 1.0 =
+* first public release on wordpress.org
+
+= 0.6 =
+* added jPlayer for metaboxes - meta type Audio or Video
+* asset_meta() can be set to serialize or not post_meta via somaMetaboxes::$meta_serialize var (default true), can also be overridden via function params
+* somaTypes::init_type now accepts image path to automatically create icon references (type-list-icon.png, type-edit-icon.png, type-menu-icon.png)
+* somaMetaboxes::$meta_prefix var for themes to override
+* added arg to init_taxonomy to automatically hide metaboxes on custom taxonomies
+
+= 0.5 =
+* added file upload field type
+* added attachment gallery display field type
+* added colorbox lightbox viewing for images, pdf, doc, xls, ppt (with google doc iframe viewer)
+* added somaDownload class for creating links to download attachments directly
+* added jqueryUI datepicker and timepicker
+
+= 0.4 =
+* added "help" metabox field type, displaying the text across both columns
+* fixed ridiculous metabox field table layout issues
+* fixed saving of incomplete "date" fields
+* included soma-admin-jquery.js
+* new fetch_index function for dealing with $_GET and $_POST
+
+= 0.3 =
+* purged tons of outdated/unused code from other projects
+* changed save_asset() for core data types to use wp_update_post instead of $wpdb->update
+* added new metabox field type: richtext (with tinymce)
+* new functions for fetching userdata
+* individual metabox save buttons
+
+= 0.2 =
+* First release
+* added somaTypes class, handling generation of custom post types, taxonomies, and terms
+
+= 0.1 = 
+* Code documentation is crude, with comments everywhere. Will standardize docs soon...
+* includes somaFunctions, somaMetaboxes, somaSave, and somaSorter classes
+
+
+== Upgrade Notice ==
+
+= 1.0 =
+Want to stay in sync? Install this version!
+
+== Screenshots ==
+
+1. Not much to say yet...
