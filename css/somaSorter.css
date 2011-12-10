@@ -1,0 +1,30 @@
+/* @override http://www.thebirthyear.com/Users/israel/Server/birthyear/wp-content/plugins/somatic-framework/inc/somaSorter.css?ver=3.2.1 */
+
+#loading-animation {
+	display: none;
+	margin-left: 10px;
+}
+
+#custom-type-list {
+	margin-top: 20px;
+}
+
+#custom-type-list li {
+	padding: 10px;
+	width: 35%;
+	background: #f0f0f0;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f7f7f7), to(#e7e7e7));
+	background: -moz-linear-gradient(top,  #f7f7f7,  #e7e7e7);
+	border: 1px solid #ddd;
+	border-raidus: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	font-size: 1.2em;
+	clear: both;
+	height: 50px;
+	cursor: move;
+}
+
+#custom-type-list li img {
+	float: right;
+}
