@@ -20,6 +20,7 @@ class somaFunctions extends somaticFramework {
 		remove_filter('check_comment_flood', 'check_comment_flood_db');	// deal with "posting too quickly" problem....
 		add_filter( 'edit_posts_per_page', array(__CLASS__, 'edit_list_length'));
 		add_action( 'wp_ajax_unlink_file', array(__CLASS__, 'unlink_file'));
+		// add_action( 'admin_notices', array(__CLASS__,'soma_notices'));
 	}
 
 	function foo() {
@@ -34,6 +35,10 @@ class somaFunctions extends somaticFramework {
 		self::check_staff();
 	}
 
+	function soma_notices($func, $msg) {
+		echo "<div class=\"error\"><p><strong>SOMATIC FRAMEWORK ERROR:</strong> $func()</p><p><em>$msg</em></p></div>";
+	}
+	
 	// set if user has staff privileges (default to editors)
 	function check_staff() {
 		$privs = 'edit_others_posts';
@@ -807,14 +812,11 @@ class somaFunctions extends somaticFramework {
 
 	//** checks for activation of plugins that somaFramework is dependent on ------------------------------------------------------//
 	function check_plugin_dependency() {
-//		require scribu's p2p plugin
+		// require scribu's p2p plugin
 		if ( !function_exists('p2p_register_connection_type') ) {
-			add_action('admin_notices', 'p2p_error_msg' );
-			function p2p_error_msg() {
-				echo '<div id="message" class="error" style="font-weight: bold">';
-				echo '<p>PLUGIN REQUIRED: "Posts 2 Posts" - please <a href="http://scribu.net/wordpress/posts-to-posts" target="_blank">download</a> and/or activate!</p>';
-				echo '</div>';
-			}
+			add_action( 'admin_notices', create_function('', "
+				echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>PLUGIN REQUIRED: \"Posts 2 Posts\" - please <a href=\"http://scribu.net/wordpress/posts-to-posts\" target=\"_blank\">download</a> and/or activate!</p></div>';
+			"));
 		}
 
 		// // require companion SOMA theme
@@ -1147,4 +1149,6 @@ SQL;
 
 }
 // --> END class somaFunctions
-
+// INIT
+$somaFunctions = new somaFunctions();
+?>

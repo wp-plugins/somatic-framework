@@ -77,3 +77,7 @@ class somaSorter extends somaticFramework {
 	}
 
 }
+
+
+// INIT
+$somaSorter = new somaSorter();

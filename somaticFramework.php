@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Somatic Framework
-Plugin URI: http://www.somaticstudios.com/code/
+Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.0
+Version: 1.1
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -150,8 +150,6 @@ class somaticFramework {
 	}
 
 	function init() {
-		// global $wp_rewrite;
-		// $wp_rewrite->flush_rules();
 	}
 
 	function admin_init() {
@@ -173,6 +171,7 @@ class somaticFramework {
 	}
 
 	function activate() {
+		flush_rewrite_rules();
 	}
 
 	function deactivate() {
@@ -213,11 +212,4 @@ if (class_exists("somaticFramework") && !$somaticFramework) {
 foreach( glob( SOMA_INC ."*.php" ) as $filename) {
     require_once $filename;
 }
-
-// init other classes
-$somaFunctions = new somaFunctions();
-$somaMetaboxes = new somaMetaboxes();
-$somaSave = new somaSave();
-$somaSorter = new somaSorter();
-$somaTypes = new somaTypes();
 ?>

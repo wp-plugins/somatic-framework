@@ -2,7 +2,7 @@
 class somaMetaboxes extends somaticFramework {
 
 	function __construct() {
-		add_action( 'post_edit_form_tag' , array(__CLASS__,'post_edit_form_tag' ));
+		add_action( 'post_edit_form_tag' , array(__CLASS__,'post_edit_form_tag' ) );
 		add_action( 'admin_print_styles-post.php', array(__CLASS__, 'jplayer_styles') );
 		add_action( 'admin_print_scripts-post.php', array(__CLASS__, 'jplayer_scripts') );
 	}
@@ -787,7 +787,6 @@ class somaMetaboxes extends somaticFramework {
 		}
 	}
 
-
 	///////////// FUNCTIONS FOR GENERATING METABOX OPTION ARRAYS FOR USE IN HTML INPUT OBJECTS //////////////////
 
 
@@ -904,3 +903,6 @@ class somaMetaboxes extends somaticFramework {
 		return $list;
 	}
 }
+
+// INIT
+$somaMetaboxes = new somaMetaboxes();

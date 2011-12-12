@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com.com/code
 Requires at least: 3.2
 Tested up to: 3.3
-Stable tag: 1.0
+Stable tag: 1.1
 License: GPLv2 or later
 
 Adds useful classes for getting the most out of Wordpress' advanced CMS features
@@ -29,6 +29,13 @@ If you're using a theme or setting up a site I built for you, then very likely, 
 Otherwise, not yet ;-)
 
 == Changelog ==
+
+= 1.1 =
+* created public functions in api.php to initialize things like custom post type, taxonomy, terms, and custom metabox data
+* added flush_rewrite_rules to plugin activation
+* added contextual help customization per CPT
+* generate custom icon paths automatically based on CPT slug, just provide URL to directory where they're located, image name scheme "slug-menu-icon.png"
+* limit taxonomy term insertion to plugin or theme activation (two scenarios where soma_init_taxonomy could be called)
 
 = 1.0 =
 * first public release on wordpress.org
@@ -71,6 +78,9 @@ Otherwise, not yet ;-)
 
 
 == Upgrade Notice ==
+
+= 1.1 =
+A bit more user-friendly with new public api calls...
 
 = 1.0 =
 Want to stay in sync? Install this version!

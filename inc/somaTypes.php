@@ -6,6 +6,7 @@ class somaTypes extends somaticFramework {
 		add_action( 'admin_head', array(__CLASS__, 'custom_type_icons' ) );
 		add_filter( 'wp_nav_menu_items', array(__CLASS__,'custom_type_nav'), 10, 2 );
 		add_filter( 'post_updated_messages', array(__CLASS__,'custom_type_messages') );
+		add_action( 'contextual_help', array(__CLASS__, 'custom_type_help_text'), 10, 3 );
 	}
 
 	//** CUSTOM POST TYPES -----------------------------------------------------------------------------------------------------//
@@ -20,7 +21,12 @@ class somaTypes extends somaticFramework {
 		// push to internal variables for convenience
 		$slug = $data['slug'];
 		$single = $data['single'];
-		$plural = $data['plural'];
+		if (isset($data['plural'])) {
+			$plural = $data['plural'];
+		} else {
+			$plural = $data['single'] . "s";
+		}
+
 
 		// generate labels
 		$labels = array(
@@ -51,12 +57,17 @@ class somaTypes extends somaticFramework {
 			'register_meta_box_cb' => array('somaMetaBoxes','add_boxes'),
 			'labels' => $labels
 		);
+		
+		// use custom menu icon if defined
+		if ( isset( $data['icons'] ) ) {
+			$default_args['menu_icon'] =  $data['icons'] . $slug . '-menu-icon.png';
+		}
 
 		// merge with incoming args
 		$args = wp_parse_args($data['args'], $default_args);
 
 		// create the post-type
-		register_post_type($slug, $args);
+		$result = register_post_type($slug, $args);
 
 		// store cpt data for later
 		self::$type_data[$slug] = $data;
@@ -82,6 +93,7 @@ class somaTypes extends somaticFramework {
 		// custom list columns
 		add_filter("manage_edit-".$slug."_columns", array(__CLASS__,"custom_edit_columns"));
 		add_action("manage_".$slug."_posts_custom_column", array(__CLASS__,'custom_column_data'));
+		return $result;
 	}
 
 
@@ -129,7 +141,11 @@ class somaTypes extends somaticFramework {
 	public function init_taxonomy($data) {
 		$slug = $data['slug'];
 		$single = $data['single'];
-		$plural = $data['plural'];
+		if (isset($data['plural'])) {
+			$plural = $data['plural'];
+		} else {
+			$plural = $data['single'] . "s";
+		}
 		$metabox = isset($data['metabox']) ? $data['metabox'] : true;
 		$types = isset($data['types']) ? $data['types'] : new WP_Error('missing','can\'t declare taxonomy without post types...');
 
@@ -158,14 +174,24 @@ class somaTypes extends somaticFramework {
 		// do it
 		register_taxonomy($slug, $types, $args);
 
-		// then populate with terms - execute only upon theme activation -- WILL THIS WORK??????
-		// $pagenow = $_SERVER['SCRIPT_NAME'];
-		// if ( is_admin() && isset($_GET['activated'] ) && $pagenow == "/wp-admin/themes.php" ) {
-		if (isset($data['terms']) && !empty($data['terms'])) {
-			self::term_generator($slug, $data['terms']);
-		}
-		// }
 
+		// pre-populate included terms - as this public function could be called from external plugins or themes, have to check for both cases and only run once...
+		// really wish we could do this only on register_activation_hook, but can't combine that hook with init hook that this function uses...
+		// maybe in the future could inject register_activation_hook within this function...
+		
+		if ( !empty( $data['terms'] ) ) {
+			global $pagenow;
+			// execute only upon plugin activation -- NOTE this will return true anytime we're activating ANY plugin - still better than executing every page load....
+			if ( is_admin() && $_GET['action'] == "activate" && $pagenow == "plugins.php" ) {
+					self::term_generator($slug, $data['terms']); // populate terms
+			}
+		
+			// execute only upon theme activation -- NOTE this will return true anytime we're activating ANY theme - still better than executing every page load....
+			if ( is_admin() && 'themes.php' == $pagenow && isset( $_GET['activated'] ) ) {
+					self::term_generator($slug, $data['terms']); // populate terms
+			}
+		}
+		
 		// hide metabox on post editor?
 		if ($metabox == false) {
 			// build metabox ID name
@@ -176,8 +202,8 @@ class somaTypes extends somaticFramework {
 			}
 			// remove for each post type
 			foreach ( $types as $type ) {
-				add_action( 'do_meta_boxes', create_function('', "
-					remove_meta_box( $box, $type, 'side' );
+				add_action( 'add_meta_boxes', create_function('', "
+					remove_meta_box( \"$box\", \"$type\", \"side\" );
 				"));
 			}
 		}
@@ -199,18 +225,26 @@ class somaTypes extends somaticFramework {
 
 	//** MISC CUSTOMIZATIONS ------------------------------------------------------------------------------------------------------------------------------------//
 
-	// custom admin menu icons for post types
-	// icon URLs retrieved from $type_data container
+	// inject inline CSS to display custom admin menu icons for custom post types
+	// images should be named "slug-add-icon.png" and be 32x32px and placed in directory defined as "icons" in init_type()
 	function custom_type_icons() {
 		global $pagenow, $post_type;
-		if ( $pagenow == 'post-new.php' && ($post_type != 'post' || $post_type != 'page')) {
-			echo '<style>#wpbody-content .icon32 { background: transparent url("'.self::$type_data[$post_type]['icons']['add_icon'].'") no-repeat; !important }</style>';
+		if ( !array_key_exists( $post_type, self::$type_data ) ) return null;	// check if custom post type has been defined for whatever type we're viewing
+		
+		if ( isset( self::$type_data[$post_type]['icons'] ) ) {					// check if custom icons path has been provided
+			$url = self::$type_data[$post_type]['icons'] . $post_type;
+		} else {
+			return null;
 		}
-		if ( $pagenow == 'post.php' && ($post_type != 'post' || $post_type != 'page')) {
-			echo '<style>#wpbody-content .icon32 { background: transparent url("'.self::$type_data[$post_type]['icons']['edit_icon'].'") no-repeat; !important }</style>';
+		
+		if ( $pagenow == 'post-new.php' ) {
+			echo '<style>#wpbody-content .icon32 { background: transparent url("'. $url .'-add-icon.png") no-repeat; !important }</style>';
 		}
-		if ( $pagenow == 'edit.php' && ($post_type != 'post' || $post_type != 'page')) {
-			echo '<style>#wpbody-content .icon32 { background: transparent url("'.self::$type_data[$post_type]['icons']['list_icon'].'") no-repeat; !important }</style>';
+		if ( $pagenow == 'post.php' ) {
+			echo '<style>#wpbody-content .icon32 { background: transparent url("'. $url .'-edit-icon.png") no-repeat; !important }</style>';
+		}
+		if ( $pagenow == 'edit.php' ) {
+			echo '<style>#wpbody-content .icon32 { background: transparent url("'. $url .'-list-icon.png") no-repeat; !important }</style>';
 		}
 	}
 
@@ -253,6 +287,19 @@ class somaTypes extends somaticFramework {
 	}
 
 
+	// display contextual help for custom post types
+	function custom_type_help_text( $contextual_help, $screen_id, $screen ) { 
+		// $contextual_help .= var_dump( $screen ); // use this to help determine $screen->id
+		if ( array_key_exists( $screen->post_type, self::$type_data ) ) {				// see if a custom post type has been defined for the current screen display
+			if ( isset( self::$type_data[ $screen->post_type ][ 'help' ] ) ) {
+				$contextual_help = self::$type_data[ $screen->post_type ][ 'help' ];
+			}
+		}
+		return $contextual_help;
+	}
+
+
+
 	/**
 	* Kills post types!
 	*
@@ -276,5 +323,6 @@ class somaTypes extends somaticFramework {
 		}
 	}
 }
-
+// INIT
+$somaTypes = new somaTypes();
 ?>
