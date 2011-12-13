@@ -37,7 +37,7 @@ class somaMetaboxes extends somaticFramework {
 	function add_boxes($post) {
 
 		if (empty(self::$data) || !self::$data) {
-			wp_die('missing custom metabox data...', 'Save Error!', array('back_link' => true));
+			wp_die('missing custom metabox data...', 'Load Error!', array('back_link' => true));
 		}
 		
 		// hook for insertion before any box content
@@ -70,7 +70,6 @@ class somaMetaboxes extends somaticFramework {
 
 		foreach ($meta_box['fields'] as $field) {
 			$meta = null;																// reset the value of $meta each loop, otherwise an empty iteration can pass on $meta to the next one
-
 			// get current taxonomy data
 			if ($field['data'] == 'taxonomy') {
 				if (empty($field['options']) && $field['id'] != 'new-'.$field['taxonomy'].'-term' && $field['type'] != 'readonly') {		// the new-term field is going to retrieve empty, but we want to render it anyway. - ALSO, readonly taxonomies don't bother retrieving options
@@ -385,7 +384,7 @@ class somaMetaboxes extends somaticFramework {
 				case 'date':
 
 					// Day Selector
-					if ($meta) { $day = date("j", $meta); }
+					if ($meta) { $day = date("j", strtotime($meta)); }
 					else { $day= 0; }
 
 					echo '<select name="'.$field['id'].'_day" id="'.$field['id'].'_day" class="', $complete ? null : $missing, '" >';
@@ -398,7 +397,7 @@ class somaMetaboxes extends somaticFramework {
 					echo "</select>";
 
 					// Month Selector
-					if ($meta) { $month = date('n', $meta); }
+					if ($meta) { $month = date('n', strtotime($meta)); }
 					else { $month = 0; }
 
 					$monthname = array(1=> "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
@@ -416,11 +415,11 @@ class somaMetaboxes extends somaticFramework {
 
 					// Year	Selector
 
-					if ($meta) { $year = date('Y', $meta); }
+					if ($meta) { $year = date('Y', strtotime($meta)); }
 					else { $year=0; }
 					echo '<select name="'.$field['id'].'_year" id="'.$field['id'].'_year" class="', $complete ? null : $missing, '" >';
 					echo '<option value="">Year</option>';
-					for ( $firstyear = "1950"; $firstyear <= date(Y); $firstyear +=1 ) {
+					for ( $firstyear = "1970"; $firstyear <= date(Y); $firstyear +=1 ) {
 						echo "<option value=\"$firstyear\"";
 						if ($firstyear == $year) { echo ' selected="selected" '; }
 						echo ">$firstyear</option>";

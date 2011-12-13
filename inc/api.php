@@ -23,7 +23,7 @@
  *			[slug]-edit-icon.png  (32x32px)
  *		where "slug" is the exact string you supplied for the slug argument earlier, e.g. product-menu-icon.png
  *
- *
+ * @since 1.1
  * @param array $args
  * @return bool|object False on failure, post type object on success.
  */
@@ -67,8 +67,9 @@ function soma_init_type( $args ) {
  * - 'terms' - array( term => array( slug => 'apple', description => "A yummy fruit" ) ): alternate method to specify slug and description when generating terms for this taxonomy (optional). 
  * - 'args' - array( key => value ): arguments to override default custom post type registration (optional).
  *
+ * @since 1.1
  * @param array $args
- * @return bool|object False on failure, post type object on success.
+ * @return bool|object False on failure, taxonomy object on success.
  */
 function soma_init_taxonomy( $args ) {
 	if ( !did_action('init') )
@@ -119,6 +120,7 @@ function soma_init_taxonomy( $args ) {
  *		)
  *
  *
+ * @since 1.1
  * @param array $args
  * @return bool|WP_Error on failure, True on success.
  */
@@ -128,12 +130,6 @@ function soma_metabox_data( $args ) {
 	
 	if ( empty( $args ) || !is_array( $args) )
 		return new WP_Error("missing","Must pass custom metabox data as array");
-	
-	if ( empty( $args['slug'] ) ) 
-		return new WP_Error("missing","Must provide a slug (as a text string)!");
-		
-	if ( !isset( $args['single'] ) || !is_string( $args['single'] ) )
-		return new WP_Error("missing","Must provide a singular name (as a text string)!");
 	
 	somaMetaboxes::$data[] = $args;
 	return true;

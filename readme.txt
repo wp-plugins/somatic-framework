@@ -11,7 +11,7 @@ Adds useful classes for getting the most out of Wordpress' advanced CMS features
 
 == Description ==
 
-This framework is a collection of classes and functions for handling advanced custom post types cases. With just a few pre-populated arrays, it can create custom post types, their metaboxes, save routines, and any custom taxonomies.
+This framework is a collection of classes and functions for handling advanced custom post types cases. With just a few pre-populated arrays, it can create custom post types, their labels, metaboxes, save routines, and any custom taxonomies.
 
 NOTE: this began life as an internal development tool, and as such, does not have much (if any documentation) just yet. It's not really end-user friendly in its current state. So if you're not running a site I have built for you personally, you probably don't need it ;-)
 
@@ -28,7 +28,15 @@ If you're using a theme or setting up a site I built for you, then very likely, 
 
 Otherwise, not yet ;-)
 
+= I updated my call to soma_init_taxonomy() and added new terms, but why aren't they appearing?
+
+deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
+
 == Changelog ==
+
+= 1.1.1 =
+* bugfix: soma_metabox_data was expecting unecessary array keys
+* bugfix: legacy date selectors couldn't handle mysqldate format
 
 = 1.1 =
 * created public functions in api.php to initialize things like custom post type, taxonomy, terms, and custom metabox data
@@ -43,7 +51,6 @@ Otherwise, not yet ;-)
 = 0.6 =
 * added jPlayer for metaboxes - meta type Audio or Video
 * asset_meta() can be set to serialize or not post_meta via somaMetaboxes::$meta_serialize var (default true), can also be overridden via function params
-* somaTypes::init_type now accepts image path to automatically create icon references (type-list-icon.png, type-edit-icon.png, type-menu-icon.png)
 * somaMetaboxes::$meta_prefix var for themes to override
 * added arg to init_taxonomy to automatically hide metaboxes on custom taxonomies
 
@@ -55,7 +62,7 @@ Otherwise, not yet ;-)
 * added jqueryUI datepicker and timepicker
 
 = 0.4 =
-* added "help" metabox field type, displaying the text across both columns
+* added "help" metabox field type, displaying the text across both table columns
 * fixed ridiculous metabox field table layout issues
 * fixed saving of incomplete "date" fields
 * included soma-admin-jquery.js
