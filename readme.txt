@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com.com/code
 Requires at least: 3.2
 Tested up to: 3.3
-Stable tag: 1.1
+Stable tag: 1.1.1
 License: GPLv2 or later
 
 Adds useful classes for getting the most out of Wordpress' advanced CMS features
@@ -86,6 +86,9 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Nasty bugs squashed!
 
 = 1.1 =
 A bit more user-friendly with new public api calls...
