@@ -641,37 +641,77 @@ class somaFunctions extends somaticFramework {
 
 		// some attachment successfully found
 		if ($att_id) {
-			$att_meta = wp_get_attachment_metadata($att_id); // get metadata of attachment
-			// have to build the paths from the base media upload dir and the subdir set when the image was uploaded (by type and author)
-			$media_path = WP_MEDIA_DIR . $att_meta['subdir'] . '/' ;
-			$media_url = WP_MEDIA_URL . $att_meta['subdir'] . '/' ;
+			$att_meta = wp_get_attachment_metadata($att_id); 		// get metadata of attachment
+			if ( !empty( $att_meta['subdir'] ) ) {					// the original SMAM system generates this custom attachment meta when it created upload directories based on type/author. If it exists, use it
+				$subdir = $att_meta['subdir'] . '/';
+			}
+			$dirname = dirname( $att_meta['file'] );				// when "Organize my uploads into month- and year-based folders" is turned on, the date subfolder is stored in file path
+			if ( $dirname == "." ) {	// no subdirectory path is needed
+				$subdir = "/";
+			} else {
+				$subdir = '/'. dirname($att_meta['file']) . '/';
+			}
+			// build the paths from the base media upload dir and the subdir
+			$media_path = WP_MEDIA_DIR . $subdir;
+			$media_url = WP_MEDIA_URL . $subdir;
+
 			// NEW ARRAY
 			$img['id'] = $att_id;
-			$img['icon']['file'] 	= 	$att_meta['sizes']['post-thumbnail']['file'];
-			$img['icon']['url'] 	= 	$media_url . $img['icon']['file'];
-			$img['icon']['path'] 	= 	$media_path . $img['icon']['file'];
-			$img['thumb']['file'] 	= 	$att_meta['sizes']['thumbnail']['file'];
-			$img['thumb']['height'] = 	$att_meta['sizes']['thumbnail']['height'];
-			$img['thumb']['width'] 	= 	$att_meta['sizes']['thumbnail']['width'];
-			$img['thumb']['url'] 	= 	$media_url . $img['thumb']['file'];
-			$img['thumb']['path'] 	= 	$media_path . $img['thumb']['file'];
-			$img['medium']['file'] 	= 	$att_meta['sizes']['medium']['file'];
-			$img['medium']['url'] 	= 	$media_url . $img['medium']['file'];
-			$img['medium']['path']	= 	$media_path . $img['medium']['file'];
-			$img['large']['file'] 	= 	$att_meta['sizes']['large']['file'];
-			$img['large']['url'] 	= 	$media_url . $img['large']['file'];
-			$img['large']['path'] 	= 	$media_path . $img['large']['file'];
-			$img['full']['file'] 	= 	basename($att_meta['file']);	// $att_meta['file'] contains the entire server path, so extract just the name
-			$img['full']['url'] 	= 	$media_url . $img['full']['file'];
-			$img['full']['path'] 	= 	$media_path . $img['full']['file'];
-			$img['full']['height'] 	= 	$att_meta['height'];
-			$img['full']['width'] 	= 	$att_meta['width'];
+
+			// 'sizes' key will only exist if the uploaded image was equal or larger than the site option for thumbnail size
+			if ( isset( $att_meta['sizes'] ) ) {						
+				$img['icon']['file'] 	= 	$att_meta['sizes']['post-thumbnail']['file'];
+				$img['icon']['url'] 	= 	$media_url . $img['icon']['file'];
+				$img['icon']['path'] 	= 	$media_path . $img['icon']['file'];
+				// check if each size exists (which it won't if uploaded file was smaller than options sizes)
+				if ( isset($att_meta['sizes']['thumbnail'])) {
+					$img['thumb']['file'] 	= 	$att_meta['sizes']['thumbnail']['file'];
+					$img['thumb']['height'] = 	$att_meta['sizes']['thumbnail']['height'];
+					$img['thumb']['width'] 	= 	$att_meta['sizes']['thumbnail']['width'];
+					$img['thumb']['url'] 	= 	$media_url . $img['thumb']['file'];
+					$img['thumb']['path'] 	= 	$media_path . $img['thumb']['file'];
+				}
+				if ( isset($att_meta['sizes']['medium'])) {
+					$img['medium']['file'] 	= 	$att_meta['sizes']['medium']['file'];
+					$img['medium']['url'] 	= 	$media_url . $img['medium']['file'];
+					$img['medium']['path']	= 	$media_path . $img['medium']['file'];
+				}
+				if ( isset($att_meta['sizes']['large'])) {
+					$img['large']['file'] 	= 	$att_meta['sizes']['large']['file'];
+					$img['large']['url'] 	= 	$media_url . $img['large']['file'];
+					$img['large']['path'] 	= 	$media_path . $img['large']['file'];
+				}
+				$img['full']['file'] 	= 	basename($att_meta['file']);	// $att_meta['file'] contains the entire server path, so extract just the name
+				$img['full']['url'] 	= 	$media_url . $img['full']['file'];
+				$img['full']['path'] 	= 	$media_path . $img['full']['file'];
+				$img['full']['height'] 	= 	$att_meta['height'];
+				$img['full']['width'] 	= 	$att_meta['width'];
+				$img['loc']['path'] 	= 	$media_path;
+				$img['loc']['url']		= 	$media_url;
+			
+			// populate thumb data with the direct file info, as the uploaded image was smaller or equal to the site option for thumbnail size. Yes, the thumb and the full img info are the same in this case...
+			} else {														
+				$img['thumb']['file'] 	= 	basename($att_meta['file']);
+				$img['thumb']['height'] = 	$att_meta['height'];
+				$img['thumb']['width'] 	= 	$att_meta['width'];
+				$img['thumb']['url'] 	= 	WP_MEDIA_URL . '/'. $att_meta['file']; 	// don't include subdir when building paths, as we're taking path directly from 'file', which already includes it...
+				$img['thumb']['path'] 	= 	WP_MEDIA_DIR . '/'. $att_meta['file'];
+				$img['full']['file'] 	= 	basename($att_meta['file']);
+				$img['full']['url'] 	= 	WP_MEDIA_URL . '/'. $att_meta['file'];
+				$img['full']['path'] 	= 	WP_MEDIA_DIR . '/'. $att_meta['file'];
+				$img['full']['height'] 	= 	$att_meta['height'];
+				$img['full']['width'] 	= 	$att_meta['width'];
+				$img['loc']['path'] 	= 	WP_MEDIA_DIR;
+				$img['loc']['url']		= 	WP_MEDIA_URL;
+				
+				//** FUTURE NOTE: might be good when there isn't a medium or large version of the image to default to some kind of "missing" image that actually says "image was too small"
+			}
+
 			$img['mime']			= 	get_post_mime_type($att_id);	// mime-type of file
-			$img['loc']['path'] 	= 	$media_path;
-			$img['loc']['url']		= 	$media_url;
 			$img['orientation']		= 	$att_meta['orientation'];
 			$img['original']		= 	$att_meta['original'];
-			$img['date']		= 	get_the_date('M j, Y',$att_id) ." - ". get_the_time('h:iA',$att_id); 	// date attachment was created
+			$img['date']			= 	get_the_date('M j, Y',$att_id) ." - ". get_the_time('h:iA',$att_id); 	// date attachment was created
+			
 		} else {
 		// nothing found, return error image
 			$img['id'] = false;
@@ -683,7 +723,6 @@ class somaFunctions extends somaticFramework {
 			$img['file']['path'] = SOMA_DIR . 'images/missing-image-large.png';
 			$img['file']['file'] = 'missing-image-large.png';
 		}
-
 		// // output each item as full html <img> item
 		// if ($html) {
 		// 	foreach ($img as &$image){ // adding the "&" modfies each array element rather than copying out

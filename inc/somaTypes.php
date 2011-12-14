@@ -122,16 +122,10 @@ class somaTypes extends somaticFramework {
 					$output = "<a href=\"$edit\"><img src=\"{$img['thumb']['url']}\" /></a>";
 					echo $output;
 				break;
-				case "artists":
-					echo somaFunctions::fetch_the_term_list( $post->ID, 'artists','',', ');
-				break;
-				case "albums":
-					echo somaFunctions::fetch_the_term_list( $post->ID, 'albums','',', ');
-				break;
-				case "genres":
-					echo somaFunctions::fetch_the_term_list( $post->ID, 'genres','',', ');
-				break;
-
+				// EXAMPLE of listing taxonomy terms
+				// case "artists":
+				// 	echo somaFunctions::fetch_the_term_list( $post->ID, 'artists','',', ');
+				// break;
 			}
 		}
 	}

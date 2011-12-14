@@ -37,6 +37,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 = 1.1.1 =
 * bugfix: soma_metabox_data was expecting unecessary array keys
 * bugfix: legacy date selectors couldn't handle mysqldate format
+* bugfix: somaFunctions::fetch_featured_image() couldn't handle when wp uploads were organized in year-month folders. Also couldn't handle when all the sizes (thumb, medium, full) didn't exist... ugh...
 
 = 1.1 =
 * created public functions in api.php to initialize things like custom post type, taxonomy, terms, and custom metabox data
