@@ -28,7 +28,7 @@ If you're using a theme or setting up a site I built for you, then very likely, 
 
 Otherwise, not yet ;-)
 
-= I updated my call to soma_init_taxonomy() and added new terms, but why aren't they appearing?
+= I updated my call to soma_init_taxonomy() and added new terms, but why aren't they appearing? =
 
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
