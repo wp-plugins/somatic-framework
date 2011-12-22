@@ -35,26 +35,21 @@ class somaDownload extends somaticFramework {
 		if (isset( $_GET['batch'] ) ) {
 			// init item array
 			$items = array();
-			if (function_exists('p2p_get_connected')) {
-				// use wp_query method for p2p as it will show all post statuses (get_posts only shows one)
-				$children = get_posts( array(
-					'suppress_filters' => false,
-					'post_type' => 'any',
-					'post_status' => 'any',
-					'connected_from' => intval($_GET['batch']),
-					'numberposts' => -1	// needed to return all posts, not just the first 5
-				) );
-				// extract just the queried posts ID
-				foreach ($children as $child) {
-					$items[] = $child->ID;
-				}
-				// remove duplicates
-				$items = array_unique($items);
-				if (!$items || empty($items)) {
-					wp_die('no items matched the download request!');
-				}
-			} else {
-				wp_die('missing P2P functions - please enable the plugin');
+			$children = get_posts( array(
+				'suppress_filters' => false,
+				'post_type' => 'any',
+				'post_status' => 'any',
+				'connected_from' => intval($_GET['batch']),
+				'numberposts' => -1	// needed to return all posts, not just the first 5
+			) );
+			// extract just the queried posts ID
+			foreach ($children as $child) {
+				$items[] = $child->ID;
+			}
+			// remove duplicates
+			$items = array_unique($items);
+			if (!$items || empty($items)) {
+				wp_die('no items matched the download request!');
 			}
 		//-- package request
 		} else if (isset( $_GET['package'] ) ) {

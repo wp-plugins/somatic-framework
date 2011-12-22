@@ -34,6 +34,9 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.2 =
+* added listings for public custom post types and taxonomies to the Right Now dashboard widget
+
 = 1.1.1 =
 * bugfix: soma_metabox_data was expecting unecessary array keys
 * bugfix: legacy date selectors couldn't handle mysqldate format
