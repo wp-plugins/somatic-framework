@@ -419,7 +419,7 @@ class somaMetaboxes extends somaticFramework {
 					else { $year=0; }
 					echo '<select name="'.$field['id'].'_year" id="'.$field['id'].'_year" class="', $complete ? null : $missing, '" >';
 					echo '<option value="">Year</option>';
-					for ( $firstyear = "1970"; $firstyear <= date(Y); $firstyear +=1 ) {
+					for ( $firstyear = "1970"; $firstyear <= date(Y)+10; $firstyear +=1 ) {
 						echo "<option value=\"$firstyear\"";
 						if ($firstyear == $year) { echo ' selected="selected" '; }
 						echo ">$firstyear</option>";

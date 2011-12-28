@@ -36,6 +36,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 = 1.2 =
 * added listings for public custom post types and taxonomies to the Right Now dashboard widget
+* added ability to pick future years (+10) in the basic date picker
 
 = 1.1.1 =
 * bugfix: soma_metabox_data was expecting unecessary array keys
