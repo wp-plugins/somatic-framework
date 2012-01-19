@@ -1,4 +1,5 @@
-/* @override http://baruch.somaticstudios.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.0 */
+/* @override http://baruch.somaticstudios.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.0
+	http://wp.mises.net/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.0 */
 
 /* clicker button */
 
@@ -56,15 +57,35 @@
 
 /* metabox fields */
 
+#poststuff tr.fieldrow {
+	border-top: 1px dotted #ddd;
+}
+
+#poststuff .form-table tr:first-child {
+	border-top: none;
+}
+
 #poststuff td.field-label {
-	min-width: 40px;
+	min-width: 50px;
 	width: 20%;
 	vertical-align: top;
+	font-weight: bold;
+	padding-bottom: 20px;
 }
 
 #poststuff td.field-data {
 	min-width: 200px;
 	width: 80%;
+
+}
+
+#poststuff td.field-desc {
+	padding-top: 0;
+	padding-bottom: 10px;
+	color: #acacac;
+	font-style: italic;
+	line-height: 10px;
+	padding-bottom: 20px;
 }
 
 #poststuff td.field-data input[type='text'],
@@ -73,7 +94,7 @@
 }
 
 #poststuff td.field-data input[alt='numeric'] {
-	width: 100px;
+	width: 110px;
 }
 
 #poststuff td.field-save {
@@ -83,13 +104,6 @@
 #poststuff p.help {
 	margin: 0;
 	color: #999;
-}
-
-#poststuff td.field-desc {
-	padding-top: 0;
-	color: #999;
-	font-style: italic;
-	line-height: 10px;
 }
 
 /* missing data highlighting */
@@ -112,15 +126,21 @@ label.missing {
 
 input[type='text'],
 textarea {
-	background: #efefef;
+
 }
+
 textarea {
 	width: 100%;
 }
 
-/* fix weird absolute positioning */
-#footer{
-	position:inherit;
+/* force tinymce visual editor background color */
+.mceLayout {
+	background: #fff;
+}
+
+/* edit.php column styles */
+.wp-list-table .column-thumb {
+	width: 134px;
 }
 
 /* attachments metabox display */

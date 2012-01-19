@@ -168,7 +168,7 @@ class somaSave extends somaticFramework {
 				foreach ($meta_box['fields'] as $field) {
 
 					// readonly fields - skip saving completely. also skip the post_content editor, as it saves itself...
-					if ($field['type'] == 'readonly' || $field['type'] == 'posts' || $field['type'] == 'editor' || $field['type'] == 'help' ) {
+					if ($field['type'] == 'readonly' || $field['type'] == 'posts' || $field['type'] == 'help' ) {
 						continue;
 					}
 					
@@ -358,12 +358,12 @@ class somaSave extends somaticFramework {
 							somaFunctions::asset_meta('save', $pid, $field['id'], $new);
 						}
 
-						if ($field['data'] == 'user' && $field['type'] != 'readonly') {
+						if ($field['data'] == 'user') {
 							$wpdb->update( $wpdb->posts, array( $field['id'] => $new ), array( 'ID' => $pid ));
 						}
 
-						if ($field['data'] == 'core' && $field['type'] != 'readonly') {
-							if ($field['type'] == "richtext") {
+						if ($field['data'] == 'core') {
+							if ($field['type'] == "richtext" || $field['type'] == "textarea") {
 								$new = stripslashes($new);									// because tinymce adds them.... even though we're using the_editor()...
 							}
 							$wpdb->update( $wpdb->posts, array( $field['id'] => $new ), array( 'ID' => $pid ));

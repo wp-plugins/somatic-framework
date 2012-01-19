@@ -128,6 +128,7 @@ class somaTypes extends somaticFramework {
 				// 	echo somaFunctions::fetch_the_term_list( $post->ID, 'artists','',', ');
 				// break;
 			}
+			do_action('soma_column_data', $column, $post);
 		}
 	}
 

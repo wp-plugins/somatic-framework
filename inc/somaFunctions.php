@@ -299,25 +299,38 @@ class somaFunctions extends somaticFramework {
 	//** for retrieving p2p connected posts
 	// can output count, array of post objects, list of html links, list of text, a table of links, or select dropdown input values
 	// note - modifies the URL output if inside wp-admin to stay in admin and to link to the edit post listing screen rather than the post permalink
+	// $pid = can be single integer or array of post ID's
+	// $p2pname = the name of the connection you made with "p2p_register_connection_type"
+	// $dir = connection direction (to, from, any)
+	// $output = how to format the return data
 
-	function fetch_connected_items( $pid = 0, $type, $dir = 'to', $output = 'html', $sep = ", " ) {
-		if (!function_exists('p2p_get_connected')) return false;	// make sure plugin is enabled
+	function fetch_connected_items( $pid = 0, $p2pname, $dir = 'any', $output = 'html', $sep = ", " ) {
+		if (!function_exists('p2p_register_connection_type')) return 'No P2P plugin!';		// make sure plugin is enabled
 
+		// https://github.com/scribu/wp-posts-to-posts/wiki/Query-vars
+
+		$args = array( 'connected_type' => $p2pname );
+		switch( $dir ) {
+			case "to" :
+				$args['connected_to'] = $pid;
+			break;
+			case "from" :
+				$args['connected_from'] = $pid;
+			break;
+			default :
+				$args['connected_items'] = $pid;	// this passes "any" for direction
+			break;
+		}
+		
+		if ($meta_key && $meta_value) {
+			$args['connected_meta'] = array(
+				$meta_key => $meta_value
+			);
+		}
+		
+		$query = new WP_Query( $args );
 		$items = array();
-		$args = array(
-			'suppress_filters' => false,
-			'post_type' => $type,
-			'post_status' => 'any',
-			'connected_'.$dir => $pid,
-			'nopaging' => true,
-			'posts_per_page' => -1
-		);
-		$items = get_posts( $args );
-
-		// // use wp_query method for p2p as it will show all post statuses (get_posts only shows one)
-		// $items = new WP_Query( $args );
-		// // extract just the queried posts
-		// $items = $items->posts;
+		$items = $query->posts;
 
 		if ( is_wp_error( $items ) )
 			return $items->get_error_message();;

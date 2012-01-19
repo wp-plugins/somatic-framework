@@ -197,6 +197,14 @@ class somaticFramework {
 			new somaDownload($wp->query_vars['download']);
 		}
 	}
+	
+	function get_plugin_version() {
+		if ( ! function_exists( 'get_plugins' ) )
+			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		$plugin_folder = get_plugins( '/' . plugin_basename( dirname( __FILE__ ) ) );
+		$plugin_file = basename( ( __FILE__ ) );
+		return $plugin_folder[$plugin_file]['Version'];
+	}
 
 }
 // end somaticFramework class /////////////////////////////////////

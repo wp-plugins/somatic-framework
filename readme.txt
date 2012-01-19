@@ -2,9 +2,9 @@
 Contributors: somatic
 Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com.com/code
-Requires at least: 3.2
+Requires at least: 3.3
 Tested up to: 3.3
-Stable tag: 1.2
+Stable tag: 1.2.1
 License: GPLv2 or later
 
 Adds useful classes for getting the most out of Wordpress' advanced CMS features
@@ -33,6 +33,17 @@ Otherwise, not yet ;-)
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.2.1 =
+* revised somaFunctions::fetch_connected_items() to handle p2p plugin evolution
+* note: must pass the p2p type ID and *not* the post_type anymore! revise all calls to fetch_connected_items()!
+* When passing "p2p" field data with soma_metabox_data(), you must also pass "p2pname" for the unique registered p2p connection ID and "type" (p2p-list or p2p-thumb) for output
+* cleaned up save routines, stripslashes bugs
+* metabox type "richtext" now uses the new WP3.3 wp_editor() function (multiple rich editors possible, yay!)
+* new metabox type "html" uses the new WP3.3 wp_editor() function, but without the visual editor
+* metabox type "editor" removed - use "richtext" instead with ID of "post_content" and data of "core" if you're trying to replace the core post editor (just make sure to NOT include "editor" in the post type support!)
+* some css tweaks in the editor to keep up with WP3.3
+* added action hook "soma_column_data" to inject custom post type column data output
 
 = 1.2 =
 * added listings for public custom post types and taxonomies to the Right Now dashboard widget

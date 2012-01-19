@@ -132,10 +132,10 @@ class somaMetaboxes extends somaticFramework {
 			// get connected posts by types and direction
 			if ($field['data'] == 'p2p') {
 				if ($field['type'] == 'p2p-thumbs') {
-					$meta = somaFunctions::fetch_connected_items( $post->ID, $field['post_type'], $field['dir'], $output = 'objects');
+					$meta = somaFunctions::fetch_connected_items( $post->ID, $field['p2pname'], $field['dir'], $output = 'objects');
 				}
 				if ($field['type'] == 'p2p-list') {
-					$meta = somaFunctions::fetch_connected_items( $post->ID, $field['post_type'], $field['dir'], $output = 'html');
+					$meta = somaFunctions::fetch_connected_items( $post->ID, $field['p2pname'], $field['dir'], $output = 'html');
 				}
 				// if no connections exist, skip rendering this line
 				if (!$meta) {
@@ -204,18 +204,16 @@ class somaMetaboxes extends somaticFramework {
 				$field['desc'] = '';
 			}
 
-			// begin building table row
-			echo '<tr id="'.$field['id'].'-row">';
-
 			// include column for field name if included
 			if ($field['name']) {
+				echo '<tr id="'.$field['id'].'-row" class="fieldrow">';		// begin building table row (with class to allow border)
 				echo '<td class="field-label"><label for="', $field['id'], '" class="', $complete ? null : $missing, '" >', $field['name'], '</label></td>';
 				echo '<td class="field-data">';
 			} else {
+				echo '<tr id="'.$field['id'].'-row">';						// begin building table row
 				// no name given, so span both columns
 				echo '<td colspan="2">';
 			}
-
 
 			// build each field content by type
 			switch ($field['type']) {
@@ -236,6 +234,28 @@ class somaMetaboxes extends somaticFramework {
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'textarea':
 					echo '<textarea name="', $field['id'], '" id="', $field['id'], '" cols="60" rows="5" class="meta-textarea', $complete ? null : $missing, '" >', $meta ? $meta : $field['default'], '</textarea>';
+					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
+				break;
+				// ----------------------------------------------------------------------------------------------------------------------------- //
+				// custom richtext/HTML editor  http://codex.wordpress.org/Function_Reference/wp_editor
+				case 'richtext':
+					$args = array();
+					if (!empty($field['rows'])) {
+						$args['textarea_rows'] = intval($field['rows']);		// override system defaults for visual editor rows
+					}
+					wp_editor( $meta, $field['id'], $args );					// Note that the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction.
+					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
+				break;
+				// ----------------------------------------------------------------------------------------------------------------------------- //
+				// HTML only editor
+				case 'html':
+					$args = array();
+					if (!empty($field['rows'])) {
+						$args['textarea_rows'] = intval($field['rows']);		// override system defaults for visual editor rows
+					}
+					$args['tinymce'] = false;									// disable visual editor tab
+					$args['media_buttons'] = false;								// hide media upload buttons
+					wp_editor( $meta, $field['id'], $args );					// Note that the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction.
 					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
@@ -569,7 +589,7 @@ class somaMetaboxes extends somaticFramework {
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// displaying related posts as link list
 				case 'p2p-list':
-					if ($meta) {
+					if (!empty($meta)) {
 						echo '<strong>', $meta ? $meta : $field['default'], '</strong>';
 						echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 					} else { // if no relations
@@ -577,26 +597,6 @@ class somaMetaboxes extends somaticFramework {
 					}
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
-				// inject our own custom tinymce
-				case 'richtext':
-				// method #1
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] . "<br/>" : null;
-					echo '<a role="button" id="post_content_wp_adv" href="javascript:;" class="mceButton mceButtonEnabled mce_wp_adv" onmousedown="return false;" onclick="return false;" title="Show/Hide Kitchen Sink (Alt+Shift+Z)" tabindex="-1"><span class="mceIcon mce_wp_adv"></span>Display</span></a> advanced formatting options</p>'; // cloned from the tinymce button, so the normal kitchen sink button doesn't work now
-					the_editor($meta, $field['id'], '', false);
-
-				// method #2
-					// echo '<textarea name="', $field['id'], '" id="', $field['id'], '" class="theEditor">', $meta ? $meta : $field['default'], '</textarea>';
-					// add_action( 'admin_print_footer_scripts', 'wp_tiny_mce', 25 );
-				break;
-				// ----------------------------------------------------------------------------------------------------------------------------- //
-				// using the core editor ONLY for post_content
-				case 'editor':
-					echo "<div id=\"", user_can_richedit() ? "postdivrich" : "postdiv" , " class=\"postarea\">";
-					the_editor($post->post_content);
-					echo "</div>";
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
-				break;
-
 				case 'media':
 
 					// add_action( 'admin_print_footer_scripts', create_function('', 'wp_enqueue_script( "jplayer" );') );
