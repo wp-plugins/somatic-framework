@@ -297,7 +297,7 @@ function soma_asset_meta( $action = null, $pid = null, $key = null, $value = nul
  * @return string - just the url of the specified $size
  */
 
-function soma_fetch_featured_image( $pid = null, $size = null) {
+function soma_featured_image( $pid = null, $size = null) {
 	if (!$pid) {
 		return new WP_Error('missing', "must pass a post ID argument!");
 	}
