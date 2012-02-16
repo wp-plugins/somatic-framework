@@ -100,8 +100,8 @@ class somaticFramework {
 		wp_register_script( 'colorbox', SOMA_JS.'colorbox/jquery.colorbox-min.js', array('jquery'), '1.3.8' );
 		
 		// jquery UI
-		wp_register_style('jquery-ui-theme', SOMA_JS. '/ui/smoothness/jquery-ui-1.8.13.custom.css', false, '1.8.13');
-		wp_register_script('jquery-ui-datepicker', SOMA_JS.'/ui/jquery.ui.datepicker.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
+		wp_register_style('jquery-ui-theme', SOMA_JS. '/ui/smoothness/jquery-ui-1.8.17.custom.css', false, '1.8.17');
+		wp_register_script('jquery-ui-datepicker', SOMA_JS.'/ui/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
 		
 		// jplayer register
 		wp_register_script( 'jplayer', SOMA_JS.'jquery.jplayer.min.js', array('jquery'), '2.1', false);
