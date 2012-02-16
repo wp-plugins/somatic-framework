@@ -41,7 +41,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * the default post meta key name prefix is "_soma" (what you give as the ID for a metabox field is added to it). If you want a custom prefix, you need to set the option 'soma_meta_prefix' to "_YOUR_PREFIX"
 * admin type sorting page rows fit content better
 * new API function: soma_asset_meta() for manipulating post_meta (abstracts the core functions to better handle serialization cases)
-* new API function: soma_fetch_featured_image() for retrieving everything you could possibly need to know about the featured image (post thumbnail)
+* new API function: soma_featured_image() for retrieving everything you could possibly need to know about the featured image (post thumbnail)
 * in edit listing columns, the checkbox column is always included now, so don't need to pass it in soma_init_type column array
 * fixed a query parsing filter that was forcing everything to order by menu_order ASC, no matter what...
 * had forgotten to actually enqueue jquery UI datepicker and slider js and css this whole time <facepalm>
