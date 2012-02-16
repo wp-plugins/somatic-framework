@@ -2,6 +2,7 @@
 class somaMetaboxes extends somaticFramework {
 
 	function __construct() {
+		add_action( 'init', array(__CLASS__,'init' ) );
 		add_action( 'post_edit_form_tag' , array(__CLASS__,'post_edit_form_tag' ) );
 		add_action( 'admin_print_styles-post.php', array(__CLASS__, 'jplayer_styles') );
 		add_action( 'admin_print_scripts-post.php', array(__CLASS__, 'jplayer_scripts') );
@@ -27,11 +28,10 @@ class somaMetaboxes extends somaticFramework {
 	// 	wp_tiny_mce( false ); // true gives you a stripped down version of the editor
 	// }
 
-	//*****  vars for passing data to somatic framework ********//
 	static $data = array();				// container for other plugins and themes to store custom metabox and field data
-	static $meta_serialize = true;		// whether we will store post_meta in serialized array (default), or as flat keys (wp default)
-	static $meta_prefix = '_soma_';		// prefix to create name key name of serialized post_meta
-	//*****
+	
+	function init() {
+	}
 
 	// called in the custom post type registration, responsible for rendering metaboxes in those types
 	function add_boxes($post) {
@@ -451,13 +451,14 @@ class somaMetaboxes extends somaticFramework {
 				// (jqueryUI inputs)
 				case 'datepicker':
 					if ($meta) {
-						$human = date("l, F d, Y", strtotime($meta));	// human readable output
+						$human = date("F d, Y", strtotime($meta));	// human readable output
 					} else {
 						$human = "(none selected)"; 		// default value for altField
 					}
 					// hidden input that actually holds the data from the jqueryUI picker -- allows us to display a human-readable version in the mirror field
 					echo '<input type="hidden" class="datepicker" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $meta : $field['default'], '" >';
 					echo '<input type="text" class="datemirror', $complete ? null : $missing, '" readonly="readonly" value="', $human, '"/>';
+					echo '<div class="datereset"></div>';
 					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //

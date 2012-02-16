@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.2
+Version: 1.3
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -92,7 +92,7 @@ class somaticFramework {
 		// wp_register_script('jquery-ui-core', 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js', false, '1.8.13');
 
 		// framework scripts and styles
-		wp_register_script('soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.0', true);
+		wp_register_script('soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.1', true);
 		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.0', 'all' );
 
 		// jquery plugin lightbox functionality
@@ -101,6 +101,7 @@ class somaticFramework {
 		
 		// jquery UI
 		wp_register_style('jquery-ui-theme', SOMA_JS. '/ui/smoothness/jquery-ui-1.8.13.custom.css', false, '1.8.13');
+		wp_register_script('jquery-ui-datepicker', SOMA_JS.'/ui/jquery.ui.datepicker.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
 		
 		// jplayer register
 		wp_register_script( 'jplayer', SOMA_JS.'jquery.jplayer.min.js', array('jquery'), '2.1', false);
@@ -142,11 +143,13 @@ class somaticFramework {
 	function admin_print_styles() {
 		wp_enqueue_style( 'soma-admin' );
 		wp_enqueue_style( 'colorbox-theme' );
+		wp_enqueue_style( 'jquery-ui-theme' );
 	}
 
 	function admin_print_scripts() {
 		wp_enqueue_script( 'soma-admin-jquery' );
 		wp_enqueue_script( 'colorbox' );
+		wp_enqueue_script( 'jquery-ui-datepicker' );
 	}
 
 	function init() {
@@ -172,9 +175,18 @@ class somaticFramework {
 
 	function activate() {
 		flush_rewrite_rules();
+		// check if option has already been set, perhaps by a plugin that uses somaframework
+		if (get_option('soma_meta_serialize') === false) {
+			update_option('soma_meta_serialize', false);
+		}
+		if (get_option('soma_meta_prefix') === false) {
+			update_option('soma_meta_prefix', '_soma');
+		}
 	}
 
 	function deactivate() {
+		delete_option('soma_meta_serialize');
+		delete_option('soma_meta_prefix');
 	}
 
 	function change_wp_login_url() {

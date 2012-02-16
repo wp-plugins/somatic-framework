@@ -589,7 +589,7 @@ class somaFunctions extends somaticFramework {
 	function filter_current_query($query) {
 		global $pagenow;
 		// sort edit lists by newest on top (default wp behavior is asc by post title)
-		if ($query->is_admin && $pagenow == 'edit.php' && !isset($_GET['sortby']) && !$query->query_vars['suppress_filters'])  {
+		if ($query->is_admin && $pagenow == 'edit.php' && !isset($_GET['orderby']) && !$query->query_vars['suppress_filters'])  {
 			$query->query_vars['orderby'] = 'date';
 			$query->query_vars['order'] = 'desc';
 		}
@@ -625,8 +625,8 @@ class somaFunctions extends somaticFramework {
     }
 
 	//** retrieves featured image of a post and returns array of intermediate sizes, paths, urls ----------------------------------------------------------------------------------//
-	public function fetch_featured_image($pid = '0', $specific='') {
-		if ($pid == '0') {
+	public function fetch_featured_image($pid = null, $specific = null) {
+		if (!$pid) {
 			return new WP_Error('missing', "must pass a post ID argument!");
 		}
 
@@ -743,7 +743,7 @@ class somaFunctions extends somaticFramework {
 		// 	}
 		// }
 		// return just the requested string
-		if ($specific != '') {
+		if ($specific != null) {
 			if ($specific == 'filename') return $img['full']['file'];
 			return $img[$specific]['url'];
 		} else {
@@ -755,14 +755,13 @@ class somaFunctions extends somaticFramework {
 	// handles saving and retrieving post_meta via serialized arrays
 	public function asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null ) {
 		if ( $serialize === null ) {
-			$serialize = somaMetaboxes::$meta_serialize;		// use default var if not passed in params
+			$serialize = get_option('soma_meta_serialize');		// use default var if not passed in params
 		}
 		if ( $serialize ) {
-			$meta_key = somaMetaboxes::$meta_prefix . "asset_meta";
+			$meta_key =  get_option('soma_meta_prefix') . "_asset_meta";
 		} else {
-			$meta_key = $key;
+			$meta_key = get_option('soma_meta_prefix') . "_" . $key;
 		}
-
 
 		if ( !$pid || !$action ) {
 			return new WP_Error('missing', "Must pass ID and action...");

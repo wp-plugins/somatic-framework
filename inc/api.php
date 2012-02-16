@@ -252,3 +252,54 @@ function soma_select_generic($items) {
 	}
 	return $list;
 }
+
+
+/**
+ * Manipulate the post_meta of a given post ID
+ *
+ * Multi-tool for getting, creating, changing, or deleting the post_meta
+ *
+ * built to abstract the core functions 'get_post_meta' and 'update_post_meta' and add new functionality (such as handling serialization of the post_meta).
+ * http://codex.wordpress.org/Function_Reference/get_post_meta
+ * http://codex.wordpress.org/Function_Reference/update_post_meta
+ *
+ * Takes the following parameters
+ *
+ * - 'action' - string ["save", "get", "delete"]: what to do (required).
+ * - 'pid' - integer/string: the post ID to be manipulated (required).
+ * - 'key' - string: name of the post_meta key to work on (required).
+ * - 'value' - string/array: what to save to this post_meta key (optional, unless saving).
+ * - 'serialize' - boolean: override the global option for serializing the data (optional)
+ *
+ * @since 1.3
+ * @param $action
+ * @return bool True on success, False on failure (when action = 'save')
+ * @return value of the post_meta key requested (when action = 'get')
+ */ 
+
+function soma_asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null ) {
+			
+	if ( !$pid || !$action ) {
+		return new WP_Error('missing', "Must pass ID and action...");
+	}
+	
+	return somaFunctions::asset_meta( $action, $pid, $key, $value, $serialize );
+}
+
+/**
+ * Retrieves featured image of a post and returns array of intermediate sizes, paths, urls
+ * or if missing, returns image data for a "missing" placeholder
+ *
+ * @since 1.3
+ * @param $pid - (string/integer) post ID to get the featured image of (required)
+ * @param $size - (string) [icon,thumb,medium,large,full] (optional)
+ * @return array - tons of data
+ * @return string - just the url of the specified $size
+ */
+
+function soma_fetch_featured_image( $pid = null, $size = null) {
+	if (!$pid) {
+		return new WP_Error('missing', "must pass a post ID argument!");
+	}
+	return somaFunctions::fetch_featured_image($pid, $size);
+}

@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com.com/code
 Requires at least: 3.3
 Tested up to: 3.3
-Stable tag: 1.2.1
+Stable tag: 1.3
 License: GPLv2 or later
 
 Adds useful classes for getting the most out of Wordpress' advanced CMS features
@@ -34,9 +34,22 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.3 =
+* added 'navbar' argument to soma_init_type to choose whether to display a nav menu item to the primary navbar for custom post types [default: true]
+* added 'sortable' argument to soma_init_type to choose whether to make items manually sortable (instead of automatically sorting by date) [default: false]
+* post meta keys are now stored individually by default. If you want to store all metadata per post as a serialized array in a single key, you need to set the option 'soma_meta_serialize' to true
+* the default post meta key name prefix is "_soma" (what you give as the ID for a metabox field is added to it). If you want a custom prefix, you need to set the option 'soma_meta_prefix' to "_YOUR_PREFIX"
+* admin type sorting page rows fit content better
+* new API function: soma_asset_meta() for manipulating post_meta (abstracts the core functions to better handle serialization cases)
+* new API function: soma_fetch_featured_image() for retrieving everything you could possibly need to know about the featured image (post thumbnail)
+* in edit listing columns, the checkbox column is always included now, so don't need to pass it in soma_init_type column array
+* fixed a query parsing filter that was forcing everything to order by menu_order ASC, no matter what...
+* had forgotten to actually enqueue jquery UI datepicker and slider js and css this whole time <facepalm>
+* added button to clear date values when using datepicker
+
 = 1.2.1 =
 * revised somaFunctions::fetch_connected_items() to handle p2p plugin evolution
-* note: must pass the p2p type ID and *not* the post_type anymore! revise all calls to fetch_connected_items()!
+* note: must pass the p2p type ID and *not* the post_type anymore! Please revise all calls to fetch_connected_items()!
 * When passing "p2p" field data with soma_metabox_data(), you must also pass "p2pname" for the unique registered p2p connection ID and "type" (p2p-list or p2p-thumb) for output
 * cleaned up save routines, stripslashes bugs
 * metabox type "richtext" now uses the new WP3.3 wp_editor() function (multiple rich editors possible, yay!)

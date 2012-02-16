@@ -16,7 +16,7 @@ class somaTypes extends somaticFramework {
 	static $type_data = array();
 
 
-	// assembles and generates a custom post type
+	// assembles and generates a custom post type  --  http://codex.wordpress.org/Function_Reference/register_post_type
 	public function init_type($data) {
 
 		// push to internal variables for convenience
@@ -50,7 +50,7 @@ class somaTypes extends somaticFramework {
 			'publicly_queryable' => true,
 			'show_ui' => true,
 			'has_archive' => $slug,
-			'hierarchical' => true,
+			'hierarchical' => false,								// allows parent to be specified (not sure where...)
 			'query_var' => true,
 			'show_in_nav_menus' => true,
 			'supports' => array( 'editor', 'title', 'thumbnail' ),
@@ -63,8 +63,18 @@ class somaTypes extends somaticFramework {
 		if ( isset( $data['icons'] ) ) {
 			$default_args['menu_icon'] =  $data['icons'] . $slug . '-menu-icon.png';
 		}
+		
+		// default to not manually sortable (don't show the Sort Order admin page for this type)
+		if ( !isset( $data['sortable'] ) ) {
+			$data['sortable'] == false;
+		}
+		
+		// default to displaying in primary navbar
+		if ( !isset( $data['navbar'] ) ) {
+			$data['navbar'] == true;
+		}
 
-		// merge with incoming args
+		// merge with incoming register cpt args
 		$args = wp_parse_args($data['args'], $default_args);
 
 		// create the post-type
@@ -105,7 +115,8 @@ class somaTypes extends somaticFramework {
 	// columns retrieved from $type_data container
 	function custom_edit_columns($columns) {
 		global $post_type;
-		$columns = self::$type_data[$post_type]['columns'];
+		$first = array( "cb" => "<input type=\"checkbox\" />" );						// we always want to show the checkbox in the first column for bulk actions
+		$columns = array_merge($first, self::$type_data[$post_type]['columns']);		// combine with the user-defined columns
 		return $columns;
 	}
 
@@ -249,8 +260,9 @@ class somaTypes extends somaticFramework {
 		// var_dump($menuItems);
 		global $wp_query;
 		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
-		if('primary' == $args->theme_location) {
+		if ( 'primary' == $args->theme_location ) {
 			foreach ($types as $type) {
+				if ( self::$type_data[$type->rewrite['slug']]['navbar'] === false ) continue;		// make sure this custom post type wants to be displayed in the navbar
 				if ( $wp_query->query_vars['post_type'] == $type->rewrite['slug'] ) {
 					$class = 'class="current_page_item"';
 				} else {

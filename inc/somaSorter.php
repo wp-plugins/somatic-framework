@@ -10,10 +10,12 @@ class somaSorter extends somaticFramework {
 	//** modifies the QUERY before output ------------------------------------------------------//
 	function filter_current_query($query) {
 		
-		// sort hierarchical types by menu_order instead of date, so we can manually adjust order with somaSorter
-		if ($query->is_post_type_archive && !$query->query_vars['suppress_filters']) {
-			$query->set( 'orderby', 'menu_order' );
-			$query->set( 'order', 'ASC' );
+		// list sortable types by menu_order instead of date, so we can manually adjust order - note: this means the sorting by title in the edit listings won't do anything....
+		if ( somaTypes::$type_data[$query->post_type]['sortable'] ) {
+			if ( $query->is_post_type_archive && !$query->query_vars['suppress_filters']) {
+				$query->set( 'orderby', 'menu_order' );
+				$query->set( 'order', 'ASC' );
+			}
 		}
 		return $query;
 	}
@@ -24,7 +26,7 @@ class somaSorter extends somaticFramework {
 		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
 		foreach ($types as $type) {
 			// only add sort pages to hierarchical post types, which support menu-order
-			if ($type->hierarchical) {
+			if (somaTypes::$type_data[$type->rewrite['slug']]['sortable']) {
 				$menupage = add_submenu_page('edit.php?post_type='.$type->name, 'Sort '.$type->labels->name, 'Sort Order', 'edit_posts', 'sort-'. $type->name, array(__CLASS__,'soma_sort_page'));
 				add_action( 'admin_print_styles-'.$menupage, array( __CLASS__, 'soma_sorter_print_styles' ) );
 				add_action( 'admin_print_scripts-'.$menupage, array( __CLASS__, 'soma_sorter_print_scripts' ) );				
@@ -51,12 +53,12 @@ class somaSorter extends somaticFramework {
 	// admin js
 	function soma_sorter_print_scripts() {
 		wp_enqueue_script('jquery-ui-sortable');
-		wp_enqueue_script('soma-sorter-js', SOMA_JS . 'somaSorter.js');
+		wp_enqueue_script('soma-sorter-js', SOMA_JS . 'soma-sorter.js');
 	}
 
 	// admin css
 	function soma_sorter_print_styles() {
-		wp_enqueue_style('soma-sorter', SOMA_CSS . 'somaSorter.css');
+		wp_enqueue_style('soma-sorter', SOMA_CSS . 'soma-sorter.css');
 	}
 
 	// ajax callback function

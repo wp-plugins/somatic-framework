@@ -1,5 +1,4 @@
-/* @override http://baruch.somaticstudios.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.0
-	http://wp.mises.net/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.0 */
+/* @override http://academy.mises.org/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.0 */
 
 /* clicker button */
 
@@ -88,6 +87,7 @@
 	padding-bottom: 20px;
 }
 
+
 #poststuff td.field-data input[type='text'],
 #poststuff td.field-data input[type='file'] {
 	width: 100%;
@@ -104,6 +104,27 @@
 #poststuff p.help {
 	margin: 0;
 	color: #999;
+}
+
+#poststuff .datemirror,
+#poststuff .timemirror {
+	border: none;
+	background: none;
+	padding: 0;
+	width: auto !important;
+	margin-left: 4px;
+}
+#poststuff .ui-datepicker-trigger {
+	cursor: pointer;
+}
+#poststuff .datereset {
+	display: inline-block;
+	cursor: pointer;
+	width: 16px;
+	height: 16px;
+	background: url(../js/ui/cross.png) no-repeat left center;
+	position: relative;
+	top: 4px;
 }
 
 /* missing data highlighting */

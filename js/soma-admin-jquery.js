@@ -53,7 +53,7 @@ jQuery(document).ready(function($) {
 			buttonImage: soma_vars.SOMA_JS + 'ui/calendar-icon.png',
 			buttonImageOnly: true,
 			buttonText: 'Click to Select',
-			altField: $(this).next('.datehuman'),	// display human-readable date in dummy field
+			altField: $(this).next('.datemirror'),	// display human-readable date in dummy field
 			altFormat: "MM dd, yy"
 		});
 	});
@@ -78,6 +78,12 @@ jQuery(document).ready(function($) {
 		if ($(this).siblings('input').hasClass("missing") ) {
 			$(this).siblings('input').removeClass("missing");
 		}
+	});
+
+	// clears value from UI datepicker (and hidden form input)
+	$(".datereset").click(function(){
+		$(this).siblings('.datepicker').datepicker( "setDate" , null );
+		$(this).siblings('.datemirror').val('(none selected)');
 	});
 	
 	
