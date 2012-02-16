@@ -8,6 +8,16 @@ add_action('admin_init', 'my_meta_box_data' );								// define metabox vars onl
 // add_action('soma_field_type_case', 'media_field_type', 10, 4);
 // add_filter('soma_field_fetch_meta', 'fetch_media_field', 10, 3);
 
+
+//** you should only set these options when activating your plugin/theme **//
+
+// update_option('soma_meta_serialize', false);			// If you want to store all post_meta items as a serialized array in a single key, you need to set the option 'soma_meta_serialize' to true (false by default)
+// update_option('soma_meta_prefix', '_soma');			// this is the default prefix added to all post_meta keys. Change if desired.
+
+//**  END options  **//
+
+
+
 // outline and inject metaboxes and fields into the somaMetaboxes data container
 function meta_box_data() {
 	if ( !class_exists("somaticFramework") ) return null; // only proceed if framework plugin is active
