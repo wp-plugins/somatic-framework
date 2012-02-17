@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.3
+Version: 1.3.1
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -176,10 +176,10 @@ class somaticFramework {
 	function activate() {
 		flush_rewrite_rules();
 		// check if option has already been set, perhaps by a plugin that uses somaframework
-		if (get_option('soma_meta_serialize') === false) {
-			update_option('soma_meta_serialize', false);
+		if (get_option('soma_meta_serialize', false) === false) {
+			update_option('soma_meta_serialize', 0);
 		}
-		if (get_option('soma_meta_prefix') === false) {
+		if (get_option('soma_meta_prefix', false) === false) {
 			update_option('soma_meta_prefix', '_soma');
 		}
 	}

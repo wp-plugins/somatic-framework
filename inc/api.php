@@ -297,9 +297,26 @@ function soma_asset_meta( $action = null, $pid = null, $key = null, $value = nul
  * @return string - just the url of the specified $size
  */
 
-function soma_featured_image( $pid = null, $size = null) {
+function soma_featured_image( $pid = null, $size = null ) {
 	if (!$pid) {
 		return new WP_Error('missing', "must pass a post ID argument!");
 	}
-	return somaFunctions::fetch_featured_image($pid, $size);
+	return somaFunctions::fetch_featured_image( $pid, $size );
+}
+
+/**
+ * Retrieves the term of a taxonomy that is meant to have only one value set at a time. ex: a dropdown selector in a metabox lets you choose only one term. This grabs that term.
+ * Useful for taxonomies that function like a "status"
+ *
+ * @since 1.3.1
+ * @param $pid - (string/integer) post ID (required)
+ * @param $tax - (string) taxonomy slug to get the set term of (required)
+ * @return string - the term's pretty name
+ */
+
+function soma_singular_term( $pid = null, $tax = null ) {
+	if (!$pid || !$tax) {
+		return new WP_Error('missing', "must pass a post ID and a taxonomy!");
+	}
+	return somaFunctions::fetch_the_singular_term( $pid, $tax );
 }

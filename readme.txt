@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com.com/code
 Requires at least: 3.3
 Tested up to: 3.3
-Stable tag: 1.3
+Stable tag: 1.3.1
 License: GPLv2 or later
 
 Adds useful classes for getting the most out of Wordpress' advanced CMS features
@@ -33,6 +33,12 @@ Otherwise, not yet ;-)
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.3.1 =
+* fixed problem with setting the option soma_meta_serialize, which needs to be passed 0 or 1, not boolean true or false (false resulted in empty option_value, which broke everything)
+* NOTE: when using soma_asset_meta(), don't include the prefix when specifying the post_meta key! it gets added automatically. Just use the exact ID you gave when declaring the field in  soma_metabox_data()
+* new API function: soma_singular_term() for retrieving the term of a taxonomy that is meant to have only one value at a time.
+* new documentation - example PHP code in the doc folder, to help demonstrate how to use the somatic framework
 
 = 1.3 =
 * added 'navbar' argument to soma_init_type to choose whether to display a nav menu item to the primary navbar for custom post types [default: true]

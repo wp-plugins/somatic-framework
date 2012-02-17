@@ -11,7 +11,7 @@ add_action('admin_init', 'my_meta_box_data' );								// define metabox vars onl
 
 //** you should only set these options when activating your plugin/theme **//
 
-// update_option('soma_meta_serialize', false);			// If you want to store all post_meta items as a serialized array in a single key, you need to set the option 'soma_meta_serialize' to true (false by default)
+// update_option('soma_meta_serialize', 1);			// If you want to store all post_meta items as a serialized array in a single key, you need to set the option 'soma_meta_serialize' to 1 (true) (false (0) by default)
 // update_option('soma_meta_prefix', '_soma');			// this is the default prefix added to all post_meta keys. Change if desired.
 
 //**  END options  **//
