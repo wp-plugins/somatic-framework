@@ -1,0 +1,193 @@
+/* @override http://academy.mises.org/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.0 */
+
+/* clicker button */
+
+.clicker, input.clicker {
+	display: inline-block;
+	margin-right: 6px;
+	margin-bottom: 6px;
+	text-transform: uppercase;
+	border-top: 1px solid #96d1f8;
+	border-bottom: none;
+	background: #65a9d7;
+	background: -webkit-gradient(linear, left top, left bottom, from(#3e779d), to(#65a9d7));
+	background: -moz-linear-gradient(top, #3e779d, #65a9d7);
+	padding: 6px 12px;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	-webkit-box-shadow: rgba(40,80,80,1) 0 1px 2px;
+	-moz-box-shadow: rgba(40,80,80,1) 0 1px 0;
+	box-shadow: rgba(40,80,80,1) 0 1px 0;
+	text-shadow: rgba(0,0,0,.4) 0 1px 0;
+	color: white;
+	font-size: 11px !important;
+	line-height: 14px !important;
+	font-family: 'Lucida Grande', Helvetica, Arial, Sans-Serif;
+	font-weight: bold;
+	text-decoration: none;
+	vertical-align: middle;
+}
+
+.clicker.neutral {
+	background: #aaa;
+	border-top: 1px solid #ccc;
+	-webkit-box-shadow: rgba(50,50,50,1) 0 1px 2px;
+	-moz-box-shadow: rgba(80,120,120,1) 0 1px 0;
+	box-shadow: rgba(80,120,120,1) 0 1px 0;
+}
+
+.clicker:hover, input.clicker:hover {
+	border-top-color: #28597a;
+	background: #28597a;
+	color: #ccc;
+	cursor: pointer;
+}
+
+.clicker.neutral:hover {
+	border-top-color: #777;
+	background: #555;
+}
+
+.clicker:active, input.clicker:active {
+	border-top-color: #1b435e;
+	background: #1b435e;
+}
+
+/* metabox fields */
+
+#poststuff tr.fieldrow {
+	border-top: 1px dotted #ddd;
+}
+
+#poststuff .form-table tr:first-child {
+	border-top: none;
+}
+
+#poststuff td.field-label {
+	min-width: 50px;
+	width: 20%;
+	vertical-align: top;
+	font-weight: bold;
+	padding-bottom: 20px;
+}
+
+#poststuff td.field-data {
+	min-width: 200px;
+	width: 80%;
+
+}
+
+#poststuff td.field-desc {
+	padding-top: 0;
+	padding-bottom: 10px;
+	color: #acacac;
+	font-style: italic;
+	line-height: 10px;
+	padding-bottom: 20px;
+}
+
+
+#poststuff td.field-data input[type='text'],
+#poststuff td.field-data input[type='file'] {
+	width: 100%;
+}
+
+#poststuff td.field-data input[alt='numeric'] {
+	width: 110px;
+}
+
+#poststuff td.field-save {
+	width: 100%;
+}
+
+#poststuff p.help {
+	margin: 0;
+	color: #999;
+}
+
+#poststuff .datemirror,
+#poststuff .timemirror {
+	border: none;
+	background: none;
+	padding: 0;
+	width: auto !important;
+	margin-left: 4px;
+}
+#poststuff .ui-datepicker-trigger {
+	cursor: pointer;
+}
+#poststuff .datereset {
+	display: inline-block;
+	cursor: pointer;
+	width: 16px;
+	height: 16px;
+	background: url(../js/ui/cross.png) no-repeat left center;
+	position: relative;
+	top: 4px;
+}
+
+/* missing data highlighting */
+
+input.missing,
+select.missing,
+ul.missing,
+li.missing,
+td.missing {
+	border: 1px #c00 solid !important;
+	background-color: #ffebe8 !important;
+	min-width: 10px;
+}
+
+label.missing {
+	color: #c00;
+}
+
+/* input styling */
+
+input[type='text'],
+textarea {
+
+}
+
+textarea {
+	width: 100%;
+}
+
+/* force tinymce visual editor background color */
+.mceLayout {
+	background: #fff;
+}
+
+/* edit.php column styles */
+.wp-list-table .column-thumb {
+	width: 134px;
+}
+
+/* attachments metabox display */
+ul.meta-attachment-gallery {
+	position: relative;
+
+}
+li.meta-attachment-item {
+	margin: 0 10px 0 0;
+	display: inline-block;	
+	list-style-type: none;
+}
+ul.meta-attachment-actions {
+	margin-top: 6px;
+}
+
+.meta-checkbox-multi {
+	-moz-column-count: 2;
+	-moz-column-gap: 20px;
+	-webkit-column-count: 2;
+	-webkit-column-gap: 20px;
+	column-count: 2;
+	column-gap: 20px;
+}
+
+.ui-datepicker-trigger {
+	margin: 0 3px;
+	vertical-align: middle;
+}
