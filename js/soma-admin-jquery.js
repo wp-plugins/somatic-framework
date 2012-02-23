@@ -36,6 +36,7 @@ jQuery(document).ready(function($) {
 				|| event.keyCode == 110 	// period
 				|| event.keyCode == 189 	// subtract
 				|| event.keyCode == 190		// decimal
+				|| event.keyCode == 186		// colon (for time)
 				):
 			break;
 			default:
