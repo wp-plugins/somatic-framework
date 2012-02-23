@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com.com/code
 Requires at least: 3.3
 Tested up to: 3.3
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv2 or later
 
 Adds useful classes for getting the most out of Wordpress' advanced CMS features
@@ -33,6 +33,9 @@ Otherwise, not yet ;-)
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.3.2 =
+* admin footer text output
 
 = 1.3.1 =
 * fixed problem with setting the option soma_meta_serialize, which needs to be passed 0 or 1, not boolean true or false (false resulted in empty option_value, which broke everything)
