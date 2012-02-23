@@ -756,12 +756,14 @@ class somaFunctions extends somaticFramework {
 	public function asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null ) {
 		if ( $serialize === null ) {
 			$serialize = get_option('soma_meta_serialize');		// use default var if not passed in params
-			if ($serialize) {									// explicit true if evaluates as true
+			if ($serialize == 1) {									// explicit true if evaluates as true
 				$serialize = true;
 			} else {
 				$serialize = false;								// default false
 			}
 		}
+		$prefix = get_option('soma_meta_prefix');
+		if (!$prefix) $prefix = "_soma";	// default in case didn't get set at activation....
 		if ( $serialize ) {
 			$meta_key =  get_option('soma_meta_prefix') . "_asset_meta";
 		} else {
