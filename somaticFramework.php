@@ -97,12 +97,12 @@ class somaticFramework {
 		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.0', 'all' );
 
 		// jquery plugin lightbox functionality
-		wp_register_style( 'colorbox-theme', SOMA_JS.'colorbox/colorbox.css', array(), '1.3.8', 'screen' );
-		wp_register_script( 'colorbox', SOMA_JS.'colorbox/jquery.colorbox-min.js', array('jquery'), '1.3.8' );
+		wp_register_style( 'colorbox-theme', SOMA_JS.'colorbox/colorbox.css', array(), '1.3.19', 'screen' );
+		wp_register_script( 'colorbox', SOMA_JS.'colorbox/jquery.colorbox-min.js', array('jquery'), '1.3.19' );
 		
 		// jquery UI
-		wp_register_style('jquery-ui-theme', SOMA_JS. '/ui/smoothness/jquery-ui-1.8.17.custom.css', false, '1.8.17');
-		wp_register_script('jquery-ui-datepicker', SOMA_JS.'/ui/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
+		wp_register_style('jquery-ui-theme', SOMA_JS. 'ui/smoothness/jquery-ui-1.8.17.custom.css', false, '1.8.17');
+		wp_register_script('jquery-ui-datepicker', SOMA_JS.'ui/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
 		
 		// jplayer register
 		wp_register_script( 'jplayer', SOMA_JS.'jquery.jplayer.min.js', array('jquery'), '2.1', false);
