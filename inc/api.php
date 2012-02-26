@@ -299,9 +299,38 @@ function soma_asset_meta( $action = null, $pid = null, $key = null, $value = nul
 
 function soma_featured_image( $pid = null, $size = null ) {
 	if (!$pid) {
-		return new WP_Error('missing', "must pass a post ID argument!");
+		return new WP_Error('missing', "Must pass a post ID argument!");
 	}
 	return somaFunctions::fetch_featured_image( $pid, $size );
+}
+
+
+/**
+ * Parses a given URL from Youtube or Vimeo, detects the site, extracts the video ID and returns all the metadata returned by the public APIs
+ *
+ * @since 1.3.3
+ * @param $url - (string) valid fully-formed URL to an asset on Youtube or Vimeo (required)
+ * @param $width - (string) modifies generated embed/iframe code (optional)
+ * @param $height - (string) modifies generated embed/iframe code (optional)
+ * @return array:
+ *	array['url']		rebuild external url
+ *	array['id']			raw media ID
+ *	array['site']		site name
+ *	array['thumb']		url of default thumbnail
+ *	array['title']		title
+ *	array['desc']		description
+ *	array['duration']	in seconds
+ *	array['mobile']		mobile-friendly display url
+ *	array['embed']		full code for embedding (should be html5 friendly)
+ *	array['iframe']		url to pass to iframe renderers (like colorbox)
+ *	array['api']		we include everything we got from the site API, just in case (each site formats differently)
+ */
+
+function soma_external_media( $url = null, $width = null, $height = null ) {
+	if (!$url) {
+		return new WP_Error('missing', "Must give us a URL!");
+	}
+	return somaFunctions::fetch_external_media( $url, $width, $height );
 }
 
 /**

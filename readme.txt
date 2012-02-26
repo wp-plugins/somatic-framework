@@ -34,11 +34,16 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.3.3 = 
+* updated colorbox.js to 1.3.19
+* fixed broken url for jquery UI smoothness css
+* new metabox field type: external_media - Text field that accepts vimeo or youtube URLs, and fetches that video's metadata via each site's public API. Also saves that response in post_meta for quicker retrieval.
+* new API function soma_external_media() - parses URL from either youtube or vimeo, returns an array with basic metadata, including ID, title, thumbnails
+* consolidated metabox description row code (too much duplication)
+
 = 1.3.2 =
 * admin footer text output
 * fixed numeric field input to allow colon (:)
-* updated colorbox.js to 1.3.19
-* fixed broken url for jquery UI smoothness css
 
 = 1.3.1 =
 * fixed problem with setting the option soma_meta_serialize, which needs to be passed 0 or 1, not boolean true or false (false resulted in empty option_value, which broke everything)

@@ -186,8 +186,24 @@ ul.meta-attachment-actions {
 	column-count: 2;
 	column-gap: 20px;
 }
+.meta-checkbox-single {
+	margin-right: 6px;
+}
 
 .ui-datepicker-trigger {
 	margin: 0 3px;
 	vertical-align: middle;
+}
+
+/* play button overlay */
+.trigger {
+	display: block;
+	position: absolute;
+	width:  0px;
+	height: 0px;
+	background: transparent url('../images/play.png') no-repeat center center;
+	opacity: 0.6;
+}
+.trigger:hover {
+	opacity: 1;
 }

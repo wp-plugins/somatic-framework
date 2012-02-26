@@ -81,7 +81,7 @@ class somaSave extends somaticFramework {
 			}
 		}
 	}
-	
+
 	/**
 	 * Fixes the odd indexing of multiple file uploads from the format:
 	 *
@@ -171,7 +171,7 @@ class somaSave extends somaticFramework {
 					if ($field['type'] == 'readonly' || $field['type'] == 'posts' || $field['type'] == 'help' ) {
 						continue;
 					}
-					
+
 					// retrieve existing data per type
 					if ($field['data'] == 'meta') {
 						$old = somaFunctions::asset_meta('get', $pid, $field['id']);
@@ -274,12 +274,33 @@ class somaSave extends somaticFramework {
 						}
 					}
 					
+					// for external media URL fields
+					if ($field['type'] == 'external_media') {
+						if (!empty($new)) {																			// user entered something, field not blank
+							$ext_media = somaFunctions::fetch_external_media($new);									// parse url and ping APIs
+							if (!is_wp_error($ext_media)) {															// did the url process okay?
+								$new = $ext_media['url'];															// replace user-submitted with "cleaned" url
+								somaFunctions::asset_meta('save', $pid, $field['id']."_ext", $ext_media);			// save another key with all the metadata associated with this external media url (so we don't have to call external API's everytime)
+								if ($_POST['copy-ext']) {															// user has chosen to copy the external media metadata into the asset, replacing the user fields NOTE: for this to work, this field should appear after the title and desc fields!!!
+									somaFunctions::asset_meta('save', $pid, 'desc', $ext_media['desc']);			// overwrite the desc
+									$wpdb->update( $wpdb->posts, array( 'post_title' => $ext_media['title'] ), array( 'ID' => $pid ));	// overwrite the post title
+								}
+							} else {
+								$error = $ext_media->get_error_message();												// something didnt' work
+								$new = null;
+								wp_die($error);
+							}
+						} else {
+							$new = null;
+						}
+					}
+
 					// file uploads (creates attachments)
 					if ($field['type'] == 'upload') {
 						if (!empty($_FILES[$field['id']])) {
-							
+
 							self::fix_file_array($_FILES[$field['id']]); 							// reformats array to better process each item
-							
+
 							foreach ($_FILES[$field['id']] as $position => $fileitem) {
 								if ($fileitem['error'] == UPLOAD_ERR_NO_FILE) continue;				// don't bother handling uploads from blank inputs
 								$file = wp_handle_upload($fileitem, array('test_form' => false));
@@ -287,7 +308,7 @@ class somaSave extends somaticFramework {
 									wp_die(var_dump($fileitem, $file['error']));					// barf when there's a problem
 								}
 								$filename = $file['file'];											// local path
-							
+
 								if (!empty($filename)) {
 									$wp_filetype = wp_check_filetype(basename($filename), null);	// get from file extension
 									$attachment = array(
@@ -383,7 +404,7 @@ class somaSave extends somaticFramework {
 							);
 							$comment_id = wp_new_comment($data);
 						}
-						
+
 						// hook additional field data cases to save custom metadata
 						// must match $field['data'] to something before executing any saves, otherwise will always fire!
 						do_action('soma_field_save_meta', $new, $field, $pid, $post);

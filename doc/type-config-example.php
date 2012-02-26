@@ -33,6 +33,10 @@ function init() {
 			)
 		)
 	);
+	
+	// enables an existing (or built-in) taxonomy for our custom post type
+	register_taxonomy_for_object_type('category', 'resource');
+	
 
 	//
 	soma_init_type( array(

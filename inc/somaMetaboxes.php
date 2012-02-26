@@ -58,6 +58,46 @@ class somaMetaboxes extends somaticFramework {
 
 
 	// add_meta_box Callback function to display fields in meta box
+/*
+ * Metabox Field array:
+ * args:
+	name
+	id
+	type
+	data - meta, core, user, p2p, media
+	options
+	once - only allows data to be set one time, then becomes readonly
+	multple
+	taxonomy
+	required
+	default
+	desc
+ * types:
+	readonly
+	attachment
+	p2p-thumbs
+	p2p-list
+	text
+	help
+	numeric
+	textarea
+	richtext
+	html
+	upload
+	select
+	radio
+	checkbox-single
+	checkbox-multi
+	select-multi (does that work?)
+	date
+	datepicker
+	time
+	timepicker
+	weight
+	media
+	external_media
+	embed
+*/
 	function soma_metabox_generator($post,$box) {
 		$meta_box = $box['args']['box'];
 
@@ -214,13 +254,15 @@ class somaMetaboxes extends somaticFramework {
 				// no name given, so span both columns
 				echo '<td colspan="2">';
 			}
+			
+			// keep it true to execute the code at the end that displays the "desc" row (allows us to bypass within these cases)
+			$dodesc = true;
 
 			// build each field content by type
 			switch ($field['type']) {
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'text':
 					echo '<input type="text" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $meta : $field['default'], '" class="meta-text', $complete ? null : $missing, '" />';
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'help':
@@ -229,12 +271,10 @@ class somaMetaboxes extends somaticFramework {
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'numeric':
 					echo '<input type="text" alt="numeric" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $meta : $field['default'], '" class="meta-numeric', $complete ? null : $missing, '" />';
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'textarea':
 					echo '<textarea name="', $field['id'], '" id="', $field['id'], '" cols="60" rows="5" class="meta-textarea', $complete ? null : $missing, '" >', $meta ? $meta : $field['default'], '</textarea>';
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// custom richtext/HTML editor  http://codex.wordpress.org/Function_Reference/wp_editor
@@ -244,7 +284,6 @@ class somaMetaboxes extends somaticFramework {
 						$args['textarea_rows'] = intval($field['rows']);		// override system defaults for visual editor rows
 					}
 					wp_editor( $meta, $field['id'], $args );					// Note that the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction.
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// HTML only editor
@@ -256,7 +295,6 @@ class somaMetaboxes extends somaticFramework {
 					$args['tinymce'] = false;									// disable visual editor tab
 					$args['media_buttons'] = false;								// hide media upload buttons
 					wp_editor( $meta, $field['id'], $args );					// Note that the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction.
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'upload': ?>
@@ -266,7 +304,6 @@ class somaMetaboxes extends somaticFramework {
 						<td></td>
 						<td><a class="addinput" href="#" rel="<?php echo $field['id']; ?>">Add More Files</a>
 					<?php
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 
 				// ----------------------------------------------------------------------------------------------------------------------------- //
@@ -337,7 +374,6 @@ class somaMetaboxes extends somaticFramework {
 						echo '<option value="', $option['value'], '"', $meta == $option['value'] ? ' selected="selected"' : '', '>', $option['name'],'</option>';
 					}
 					echo '</select>';
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'radio':
@@ -357,12 +393,10 @@ class somaMetaboxes extends somaticFramework {
 						echo '<li><label><input type="radio" name="', $field['id'], '" value="', $option['value'], '"', $meta == $option['value'] ? ' checked="checked"' : '', ' />', $option['name'],'</label></li>';
 					}
 					echo '</ul>';
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 					break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'checkbox-single':
 					echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', $meta ? ' checked="checked"' : null, ' class="meta-checkbox-single', $complete ? null : $missing, '" />';
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'checkbox-multi':
@@ -381,7 +415,6 @@ class somaMetaboxes extends somaticFramework {
 						echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', $meta ? ' checked="checked"' : null, ' class="', $complete ? null : $missing, '" />';
 					}
 					echo '</ul>';
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 					break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'select-multi':
@@ -397,7 +430,6 @@ class somaMetaboxes extends somaticFramework {
 						}
 					}
 					echo '</select>';
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// (dropdown select inputs)
@@ -445,7 +477,6 @@ class somaMetaboxes extends somaticFramework {
 						echo ">$firstyear</option>";
 					}
 					echo "</select>";
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				//  ---------------------------------------------------------------------------------------------------------- //
 				// (jqueryUI inputs)
@@ -459,7 +490,6 @@ class somaMetaboxes extends somaticFramework {
 					echo '<input type="hidden" class="datepicker" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $meta : $field['default'], '" >';
 					echo '<input type="text" class="datemirror', $complete ? null : $missing, '" readonly="readonly" value="', $human, '"/>';
 					echo '<div class="datereset"></div>';
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// (jqueryUI inputs)
@@ -472,7 +502,6 @@ class somaMetaboxes extends somaticFramework {
 					// hidden input that actually holds the data from the jqueryUI picker -- allows us to display a human-readable version in the mirror field
 					echo '<input type="hidden" class="timepicker" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $human : $field['default'], '" >';
 					echo '<input type="text" class="timemirror', $complete ? null : $missing, '" readonly="readonly" value="', $human, '"/>';
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// (dropdown select inputs)
@@ -529,7 +558,6 @@ class somaMetaboxes extends somaticFramework {
 					echo '>PM</option>';
 
 					echo "</select>";
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'weight':
@@ -565,7 +593,6 @@ class somaMetaboxes extends somaticFramework {
 					echo "</select>";
 					echo " oz. ";
 
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'readonly':
@@ -575,7 +602,6 @@ class somaMetaboxes extends somaticFramework {
 						// echo '<strong>', $meta ? $meta : $field['default'], '</strong>';
 						echo $meta ? $meta : $field['default'];
 					}
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// displaying related posts as mini thumbs
@@ -592,9 +618,32 @@ class somaMetaboxes extends somaticFramework {
 				case 'p2p-list':
 					if (!empty($meta)) {
 						echo '<strong>', $meta ? $meta : $field['default'], '</strong>';
-						echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
+						echo $desc;
 					} else { // if no relations
 						echo '<em>(none)</em>';
+					}
+				break;
+				// ----------------------------------------------------------------------------------------------------------------------------- //
+				// external media (youtube, vimeo, soundcloud)
+				case 'external_media':
+					echo '<input type="text" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $meta : $field['default'], '" class="meta-text', $complete ? null : $missing, '" />';
+
+					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null, '</td></tr>';
+					echo '<tr><td></td><td class="field-data"><input type="checkbox" name="copy-ext" id="copy-ext" class="meta-checkbox-single"/><label for="copy-ext"><em>Replace local Title and Description with text retrieved from Media URL</em></label></td></tr>';
+					$dodesc = false;
+					if ($meta) {
+						$ext = somaFunctions::asset_meta('get', $post->ID, $field['id'].'_ext');	// grab external media API response we've already saved
+						// the data should have been saved, but if for some reason it didn't, fetch it now (takes longer)
+						// if (empty($ext)) {
+						// 	$ext = somaFunctions::fetch_external_media($meta);
+						// }
+						echo '<tr><td class="field-label">Site</td><td class="field-data">'.$ext["site"].'</td></tr>';
+						echo '<tr><td class="field-label">ID</td><td class="field-data">'.$ext["id"].'</td></tr>';
+						echo '<tr><td class="field-label">URL</td><td class="field-data"><a href="'.$ext["url"].'">Link</a></td></tr>';
+						echo '<tr><td class="field-label">Source Title</td><td class="field-data">'.$ext["title"].'</td></tr>';
+						echo '<tr><td class="field-label">Source Desc</td><td class="field-data">'.$ext["desc"].'</td></tr>';
+						echo '<tr><td class="field-label">Thumbnail</td><td class="field-data"><a class="trigger colorbox" href="'.$ext['iframe'].'" iframe="true"></a><img src="'.$ext['thumb'].'"></td></tr>';
+						// echo "<li>{$ext['embed']}</li>";
 					}
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
@@ -759,10 +808,14 @@ class somaMetaboxes extends somaticFramework {
 				break;
 			}
 
-			// hook to output case-specific metabox types
+			// hook to output case-specific metabox types not specified above
 			do_action('soma_field_type_case', $post, $meta, $field, $complete);
-
-			echo '</td></tr>';
+			
+			// output row for field description and close tags
+			if ($dodesc) {
+				echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
+				echo '</td></tr>';
+			}
 		}
 		echo '</table>';
 		// hook for insertion after box content

@@ -142,6 +142,15 @@ jQuery(document).ready(function($) {
 		scalePhotos: true,
 		scrolling: false,
 	});
+	
+	// automatically grow textareas as you type
+	// $('textarea').autosize();
+
+	// match trigger play icon block to the item it's overlaying
+	$(".trigger").each(function(){
+		$(this).width($(this).next().width());
+		$(this).height($(this).next().height());
+	});
 
 	// end
 });

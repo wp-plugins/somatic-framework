@@ -38,7 +38,7 @@ class somaFunctions extends somaticFramework {
 	function soma_notices($func, $msg) {
 		echo "<div class=\"error\"><p><strong>SOMATIC FRAMEWORK ERROR:</strong> $func()</p><p><em>$msg</em></p></div>";
 	}
-	
+
 	// set if user has staff privileges (default to editors)
 	function check_staff() {
 		$privs = 'edit_others_posts';
@@ -321,13 +321,13 @@ class somaFunctions extends somaticFramework {
 				$args['connected_items'] = $pid;	// this passes "any" for direction
 			break;
 		}
-		
+
 		if ($meta_key && $meta_value) {
 			$args['connected_meta'] = array(
 				$meta_key => $meta_value
 			);
 		}
-		
+
 		$query = new WP_Query( $args );
 		$items = array();
 		$items = $query->posts;
@@ -672,7 +672,7 @@ class somaFunctions extends somaticFramework {
 			$img['id'] = $att_id;
 
 			// 'sizes' key will only exist if the uploaded image was equal or larger than the site option for thumbnail size
-			if ( isset( $att_meta['sizes'] ) ) {						
+			if ( isset( $att_meta['sizes'] ) ) {
 				$img['icon']['file'] 	= 	$att_meta['sizes']['post-thumbnail']['file'];
 				$img['icon']['url'] 	= 	$media_url . $img['icon']['file'];
 				$img['icon']['path'] 	= 	$media_path . $img['icon']['file'];
@@ -701,9 +701,9 @@ class somaFunctions extends somaticFramework {
 				$img['full']['width'] 	= 	$att_meta['width'];
 				$img['loc']['path'] 	= 	$media_path;
 				$img['loc']['url']		= 	$media_url;
-			
+
 			// populate thumb data with the direct file info, as the uploaded image was smaller or equal to the site option for thumbnail size. Yes, the thumb and the full img info are the same in this case...
-			} else {														
+			} else {
 				$img['thumb']['file'] 	= 	basename($att_meta['file']);
 				$img['thumb']['height'] = 	$att_meta['height'];
 				$img['thumb']['width'] 	= 	$att_meta['width'];
@@ -716,7 +716,7 @@ class somaFunctions extends somaticFramework {
 				$img['full']['width'] 	= 	$att_meta['width'];
 				$img['loc']['path'] 	= 	WP_MEDIA_DIR;
 				$img['loc']['url']		= 	WP_MEDIA_URL;
-				
+
 				//** FUTURE NOTE: might be good when there isn't a medium or large version of the image to default to some kind of "missing" image that actually says "image was too small"
 			}
 
@@ -724,7 +724,7 @@ class somaFunctions extends somaticFramework {
 			$img['orientation']		= 	$att_meta['orientation'];
 			$img['original']		= 	$att_meta['original'];
 			$img['date']			= 	get_the_date('M j, Y',$att_id) ." - ". get_the_time('h:iA',$att_id); 	// date attachment was created
-			
+
 		} else {
 		// nothing found, return error image
 			$img['id'] = false;
@@ -1203,6 +1203,115 @@ SQL;
 			$att_id = $_POST['data'];
 			wp_delete_attachment($att_id, true);
 		}
+	}
+
+	// grabs metadata from public vimeo API, returns array
+	function fetch_vimeo_meta( $link = null ) {
+		if ( !$link ) return new WP_Error('missing', "Must specify a video ID");
+		// use the oembed API to parse the raw URL for us
+		$oembed = json_decode(file_get_contents("http://vimeo.com/api/oembed.json?url=".urlencode($link)), true);
+		$meta = array_shift(unserialize(file_get_contents("http://vimeo.com/api/v2/video/{$oembed['video_id']}.php")));
+		$meta = array_merge($oembed, $meta);
+		return $meta;
+	}
+
+	// grabs metadata from public youtube API, returns array
+	function fetch_youtube_meta( $url = null ) {
+		if ( !$url ) return new WP_Error('missing', "Must specify a video ID");
+		// extract ID
+		if (preg_match('%(?:youtube\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $url, $match)) {
+		    $id = $match[1];
+		}
+		$meta = json_decode(file_get_contents("http://gdata.youtube.com/feeds/api/videos/$id?v=2&alt=json"), true);     // json_decode true returns data as array instead of object
+		$meta = $meta['entry'];     // isolate the single entry we requested
+		return $meta;
+	}
+	
+	// grab metadata from external site URL
+	// only supporting 3 media sites right now: youtube, vimeo, soundcloud
+	function fetch_external_media($url = null, $width = null, $height = null) {
+		if ( !$url ) return new WP_Error('missing', "Must specify a valid URL from a supported site");
+
+		// in case user didn't include http
+		if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+			$url = "http://" . $url;
+	    }
+		
+		// identify which site
+		switch (true) {
+			case ( strpos( $url, 'youtube.com' ) > 0 || strpos ($url, 'youtu.be' ) > 0 ) :
+				$site = 'youtube';
+			break;
+			case ( strpos( $url, 'vimeo.com' ) > 0 ) :
+				$site = 'vimeo';
+			break;
+			case ( strpos( $url, 'soundcloud.com' ) > 0 ) :
+				$site = 'soundcloud';
+			break;
+			default:
+				return new WP_Error('missing', "Problem with the URL. Can't figure out which site it's from (or it's not supported). Check to make sure you entered it correctly...");
+			break;
+		}
+		
+		$media = array();	// init container
+		$width = $width ? $width : "853";			// iframe default
+		$height = $height ? $height : "480";		// iframe default
+		
+		// extract ID, fetch meta, build output
+		switch ($site) {
+			case "youtube";
+				if (preg_match('%(?:youtube\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $url, $match)) {
+				    $id = $match[1];
+					$meta = json_decode(file_get_contents("http://gdata.youtube.com/feeds/api/videos/$id?v=2&alt=json"), true);				// json_decode true returns data as array instead of object
+					$meta = $meta['entry'];																									// isolate the single entry we requested
+					$media['url']		= "http://www.youtube.com/watch?v=$id";																	// rebuild external url
+					$media['id']		= $id;
+					$media['site']		= $site;
+					$media['thumb']		= $meta['media$group']['media$thumbnail'][1]['url'];												// grabs url of medium 360x480 image
+					$media['title']		= $meta['media$group']['media$title']['$t'];
+					$media['desc']		= $meta['media$group']['media$description']['$t'];
+					$media['duration']	= $meta['media$group']['media$content'][0]['duration'];
+					$media['mobile']	= "youtube:$id";																					// launches youtube app, i think...
+					$media['embed'] 	= "<iframe width=\"$width\" height=\"$height\" src=\"http://www.youtube.com/embed/$id?rel=0&hd=1\" frameborder=\"0\" allowfullscreen></iframe>";
+					$media['iframe']	= "http://www.youtube.com/embed/$id?rel=0&hd=1&autoplay=1";											// url to pass to iframe renderers
+					$media['api']		= $meta;																							// we include everything we got from the site API, just in case (each site formats differently)
+				} else {
+					return new WP_Error('missing', "Can't extract ID from youtube URL...");
+				}
+			break;
+			case "vimeo";
+				if ($oembed = json_decode(file_get_contents("http://vimeo.com/api/oembed.json?url=".urlencode($url)), true)) {				// get oembed metadata
+					$id = $oembed['video_id'];																								// extract id from api response
+					$meta = array_shift(unserialize(file_get_contents("http://vimeo.com/api/v2/video/$id.php")));							// get more metadata (note: we're making two distinct calls to API for vimeo)
+					$meta = array_merge($oembed, $meta);																					// combine the two (including some overlapping keys)
+					$media['url']		= "http://vimeo.com/$id";																			// rebuild external url
+					$media['id']		= $id;																								// store raw media ID
+					$media['site']		= $site;																							//
+					$media['thumb']		= $meta['thumbnail_url'];																			// grabs url of default image 640x360
+					$media['title']		= $meta['title'];																					//
+					$media['desc']		= $meta['description'];																				//
+					$media['duration']	= $meta['duration'];																				// in seconds
+					$media['mobile']	= $meta['mobile_url'];																				// mobile-friendly display url
+					$media['embed']		= $meta['html'];																					// auto embed code (should be HTML5/ipad compatible)
+					$media['iframe']	= "http://player.vimeo.com/video/$id?title=0&amp;byline=0&amp;portrait=0&amp;autoplay=1";			// url to pass to iframe renderers (like colorbox)
+					$media['api']		= $meta;																							// we include everything we got from the site API, just in case (each site formats differently)
+				} else {
+					return new WP_Error('missing', "Can't extract ID from vimeo URL...");
+				}
+			break;
+			case "soundcloud";		// haven't done this one yet....
+				if ( $foo ) {
+					$id = 1;
+					$meta = 'foo';
+				} else {
+					return new WP_Error('missing', "Can't extract ID from soundcloud URL...");
+				}
+			break;
+		}
+
+		if (empty($media)) return new WP_Error('missing', "Somehow we failed...");
+		// success
+		return $media;
 	}
 
 }

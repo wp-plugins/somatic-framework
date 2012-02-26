@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.3.2
+Version: 1.3.3
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -104,6 +104,9 @@ class somaticFramework {
 		wp_register_style('jquery-ui-theme', SOMA_JS. 'ui/smoothness/jquery-ui-1.8.17.custom.css', false, '1.8.17');
 		wp_register_script('jquery-ui-datepicker', SOMA_JS.'ui/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
 		
+		// autosize textareas  (not working quite right yet...)
+		// wp_register_script( 'autosize', SOMA_JS.'jquery.autosize-min.js', array('jquery'), '1.6' );
+		
 		// jplayer register
 		wp_register_script( 'jplayer', SOMA_JS.'jquery.jplayer.min.js', array('jquery'), '2.1', false);
 		wp_register_script( 'jplayer-playlist', SOMA_JS.'jplayer.playlist.min.js', array('jquery'), '2.1', false);
@@ -150,6 +153,7 @@ class somaticFramework {
 	function admin_print_scripts() {
 		wp_enqueue_script( 'soma-admin-jquery' );
 		wp_enqueue_script( 'colorbox' );
+		// wp_enqueue_script( 'autosize' );
 		wp_enqueue_script( 'jquery-ui-datepicker' );
 	}
 
