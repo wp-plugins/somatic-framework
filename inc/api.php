@@ -218,7 +218,7 @@ function soma_get_role_members($roles = null) {
 function soma_select_types() {
 	$types = get_post_types( array( 'exclude_from_search' => false, '_builtin' => false  ), 'objects' );
 	foreach ($types as $type) {
-		$list[] = array('name' => $type->label, 'value' => $type->rewrite['slug']);
+		$list[] = array('name' => $type->label, 'value' => $type->query_var);
 	}
 	return $list;
 }

@@ -128,17 +128,41 @@ jQuery(document).ready(function($) {
 		    return $(this).attr('iframe');
 		},
 		width: function(){
+			if ($(this).attr('width') !== 'undefined') {
+				return $(this).attr('width');
+			}
 			if ($(this).attr('iframe') == "true") {
 				return "90%";
 			}
 		},
 		height: function(){
+			if ($(this).attr('height') !== 'undefined') {
+				return $(this).attr('height');
+			}
 			if ($(this).attr('iframe') == "true") {
 				return "90%";
 			}
 		},
-		maxWidth:"100%",
-		maxHeight:"100%",
+		maxWidth: function(){
+			if ($(this).attr('maxWidth') !== 'undefined') {
+				return $(this).attr('maxWidth');
+			}
+		},
+		maxHeight: function(){
+			if ($(this).attr('maxHeight') !== 'undefined') {
+				return $(this).attr('maxHeight');
+			}
+		},
+		innerWidth: function(){
+			if ($(this).attr('innerWidth') !== 'undefined') {
+				return $(this).attr('innerWidth');
+			}
+		},
+		innerHeight: function(){
+			if ($(this).attr('innerHeight') !== 'undefined') {
+				return $(this).attr('innerHeight');
+			}
+		},
 		scalePhotos: true,
 		scrolling: false,
 	});

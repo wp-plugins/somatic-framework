@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com.com/code
 Requires at least: 3.3
 Tested up to: 3.3
-Stable tag: 1.3.2
+Stable tag: 1.4
 License: GPLv2 or later
 
 Adds useful classes for getting the most out of Wordpress' advanced CMS features
@@ -34,12 +34,19 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
-= 1.3.3 = 
+= 1.4 = 
+* new metabox field type: external_media - Text field that accepts vimeo or youtube URLs, and fetches that video's metadata via each site's public API. Also saves that response in post_meta for quicker retrieval.
+* new metabox field type: external_image - Text field that accepts image URL, and can import the image as an attachment, also setting imported image as Featured Image
+* new API function: soma_external_media() - parses URL from either youtube or vimeo, returns an array with basic metadata, including ID, title, thumbnails - optionally imports source image to local library and sets the post_thumbnail!. NOTE: desired video must not be private, password-protected, or have embedding disabled by the owner!
+* new internal function: somaFunctions::attach_external_image() - sideloads an external image URL into the wordpress media library and attaches to a post
 * updated colorbox.js to 1.3.19
 * fixed broken url for jquery UI smoothness css
-* new metabox field type: external_media - Text field that accepts vimeo or youtube URLs, and fetches that video's metadata via each site's public API. Also saves that response in post_meta for quicker retrieval.
-* new API function soma_external_media() - parses URL from either youtube or vimeo, returns an array with basic metadata, including ID, title, thumbnails
+* fixed link output in custom_type_nav() for when the custom post type slug includes variables for taxonomy permalinks
+* new filter: soma_custom_type_nav_position, for determining with the nav items that are automatically generated for custom post types are placed before or after the existing menu items. Defaults to "after" (return "before" via filter to change)
+* fixed soma_init_type ignoring navbar=false and inserting menu item anyway
+* fixed broken css on Sort Order pages
 * consolidated metabox description row code (too much duplication)
+* a smattering of other tweaks, enhancements, and bugfixes..
 
 = 1.3.2 =
 * admin footer text output

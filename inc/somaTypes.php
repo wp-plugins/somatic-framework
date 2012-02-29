@@ -58,17 +58,17 @@ class somaTypes extends somaticFramework {
 			'register_meta_box_cb' => array('somaMetaBoxes','add_boxes'),
 			'labels' => $labels
 		);
-		
+
 		// use custom menu icon if defined
 		if ( isset( $data['icons'] ) ) {
 			$default_args['menu_icon'] =  $data['icons'] . $slug . '-menu-icon.png';
 		}
-		
+
 		// default to not manually sortable (don't show the Sort Order admin page for this type)
 		if ( !isset( $data['sortable'] ) ) {
 			$data['sortable'] == false;
 		}
-		
+
 		// default to displaying in primary navbar
 		if ( !isset( $data['navbar'] ) ) {
 			$data['navbar'] == true;
@@ -177,6 +177,15 @@ class somaTypes extends somaticFramework {
 			)
 		);
 
+		// option to obscure the taxonomy slug in the permalink structure by changing it's slug to be the same as the custom post type it's registered for. NOTE: this only works if the taxonomy has only been assigned to ONE post type
+		// resulting permalink looks like  domain.com/customposttype/taxonomyterm
+		// ex: domain.com/cars/red  instead of domain.com/cars/colors/red
+		// http://wordpress.stackexchange.com/questions/5308/custom-post-types-taxonomies-and-permalinks
+		// not working yet...
+		// if (count($types) == 1) {
+		// 	$default_args['rewrite'] => array( 'slug' => $types[0] );
+		// }
+
 		$args = wp_parse_args($data['args'], $default_args);
 		// do it
 		register_taxonomy($slug, $types, $args);
@@ -185,20 +194,20 @@ class somaTypes extends somaticFramework {
 		// pre-populate included terms - as this public function could be called from external plugins or themes, have to check for both cases and only run once...
 		// really wish we could do this only on register_activation_hook, but can't combine that hook with init hook that this function uses...
 		// maybe in the future could inject register_activation_hook within this function...
-		
+
 		if ( !empty( $data['terms'] ) ) {
 			global $pagenow;
 			// execute only upon plugin activation -- NOTE this will return true anytime we're activating ANY plugin - still better than executing every page load....
 			if ( is_admin() && $_GET['action'] == "activate" && $pagenow == "plugins.php" ) {
 					self::term_generator($slug, $data['terms']); // populate terms
 			}
-		
+
 			// execute only upon theme activation -- NOTE this will return true anytime we're activating ANY theme - still better than executing every page load....
 			if ( is_admin() && 'themes.php' == $pagenow && isset( $_GET['activated'] ) ) {
 					self::term_generator($slug, $data['terms']); // populate terms
 			}
 		}
-		
+
 		// hide metabox on post editor?
 		if ($metabox == false) {
 			// build metabox ID name
@@ -237,13 +246,13 @@ class somaTypes extends somaticFramework {
 	function custom_type_icons() {
 		global $pagenow, $post_type;
 		if ( !array_key_exists( $post_type, self::$type_data ) ) return null;	// check if custom post type has been defined for whatever type we're viewing
-		
+
 		if ( isset( self::$type_data[$post_type]['icons'] ) ) {					// check if custom icons path has been provided
 			$url = self::$type_data[$post_type]['icons'] . $post_type;
 		} else {
 			return null;
 		}
-		
+
 		if ( $pagenow == 'post-new.php' ) {
 			echo '<style>#wpbody-content .icon32 { background: transparent url("'. $url .'-add-icon.png") no-repeat; !important }</style>';
 		}
@@ -255,15 +264,16 @@ class somaTypes extends somaticFramework {
 		}
 	}
 
-	// automatically adds custom post types to the primary navbar and adds highlighting for current page
+	// automatically adds custom post types to the primary navbar and adds highlighting for current page - defaults tacking them on the end of existing nav items
 	function custom_type_nav($menuItems, $args) {
+
 		// var_dump($menuItems);
 		global $wp_query;
 		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
 		if ( 'primary' == $args->theme_location ) {
 			foreach ($types as $type) {
-				if ( self::$type_data[$type->rewrite['slug']]['navbar'] === false ) continue;		// make sure this custom post type wants to be displayed in the navbar
-				if ( $wp_query->query_vars['post_type'] == $type->rewrite['slug'] ) {
+				if ( self::$type_data[$type->query_var]['navbar'] == false ) continue;		// make sure this custom post type wants to be displayed in the navbar
+				if ( $wp_query->query_vars['post_type'] == $type->query_var ) {
 					$class = 'class="current_page_item"';
 				} else {
 					$class = '';
@@ -271,7 +281,7 @@ class somaTypes extends somaticFramework {
 				// build nav item
 				$navItem .= '<li ' . $class . '>' .
 					$args->before .
-					'<a href="' . home_url( '/'. $type->rewrite['slug'] ) . '" title="'.$type->labels->name.'">' .
+					'<a href="' . home_url( '/'. $type->name ) . '" title="'.$type->labels->name.'">' .			// would have used $type->rewrite['slug'], but that gave problems when using slug rewrites like 'customtype/%customcat%'
 					$args->link_before .
 					$type->labels->name .
 					$args->link_after .
@@ -279,7 +289,18 @@ class somaTypes extends somaticFramework {
 					$args->after .
 					'</li>';
 			}
-			$menuItems = $menuItems . $navItem;
+			
+			// before or after existing items?
+			$position = "after";
+			$position = apply_filters('soma_custom_type_nav_position', $position);
+			if ($position == "after") {
+				$menuItems = $menuItems . $navItem;
+			}
+			if ($position == "before") {
+				$menuItems = $navItem . $menuItems;
+			}
+
+
 		}
 		return $menuItems;
 	}
@@ -296,7 +317,7 @@ class somaTypes extends somaticFramework {
 
 
 	// display contextual help for custom post types
-	function custom_type_help_text( $contextual_help, $screen_id, $screen ) { 
+	function custom_type_help_text( $contextual_help, $screen_id, $screen ) {
 		// $contextual_help .= var_dump( $screen ); // use this to help determine $screen->id
 		if ( array_key_exists( $screen->post_type, self::$type_data ) ) {				// see if a custom post type has been defined for the current screen display
 			if ( isset( self::$type_data[ $screen->post_type ][ 'help' ] ) ) {
@@ -330,8 +351,8 @@ class somaTypes extends somaticFramework {
 			}
 		}
 	}
-	
-	
+
+
 	// Output stats for custom types and taxonomies in the Right Now dashboard panel
 	function custom_types_rightnow() {
 		$args = array(
@@ -367,7 +388,7 @@ class somaTypes extends somaticFramework {
 	}
 
 
-	
+
 }
 // INIT
 $somaTypes = new somaTypes();

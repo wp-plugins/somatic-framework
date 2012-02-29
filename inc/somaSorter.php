@@ -26,7 +26,7 @@ class somaSorter extends somaticFramework {
 		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
 		foreach ($types as $type) {
 			// only add sort pages to hierarchical post types, which support menu-order
-			if (somaTypes::$type_data[$type->rewrite['slug']]['sortable']) {
+			if (somaTypes::$type_data[$type->query_var]['sortable']) {
 				$menupage = add_submenu_page('edit.php?post_type='.$type->name, 'Sort '.$type->labels->name, 'Sort Order', 'edit_posts', 'sort-'. $type->name, array(__CLASS__,'soma_sort_page'));
 				add_action( 'admin_print_styles-'.$menupage, array( __CLASS__, 'soma_sorter_print_styles' ) );
 				add_action( 'admin_print_scripts-'.$menupage, array( __CLASS__, 'soma_sorter_print_scripts' ) );				
@@ -44,7 +44,11 @@ class somaSorter extends somaticFramework {
 		<h2><?php echo $type_obj->labels->singular_name ?> List Order<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" id="loading-animation" /></h2>
 		<ul id="custom-type-list">
 		<?php while ( $query->have_posts() ) : $query->the_post(); ?>
-			<li id="<?php the_id(); ?>" class="custom-type-list-item"><?php the_post_thumbnail(array('50,50'));?><a href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a></li>
+			<li id="<?php the_id(); ?>" class="custom-type-list-item">
+				<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
+				<?php the_post_thumbnail(array('50,50'));?>
+				<div class="clearfix"></div>
+			</li>
 		<?php endwhile; ?>
 	</div>
 	<?php

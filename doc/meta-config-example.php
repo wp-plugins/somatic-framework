@@ -34,13 +34,41 @@ function meta_box_data() {
 		'fields' => array(													// array of individual fields within this metabox
 			array(
 				'name' => 'Actor Name',										// text displayed alongside field input
-				'id' => 'actor_name', 										// used when saving, should be the name of the post_meta (key) or taxonomy (exact slug) we're manipulating
-				'type' => 'text',											// field type (usually input: text, area, select, checkbox, radio), sometimes output (posts, other readonly data)
-				'data' => 'meta',											// what kind of data is being retrieved and saved for this post (meta [wp_postmeta table], core [wp_posts table], taxonomy, user, p2p, attachment, comment)
-				'options' => soma_select_taxonomy_terms('artists'),			// array of options to populate html form input objects (in this case, generated automatically from available taxonomy terms)
+				'id' => 'actors', 											// used when saving, should be the name of the post_meta (key) or taxonomy (exact slug) we're manipulating
+				'type' => 'select',											// field type (usually input: text, area, select, checkbox, radio), sometimes output (posts, other readonly data)
+				'data' => 'taxonomy',										// what kind of data is being retrieved and saved for this post (meta [wp_postmeta table], core [wp_posts table], taxonomy, user, p2p, attachment, comment)
+				'options' => soma_select_taxonomy_terms('actors'),			// array of options to populate html form input objects (in this case, generated automatically from available taxonomy terms)
 				'default' => '',											// default value to show (in text fields or selectors)
 				'multiple' => false,										// can multiple values be selected? or must the saved value be singular?
 				'required' => true											// can this field be left empty or unselected? enables red styling to draw attention (validation functions to check completion don't exist yet)
+			),
+			array(
+				'name' => 'Description',
+				'id' => 'desc',
+				'type' => 'text',
+				'data' => 'meta',
+				'desc' => 'Enter a short description for this item',
+			),
+			array(
+				'name' => 'Title',
+				'id' => 'post_title',
+				'type' => 'text',
+				'data' => 'core',											// note: this replaces the functionality of the core Title metabox, so you don't have to support it when you register custom post types
+				'desc' => 'Enter a name for this item',
+			),
+			array(
+				'name' => 'External Media URL',
+				'id' => 'media',
+				'type' => 'external_media',
+				'data' => 'meta',
+				'desc' => 'Enter the URL of the YouTube or Vimeo video',
+			),
+			array(
+				'name' => 'External Image URL',
+				'id' => 'image',
+				'type' => 'external_image',
+				'data' => 'meta',
+				'desc' => 'Enter the URL of the image',
 			),
 		)
 	));

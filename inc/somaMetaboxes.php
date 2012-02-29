@@ -29,7 +29,7 @@ class somaMetaboxes extends somaticFramework {
 	// }
 
 	static $data = array();				// container for other plugins and themes to store custom metabox and field data
-	
+
 	function init() {
 	}
 
@@ -39,7 +39,7 @@ class somaMetaboxes extends somaticFramework {
 		if (empty(self::$data) || !self::$data) {
 			wp_die('missing custom metabox data...', 'Load Error!', array('back_link' => true));
 		}
-		
+
 		// hook for insertion before any box content
 		do_action('soma_before_all_metaboxes', $post);
 
@@ -51,7 +51,7 @@ class somaMetaboxes extends somaticFramework {
 				}
 			}
 		}
-		
+
 		// hook for insertion before any box content
 		do_action('soma_after_all_metaboxes', $post);
 	}
@@ -95,7 +95,8 @@ class somaMetaboxes extends somaticFramework {
 	timepicker
 	weight
 	media
-	external_media
+	external_media (video)
+	external_image
 	embed
 */
 	function soma_metabox_generator($post,$box) {
@@ -254,7 +255,7 @@ class somaMetaboxes extends somaticFramework {
 				// no name given, so span both columns
 				echo '<td colspan="2">';
 			}
-			
+
 			// keep it true to execute the code at the end that displays the "desc" row (allows us to bypass within these cases)
 			$dodesc = true;
 
@@ -627,23 +628,49 @@ class somaMetaboxes extends somaticFramework {
 				// external media (youtube, vimeo, soundcloud)
 				case 'external_media':
 					echo '<input type="text" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $meta : $field['default'], '" class="meta-text', $complete ? null : $missing, '" />';
-
 					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null, '</td></tr>';
-					echo '<tr><td></td><td class="field-data"><input type="checkbox" name="copy-ext" id="copy-ext" class="meta-checkbox-single"/><label for="copy-ext"><em>Replace local Title and Description with text retrieved from Media URL</em></label></td></tr>';
+
+					$existing = soma_asset_meta('get', $post->ID, $field['id']."_attached");			// did we already save an attachment for this field?
+					if (empty($existing)) {
+						$import = 'checked="checked"';														// we haven't, so check import by default	
+					}
+					$thumb = get_post_thumbnail_id( $post->ID );											// grab featured image
+					if ( empty($thumb) ) {																	// if featured hasn't been set, check featured by default
+						$featured = 'checked="checked"';
+					}
+					// output
+					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="import-ext-image" id="import-ext-image" class="meta-checkbox-single" '.$import.'/><label for="import-ext-image">Import the external media thumbnail image as an attachment</label></td></tr>';
+					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="use-ext-feature" id="use-ext-feature" class="meta-checkbox-single" '.$featured.'/><label for="use-ext-feature">Use the imported image as the Featured Image for this asset</label></td></tr>';
+					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="copy-ext-meta" id="copy-ext-meta" class="meta-checkbox-single"/><label for="copy-ext-meta">Use the Title and Description from the external media source</label></td></tr>';
 					$dodesc = false;
 					if ($meta) {
-						$ext = somaFunctions::asset_meta('get', $post->ID, $field['id'].'_ext');	// grab external media API response we've already saved
-						// the data should have been saved, but if for some reason it didn't, fetch it now (takes longer)
-						// if (empty($ext)) {
-						// 	$ext = somaFunctions::fetch_external_media($meta);
-						// }
-						echo '<tr><td class="field-label">Site</td><td class="field-data">'.$ext["site"].'</td></tr>';
+						$ext = soma_asset_meta('get', $post->ID, $field['id'].'_ext');	// grab external media API response we've already saved
+						echo '<tr><td class="field-label">Site Link</td><td class="field-data"><a href="'.$ext["url"].'" target="_blank">'.ucwords($ext["site"]).'</a></td></tr>';
 						echo '<tr><td class="field-label">ID</td><td class="field-data">'.$ext["id"].'</td></tr>';
-						echo '<tr><td class="field-label">URL</td><td class="field-data"><a href="'.$ext["url"].'">Link</a></td></tr>';
 						echo '<tr><td class="field-label">Source Title</td><td class="field-data">'.$ext["title"].'</td></tr>';
 						echo '<tr><td class="field-label">Source Desc</td><td class="field-data">'.$ext["desc"].'</td></tr>';
-						echo '<tr><td class="field-label">Thumbnail</td><td class="field-data"><a class="trigger colorbox" href="'.$ext['iframe'].'" iframe="true"></a><img src="'.$ext['thumb'].'"></td></tr>';
+						echo '<tr><td class="field-label">Source Image</td><td class="field-data"><a class="trigger colorbox" href="'.$ext['iframe'].'" iframe="true"></a><img src="'.$ext['thumb'].'"></td></tr>';
 						// echo "<li>{$ext['embed']}</li>";
+					}
+				break;
+				// ----------------------------------------------------------------------------------------------------------------------------- //
+				// external image (url)
+				case 'external_image':
+					echo '<input type="text" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $meta : $field['default'], '" class="meta-text', $complete ? null : $missing, '" />';
+					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null, '</td></tr>';
+
+					if ( !has_post_thumbnail( $post->ID ) ) {
+						$thumb = 'checked="checked"';	// select these by default if there isn't already a featured image
+					} else {
+						$img = soma_featured_image($post->ID, 'thumb');
+					}
+					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="import-ext-image" id="import-ext-image" class="meta-checkbox-single" '.$thumb.'/><label for="import-ext-image">Import the external image as an attachment</label></td></tr>';
+					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="use-ext-feature" id="use-ext-feature" class="meta-checkbox-single" '.$thumb.'/><label for="use-ext-feature">Use the imported image as the Featured Image for this asset</label></td></tr>';
+					$dodesc = false;
+					if ($meta) {
+						echo '<tr><td class="field-label">Source Link</td><td class="field-data"><a href="'.$meta.'" target="_blank">'.$meta.'</a></td></tr>';
+						echo '<tr><td class="field-label">Source Image</td><td class="field-data"><a class="colorbox" href="'.$meta.'" iframe="true"></a><img src="'.$meta.'"></td></tr>';
+						echo $img ? '<tr><td class="field-label">Imported Thumbnail</td><td class="field-data"><img src="'.$meta.'"></td></tr>': null;
 					}
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
@@ -675,7 +702,7 @@ class somaMetaboxes extends somaticFramework {
 						// output jplayer
 						echo "<div id=\"jplayer-admin\" class=\"jp-jplayer $type\" rel=\"$url\"></div>";
 						if ( $type == 'audio') :  ?>
-						
+
 							<script type="text/javascript">
 								jQuery(document).ready(function($) {
 									// jPlayer media player
@@ -735,7 +762,7 @@ class somaMetaboxes extends somaticFramework {
 						endif;
 
 						if ($type == 'video') : ?>
-						
+
 							<script type="text/javascript">
 								jQuery(document).ready(function($) {
 									// jPlayer media player
@@ -810,7 +837,7 @@ class somaMetaboxes extends somaticFramework {
 
 			// hook to output case-specific metabox types not specified above
 			do_action('soma_field_type_case', $post, $meta, $field, $complete);
-			
+
 			// output row for field description and close tags
 			if ($dodesc) {
 				echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
@@ -921,7 +948,7 @@ class somaMetaboxes extends somaticFramework {
 	function select_types() {
 		$types = get_post_types( array( 'exclude_from_search' => false, '_builtin' => false  ), 'objects' );
 		foreach ($types as $type) {
-			$list[] = array('name' => $type->label, 'value' => $type->rewrite['slug']);
+			$list[] = array('name' => $type->label, 'value' => $type->query_var);
 		}
 		return $list;
 	}

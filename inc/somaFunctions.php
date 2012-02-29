@@ -8,7 +8,7 @@ class somaFunctions extends somaticFramework {
 		add_filter( 'query_vars', array(__CLASS__,'custom_query_vars' ));
 		add_filter( 'parse_query', array(__CLASS__,'filter_current_query' ));
 		add_filter( 'pre_get_posts', array(__CLASS__,'pre_get_posts'));
-		add_action( 'delete_post', array(__CLASS__, 'delete_attachments' ));
+		add_action( 'delete_post', array(__CLASS__, 'delete_attachments_when_parents_die' ));
 		add_filter( 'gettext',  array(__CLASS__, 'modify_core_language'  ));
 		add_filter( 'ngettext',  array(__CLASS__, 'modify_core_language'  ));
 		// add_filter( 'login_redirect', array(__CLASS__, 'dashboard_redirect' ));
@@ -49,6 +49,12 @@ class somaFunctions extends somaticFramework {
 	// changes how many items are shown per page in /wp-admin/edit.php
 	function edit_list_length() {
 		return 40;
+	}
+
+	// checks if array is associative or not
+	function array_is_associative($arr) {
+		if (!is_array($arr)) return false;
+		return array_keys($arr) !== range(0, count($arr) - 1);
 	}
 
 	function fetch_facebook_pic($pid,$size = "square") {
@@ -559,23 +565,14 @@ class somaFunctions extends somaticFramework {
 	     return $translated;
 	}
 
-	// deletes all attachments (including the actual files on server) when a post is deleted -- DO WE REALLY WANT TO DO THIS?????
-	function delete_attachments($pid) {
-		$attachments = get_children( array( 'post_parent' => $pid, 'post_type' => 'attachment' ) );
-		$attachments = array_keys($attachments); // pares down array to just the id's
-		foreach ( $attachments as $attid ) {
-			wp_delete_attachment($attid, true);
-		}
-	}
-
-	// scribu's version of the function above.... (not in use)
-	function delete_post_children($post_id) {
+	// deletes all attachments (including the actual files on server) when a post is deleted -- DO WE REALLY WANT TO DO THIS????? (they do go to the trash first...)
+	function delete_attachments_when_parents_die($post_id) {
 		global $wpdb;
 		$ids = $wpdb->get_col("SELECT ID FROM {$wpdb->posts} WHERE post_parent = $post_id AND post_type = 'attachment'");
-		foreach ( $ids as $id )
-			wp_delete_attachment($id, true);
+		foreach ( $ids as $id ) {
+			wp_delete_attachment($id);
+		}
 	}
-
 
 	//** allows use of custom field data in the query vars URL string. without this, would need to call the query_posts() function and pass meta_key/meta_value...
 	function custom_query_vars($qvars) {
@@ -685,12 +682,16 @@ class somaFunctions extends somaticFramework {
 					$img['thumb']['path'] 	= 	$media_path . $img['thumb']['file'];
 				}
 				if ( isset($att_meta['sizes']['medium'])) {
-					$img['medium']['file'] 	= 	$att_meta['sizes']['medium']['file'];
-					$img['medium']['url'] 	= 	$media_url . $img['medium']['file'];
-					$img['medium']['path']	= 	$media_path . $img['medium']['file'];
+					$img['medium']['file'] 		= 	$att_meta['sizes']['medium']['file'];
+					$img['medium']['width'] 	= 	$att_meta['sizes']['medium']['width'];
+					$img['medium']['height'] 	= 	$att_meta['sizes']['medium']['height'];
+					$img['medium']['url'] 		= 	$media_url . $img['medium']['file'];
+					$img['medium']['path']		= 	$media_path . $img['medium']['file'];
 				}
 				if ( isset($att_meta['sizes']['large'])) {
 					$img['large']['file'] 	= 	$att_meta['sizes']['large']['file'];
+					$img['large']['width'] 	= 	$att_meta['sizes']['large']['width'];
+					$img['large']['height'] = 	$att_meta['sizes']['large']['height'];
 					$img['large']['url'] 	= 	$media_url . $img['large']['file'];
 					$img['large']['path'] 	= 	$media_path . $img['large']['file'];
 				}
@@ -743,7 +744,7 @@ class somaFunctions extends somaticFramework {
 		// 	}
 		// }
 		// return just the requested string
-		if ($specific != null) {
+		if (!empty($specific)) {
 			if ($specific == 'filename') return $img['full']['file'];
 			return $img[$specific]['url'];
 		} else {
@@ -1226,7 +1227,7 @@ SQL;
 		$meta = $meta['entry'];     // isolate the single entry we requested
 		return $meta;
 	}
-	
+
 	// grab metadata from external site URL
 	// only supporting 3 media sites right now: youtube, vimeo, soundcloud
 	function fetch_external_media($url = null, $width = null, $height = null) {
@@ -1236,7 +1237,7 @@ SQL;
 		if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
 			$url = "http://" . $url;
 	    }
-		
+
 		// identify which site
 		switch (true) {
 			case ( strpos( $url, 'youtube.com' ) > 0 || strpos ($url, 'youtu.be' ) > 0 ) :
@@ -1252,11 +1253,11 @@ SQL;
 				return new WP_Error('missing', "Problem with the URL. Can't figure out which site it's from (or it's not supported). Check to make sure you entered it correctly...");
 			break;
 		}
-		
+
 		$media = array();	// init container
 		$width = $width ? $width : "853";			// iframe default
 		$height = $height ? $height : "480";		// iframe default
-		
+
 		// extract ID, fetch meta, build output
 		switch ($site) {
 			case "youtube";
@@ -1293,7 +1294,7 @@ SQL;
 					$media['duration']	= $meta['duration'];																				// in seconds
 					$media['mobile']	= $meta['mobile_url'];																				// mobile-friendly display url
 					$media['embed']		= $meta['html'];																					// auto embed code (should be HTML5/ipad compatible)
-					$media['iframe']	= "http://player.vimeo.com/video/$id?title=0&amp;byline=0&amp;portrait=0&amp;autoplay=1";			// url to pass to iframe renderers (like colorbox)
+					$media['iframe']	= "http://player.vimeo.com/video/$id?title=0&amp;byline=0&amp;portrait=0&amp;&amp;frameborder=0&amp;autoplay=1";			// url to pass to iframe renderers (like colorbox)
 					$media['api']		= $meta;																							// we include everything we got from the site API, just in case (each site formats differently)
 				} else {
 					return new WP_Error('missing', "Can't extract ID from vimeo URL...");
@@ -1312,6 +1313,136 @@ SQL;
 		if (empty($media)) return new WP_Error('missing', "Somehow we failed...");
 		// success
 		return $media;
+	}
+
+
+	// retrieves ID of attachment from given URL
+	// source: Rarst  http://wordpress.stackexchange.com/questions/6645/turn-a-url-into-an-attachment-post-id
+	function get_attachment_id_from_url( $url ) {
+
+		$dir = wp_upload_dir();
+		$dir = trailingslashit($dir['baseurl']);
+
+		if( false === strpos( $url, $dir ) )
+			return new WP_Error('missing', "Something wrong with this url...");
+
+		$file = basename($url);
+
+		$query = array(
+			'post_type' => 'attachment',
+			'fields' => 'ids',
+			'meta_query' => array(
+				array(
+					'value' => $file,
+					'compare' => 'LIKE',
+					)
+			)
+		);
+
+		$query['meta_query'][0]['key'] = '_wp_attached_file';
+		$ids = get_posts( $query );
+
+		foreach( $ids as $id )
+			if ( $url == array_shift( wp_get_attachment_image_src($id, 'full') ) )
+				return $id;
+
+		$query['meta_query'][0]['key'] = '_wp_attachment_metadata';
+		$ids = get_posts( $query );
+
+		foreach( $ids as $id ) {
+
+			$meta = wp_get_attachment_metadata($id);
+
+			foreach( $meta['sizes'] as $size => $values )
+			if( $values['file'] == $file && $url == array_shift( wp_get_attachment_image_src($id, $size) ) ) {
+
+				return $id;
+			}
+		}
+
+		return new WP_Error('missing', "Somehow we failed...");
+	}
+
+	/**
+	 * Download an image from the specified URL and attach it to a post.
+	 * Modified version of core function media_sideload_image() in /wp-admin/includes/media.php  (which returns an html img tag instead of attachment ID)
+	 * Additional functionality: ability override actual filename, and to pass $post_data to override values in wp_insert_attachment (original only allowed $desc)
+	 *
+	 * @since 1.4
+	 *
+	 * @param string $file The URL of the image to download
+	 * @param int $post_id The post ID the media is to be associated with
+	 * @param bool $thumb Optional. Whether to make this attachment the Featured Image for the post
+	 * @param string $filename Optional. Replacement filename for the URL filename (do not include extension)
+	 * @param array $post_data Optional. Array of key => values for wp_posts table (ex: 'post_title' => 'foobar', 'post_status' => 'draft')
+	 * @return int|object The ID of the attachment or a WP_Error on failure
+	 */
+	function attach_external_image( $url = null, $post_id = null, $thumb = null, $filename = null, $post_data = array() ) {
+		if ( !$url || !$post_id ) return new WP_Error('missing', "Need a valid URL and post ID...");
+		if ( !self::array_is_associative( $post_data ) ) return new WP_Error('missing', "Must pass post data as associative array...");
+
+		// Download file to temp location, returns full server path to temp file, ex; /home/somatics/public_html/mysite/wp-content/26192277_640.tmp MUST BE FOLLOWED WITH AN UNLINK AT SOME POINT
+		$tmp = download_url( $url );
+
+		// If error storing temporarily, unlink
+		if ( is_wp_error( $tmp ) ) {
+			@unlink($file_array['tmp_name']);	// clean up
+			$file_array['tmp_name'] = '';
+			return $tmp; // output wp_error
+		}
+
+		preg_match('/[^\?]+\.(jpg|JPG|jpe|JPE|jpeg|JPEG|gif|GIF|png|PNG)/', $url, $matches);	// fix file filename for query strings
+		$url_filename = basename($matches[0]);													// extract filename from url for title
+		$url_type = wp_check_filetype($url_filename);											// determine file type (ext and mime/type)
+
+		// override filename if given, reconstruct server path
+		if ( !empty( $filename ) ) {
+			$filename = sanitize_file_name($filename);
+			$tmppath = pathinfo( $tmp );														// extract path parts
+			$new = $tmppath['dirname'] . "/". $filename . "." . $tmppath['extension'];			// build new path
+			rename($tmp, $new);																	// renames temp file on server
+			$tmp = $new;																		// push new filename (in path) to be used in file array later
+		}
+
+		// assemble file data (should be built like $_FILES since wp_handle_sideload() will be using)
+		$file_array['tmp_name'] = $tmp;															// full server path to temp file
+
+		if ( !empty( $filename ) ) {
+			$file_array['name'] = $filename . "." . $url_type['ext'];							// user given filename for title, add original URL extension
+		} else {
+			$file_array['name'] = $url_filename;												// just use original URL filename
+		}
+
+		// set additional wp_posts columns
+		if ( empty( $post_data['post_title'] ) ) {
+			$post_data['post_title'] = basename($url_filename, "." . $url_type['ext']);			// just use the original filename (no extension)
+		}
+		
+		// make sure gets tied to parent
+		if ( empty( $post_data['post_parent'] ) ) {
+			$post_data['post_parent'] = $post_id;
+		}
+
+		// required libraries for media_handle_sideload
+		require_once(ABSPATH . 'wp-admin/includes/file.php');
+		require_once(ABSPATH . 'wp-admin/includes/media.php');
+		require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+		// do the validation and storage stuff
+		$att_id = media_handle_sideload( $file_array, $post_id, null, $post_data );				// $post_data can override the items saved to wp_posts table, like post_mime_type, guid, post_parent, post_title, post_content, post_status
+
+		// If error storing permanently, unlink
+		if ( is_wp_error($att_id) ) {
+			@unlink($file_array['tmp_name']);	// clean up
+			return $att_id; // output wp_error
+		}
+
+		// set as post thumbnail if desired
+		if ($thumb) {
+			set_post_thumbnail($post_id, $att_id);
+		}
+
+		return $att_id;
 	}
 
 }

@@ -1,4 +1,6 @@
-/* @override http://academy.mises.org/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.0 */
+/* @override 
+	http://markshoots.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.0 */
+
 
 /* clicker button */
 
@@ -76,6 +78,13 @@
 	min-width: 200px;
 	width: 80%;
 
+}
+
+#poststuff td.field-data.field-option {
+	margin-bottom: 0;
+	padding-bottom: 0;
+	padding-top: 0;
+	color: #acacac;
 }
 
 #poststuff td.field-desc {
@@ -161,7 +170,7 @@ textarea {
 
 /* edit.php column styles */
 .wp-list-table .column-thumb {
-	width: 134px;
+
 }
 
 /* attachments metabox display */

@@ -216,7 +216,7 @@ class somaSave extends somaticFramework {
 							}
 						}
 					}
-					// for date inputs
+					// for date inputs  --------------------------------------------------------------//
 					if ($field['type'] == 'date') {
 
 						// assemble date field data
@@ -230,7 +230,7 @@ class somaSave extends somaticFramework {
 							$new = null;
 						}
 					}
-					// for datepicker jqueryUI inputs
+					// for datepicker jqueryUI inputs  --------------------------------------------------------------//
 					if ($field['type'] == 'datepicker') {
 						if ($_POST[$field['id']] != '') {
 							$new = date("Y-m-d", strtotime($_POST[$field['id']]));	 // force storing date as Y-m-d, not timestamps
@@ -239,7 +239,7 @@ class somaSave extends somaticFramework {
 							$new = null;
 						}
 					}
-					// for time inputs (dropdown select interface)
+					// for time inputs (dropdown select interface)  --------------------------------------------------------------//
 					if ($field['type'] == 'time') {
 						// assemble date field data
 						$hour = $_POST[$field['id'].'_hour'];
@@ -252,7 +252,7 @@ class somaSave extends somaticFramework {
 							$new = null;
 						}
 					}
-					// for timepicker jqueryUI inputs
+					// for timepicker jqueryUI inputs  --------------------------------------------------------------//
 					if ($field['type'] == 'timepicker') {
 							if ($_POST[$field['id']] != '') {
 								$new = date("H:i:s", strtotime($_POST[$field['id']]));	// force storing time directly as H:i:s, not timestamps!
@@ -261,7 +261,7 @@ class somaSave extends somaticFramework {
 								$new = null;
 							}
 					}
-					// for weight inputs
+					// for weight inputs  --------------------------------------------------------------//
 					if ($field['type'] == 'weight') {
 
 						$lbs = intval($_POST[$field['id'].'_lbs']);
@@ -273,29 +273,75 @@ class somaSave extends somaticFramework {
 							$new = false;
 						}
 					}
-					
-					// for external media URL fields
+
+					// for external media URL fields  --------------------------------------------------------------//
 					if ($field['type'] == 'external_media') {
-						if (!empty($new)) {																			// user entered something, field not blank
+						$ext_media = null;																			// init container
+						
+						// field is newly changed
+						if (!empty($new) && $new != $old) {																			
 							$ext_media = somaFunctions::fetch_external_media($new);									// parse url and ping APIs
 							if (!is_wp_error($ext_media)) {															// did the url process okay?
 								$new = $ext_media['url'];															// replace user-submitted with "cleaned" url
 								somaFunctions::asset_meta('save', $pid, $field['id']."_ext", $ext_media);			// save another key with all the metadata associated with this external media url (so we don't have to call external API's everytime)
-								if ($_POST['copy-ext']) {															// user has chosen to copy the external media metadata into the asset, replacing the user fields NOTE: for this to work, this field should appear after the title and desc fields!!!
-									somaFunctions::asset_meta('save', $pid, 'desc', $ext_media['desc']);			// overwrite the desc
-									$wpdb->update( $wpdb->posts, array( 'post_title' => $ext_media['title'] ), array( 'ID' => $pid ));	// overwrite the post title
-								}
 							} else {
-								$error = $ext_media->get_error_message();												// something didnt' work
-								$new = null;
-								wp_die($error);
+								$new = null;																		// didn't work, nuke the field data
+								wp_die($ext_media->get_error_message());											// should probably display an error notification rather than dying....
 							}
-						} else {
-							$new = null;
+						}
+						
+						// field is already populated, but/and user has chosen to copy the external title/desc into the asset, replacing the user fields NOTE: for this to work, this field should appear after the title and desc fields!
+						if (!empty($new) && $_POST['copy-ext-meta']) {
+							if (empty($ext_media)) $ext_media = somaFunctions::fetch_external_media($new);			// grab if we haven't already (since $new hasn't changed)
+							if (is_wp_error($ext_media)) wp_die($ext_media->get_error_message());					// bail if didn't work
+							
+							somaFunctions::asset_meta('save', $pid, 'desc', $ext_media['desc']);					// overwrite the desc
+							$wpdb->update( $wpdb->posts, array( 'post_title' => $ext_media['title'] ), array( 'ID' => $pid ));	// overwrite the post title
+						}
+						
+						// field is already populated, but/and user has chosen to import external source thumbnail into library and attach to post and possibly set as featured image
+						if (!empty($new) && $_POST['import-ext-image'] || $_POST['use-ext-feature']) {
+							if (empty($ext_media)) $ext_media = somaFunctions::fetch_external_media($new);			// grab if we haven't already (since $new hasn't changed)
+							if (is_wp_error($ext_media)) wp_die($ext_media->get_error_message());					// bail if didn't work
+
+							$existing = somaFunctions::asset_meta('get', $pid, $field['id']."_attached");			// did we already save an attachment for this field?
+							if ( !empty( $existing ) ) {
+								wp_delete_attachment( $existing, true );											// kill it so we don't spawn more
+							}
+
+							// upload the image from url into library, and use as featured image if checked
+							$result = somaFunctions::attach_external_image($ext_media['thumb'], $pid, $_POST['use-ext-feature'], null, array('post_title' => '[frame] '.$ext_media['title'])); // title the attachment [frame] title (of external video)
+							if (is_wp_error($result)) wp_die($result->get_error_message());
+							
+							// save new attachment ID to indicate that we have already imported an attachment for this field, so we can overwrite it later (if user checks import-ext-image again) instead of spawning more attachments
+							somaFunctions::asset_meta('save', $pid, $field['id']."_attached", $result);
 						}
 					}
 
-					// file uploads (creates attachments)
+					// for external media URL fields  --------------------------------------------------------------//
+					if ($field['type'] == 'external_image') {
+						if (!empty($new)) {																				// field newly or already populated
+
+							// import external source thumbnail into library and attach to post
+							if ($_POST['import-ext-image'] || $_POST['use-ext-feature']) {
+
+								// did we already save an attachment for this field?
+								$existing = somaFunctions::asset_meta('get', $pid, $field['id']."_attached");
+								if ( !empty( $existing ) ) {
+									wp_delete_attachment( $existing, true );											// kill it so we don't spawn more
+								}
+
+								// upload the image from url into library, and use as featured image if checked
+								$result = somaFunctions::attach_external_image($new, $pid, $_POST['use-ext-feature'] ); // should give this a post_title? but based on what?
+								if (is_wp_error($result)) wp_die($result->get_error_message());
+								
+								// save new attachment ID to indicate that we have already imported an attachment for this field, so we can overwrite it later (if user checks import-ext-image again) instead of spawning more attachments
+								somaFunctions::asset_meta('save', $pid, $field['id']."_attached", $result);
+							}
+						}
+					}
+
+					// file uploads (creates attachments)  --------------------------------------------------------------//
 					if ($field['type'] == 'upload') {
 						if (!empty($_FILES[$field['id']])) {
 
