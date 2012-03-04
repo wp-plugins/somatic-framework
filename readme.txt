@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com.com/code
 Requires at least: 3.3
 Tested up to: 3.3
-Stable tag: 1.4
+Stable tag: 1.4.1
 License: GPLv2 or later
 
 Adds useful classes for getting the most out of Wordpress' advanced CMS features
@@ -33,6 +33,13 @@ Otherwise, not yet ;-)
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.4.1 =
+* soma_external_media() now supports SoundCloud URLs!
+* fixed inconsistencies with metabox handling of media types. Make sure data=attachment and type=media
+* fixed problem with external media metabox colorbox iframes (no dimensions were given)
+* fixed colorbox trigger play icon to be more reliable
+* mediaelement.js replaces jPlayer when displaying media attachments in admin metaboxes (though at the moment requires wp plugin http://wordpress.org/extend/plugins/media-element-html5-video-and-audio-player/)
 
 = 1.4 = 
 * new metabox field type: external_media - Text field that accepts vimeo or youtube URLs, and fetches that video's metadata via each site's public API. Also saves that response in post_meta for quicker retrieval.

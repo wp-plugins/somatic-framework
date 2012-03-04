@@ -838,18 +838,20 @@ class somaFunctions extends somaticFramework {
 			'numberposts' => -1,
 			'post_status' => 'any',
 		);
-		// only return requested type (helpful when images may already be attached)
-		switch ($type) {
-			case 'audio' :
-				$args['post_mime_type'] = 'audio/mpeg';
-			break;
-			case 'video' :
-				$args['post_mime_type'] = 'video/mp4';
-			break;
-			default:
-				//
-			break;
-		}
+		if (!empty($type)) :
+			// only return requested type (helpful when images may already be attached)
+			switch ($type) {
+				case 'audio' :
+					$args['post_mime_type'] = 'audio/mpeg';
+				break;
+				case 'video' :
+					$args['post_mime_type'] = 'video/mp4';
+				break;
+				default:
+					//
+				break;
+			}
+		endif;
 		// fetch children (results in array of objects, even if only one exists)
 		$kids = get_posts($args);
 		// check if empty
@@ -1300,10 +1302,27 @@ SQL;
 					return new WP_Error('missing', "Can't extract ID from vimeo URL...");
 				}
 			break;
-			case "soundcloud";		// haven't done this one yet....
-				if ( $foo ) {
-					$id = 1;
-					$meta = 'foo';
+			case "soundcloud";
+				$clientid = "006b3d9b3bbd5bd6cc7d27ab05d9a11b";		// my soundcloud api id
+				if ($meta = json_decode(file_get_contents("http://api.soundcloud.com/resolve?client_id=".$clientid."&format=json&url=".urlencode($url)), true)) {
+				//	$oembed = json_decode(file_get_contents("http://soundcloud.com/oembed?format=json&show_comments=false&auto_play=true&url=".urlencode($url)), true);
+					$media['id']		= $meta['id'];
+					$media['url']		= $meta['permalink_url'];
+					$media['site']		= $site;
+					if (empty($meta['artwork_url'])) {
+						$media['thumb']	= $meta['waveform_url'];
+					} else {
+						$media['thumb']	= $meta['artwork_url'];
+					}
+					$media['title']		= $meta['title'];
+					$media['desc']		= $meta['description'];
+					$media['duration']	= $meta['duration'];
+					$media['mobile']	= $meta['stream_url']."?client_id=006b3d9b3bbd5bd6cc7d27ab05d9a11b";
+					$media['direct']	= $meta['stream_url']."?client_id=006b3d9b3bbd5bd6cc7d27ab05d9a11b";
+					$media['iframe']	= "http://w.soundcloud.com/player/?url=".$meta['uri']."?auto_play=true&show_artwork=false&show_comments=false&color=000000&show_playcount=false&sharing=false&show_user=false&liking=false";				// http://developers.soundcloud.com/docs/oembed   --  https://github.com/soundcloud/Widget-JS-API/wiki/widget-options
+					$media['embed']		= '<iframe width="100%" height="166" scrolling="no" frameborder="no" src="'.$media['iframe'].'"></iframe>';
+					$media['format']	= $meta['original_format'];					
+					$media['api']		= $meta;													// mp3 in this case
 				} else {
 					return new WP_Error('missing', "Can't extract ID from soundcloud URL...");
 				}
@@ -1366,15 +1385,15 @@ SQL;
 	/**
 	 * Download an image from the specified URL and attach it to a post.
 	 * Modified version of core function media_sideload_image() in /wp-admin/includes/media.php  (which returns an html img tag instead of attachment ID)
-	 * Additional functionality: ability override actual filename, and to pass $post_data to override values in wp_insert_attachment (original only allowed $desc)
+	 * Additional functionality: ability override actual filename, set as post thumbnail, and to pass $post_data to override values in wp_insert_attachment (original only allowed $desc)
 	 *
 	 * @since 1.4
 	 *
-	 * @param string $file The URL of the image to download
-	 * @param int $post_id The post ID the media is to be associated with
-	 * @param bool $thumb Optional. Whether to make this attachment the Featured Image for the post
-	 * @param string $filename Optional. Replacement filename for the URL filename (do not include extension)
-	 * @param array $post_data Optional. Array of key => values for wp_posts table (ex: 'post_title' => 'foobar', 'post_status' => 'draft')
+	 * @param string $url (required) The URL of the image to download
+	 * @param int $post_id (required) The post ID the media is to be associated with
+	 * @param bool $thumb (optional) Whether to make this attachment the Featured Image for the post
+	 * @param string $filename (optional) Replacement filename for the URL filename (do not include extension)
+	 * @param array $post_data (optional) Array of key => values for wp_posts table (ex: 'post_title' => 'foobar', 'post_status' => 'draft')
 	 * @return int|object The ID of the attachment or a WP_Error on failure
 	 */
 	function attach_external_image( $url = null, $post_id = null, $thumb = null, $filename = null, $post_data = array() ) {
@@ -1417,7 +1436,7 @@ SQL;
 		if ( empty( $post_data['post_title'] ) ) {
 			$post_data['post_title'] = basename($url_filename, "." . $url_type['ext']);			// just use the original filename (no extension)
 		}
-		
+
 		// make sure gets tied to parent
 		if ( empty( $post_data['post_parent'] ) ) {
 			$post_data['post_parent'] = $post_id;

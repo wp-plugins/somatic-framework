@@ -1,5 +1,5 @@
 /* @override 
-	http://markshoots.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.0 */
+	http://somakat.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.1 */
 
 
 /* clicker button */
@@ -58,7 +58,7 @@
 
 /* metabox fields */
 
-#poststuff tr.fieldrow {
+#poststuff .form-table tr.fieldrow {
 	border-top: 1px dotted #ddd;
 }
 
@@ -66,7 +66,7 @@
 	border-top: none;
 }
 
-#poststuff td.field-label {
+#poststuff .form-table .field-label {
 	min-width: 50px;
 	width: 20%;
 	vertical-align: top;
@@ -74,20 +74,27 @@
 	padding-bottom: 20px;
 }
 
-#poststuff td.field-data {
+#poststuff .form-table .field-data {
 	min-width: 200px;
-	width: 80%;
-
+	width: 95%;
+	display: block;
 }
 
-#poststuff td.field-data.field-option {
+#poststuff .form-table .field-data img,
+#poststuff .form-table .field-data a img {
+	max-width: 100%;
+	display: block;
+}
+
+
+#poststuff .form-table .field-data.field-option {
 	margin-bottom: 0;
 	padding-bottom: 0;
 	padding-top: 0;
 	color: #acacac;
 }
 
-#poststuff td.field-desc {
+#poststuff .form-table .field-desc {
 	padding-top: 0;
 	padding-bottom: 10px;
 	color: #acacac;
@@ -97,16 +104,28 @@
 }
 
 
-#poststuff td.field-data input[type='text'],
-#poststuff td.field-data input[type='file'] {
+#poststuff .form-table .field-data input[type='text'],
+#poststuff .form-table .field-data input[type='file'] {
 	width: 100%;
 }
 
-#poststuff td.field-data input[alt='numeric'] {
+#poststuff .form-table .field-data input[alt='numeric'] {
 	width: 110px;
 }
+/*	html5 media tags (mediaelement handles)*/
+#poststuff .form-table .field-data video {
+	display: block;
+	background: #666;
+	max-width: 100%;
+	height: auto;
+}
 
-#poststuff td.field-save {
+#poststuff .form-table .field-data audio {	
+	width:100%;
+	display: block;
+}
+
+#poststuff .form-table .field-save {
 	width: 100%;
 }
 
@@ -207,12 +226,8 @@ ul.meta-attachment-actions {
 /* play button overlay */
 .trigger {
 	display: block;
-	position: absolute;
-	width:  0px;
-	height: 0px;
-	background: transparent url('../images/play.png') no-repeat center center;
-	opacity: 0.6;
+	background: transparent url('../images/play-static.png') no-repeat center center;
 }
 .trigger:hover {
-	opacity: 1;
+	background: transparent url('../images/play-hover.png') no-repeat center center;
 }

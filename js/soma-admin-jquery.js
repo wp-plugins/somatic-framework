@@ -117,64 +117,56 @@ jQuery(document).ready(function($) {
 	});
 
 	// colorbox activation through manual class assignment
-	$("a.colorbox").colorbox({
-		inline: function(){
-		    return $(this).attr('inline');
-		},
-		href: function(){
-		    return $(this).attr('href');
-		},
+	$(".colorbox").colorbox({
+		// inline: function(){
+		//     return $(this).attr('inline');
+		// },
 		iframe: function(){
 		    return $(this).attr('iframe');
 		},
 		width: function(){
-			if ($(this).attr('width') !== 'undefined') {
+			if ($(this).attr('width') !== undefined) {
 				return $(this).attr('width');
-			}
-			if ($(this).attr('iframe') == "true") {
-				return "90%";
 			}
 		},
 		height: function(){
-			if ($(this).attr('height') !== 'undefined') {
+			if ($(this).attr('height') !== undefined) {
 				return $(this).attr('height');
-			}
-			if ($(this).attr('iframe') == "true") {
-				return "90%";
 			}
 		},
 		maxWidth: function(){
-			if ($(this).attr('maxWidth') !== 'undefined') {
+			if ($(this).attr('maxWidth') !== undefined) {
 				return $(this).attr('maxWidth');
 			}
 		},
 		maxHeight: function(){
-			if ($(this).attr('maxHeight') !== 'undefined') {
+			if ($(this).attr('maxHeight') !== undefined) {
 				return $(this).attr('maxHeight');
 			}
 		},
 		innerWidth: function(){
-			if ($(this).attr('innerWidth') !== 'undefined') {
+			if ($(this).attr('innerWidth') !== undefined) {
 				return $(this).attr('innerWidth');
 			}
 		},
 		innerHeight: function(){
-			if ($(this).attr('innerHeight') !== 'undefined') {
+			if ($(this).attr('innerHeight') !== undefined) {
 				return $(this).attr('innerHeight');
 			}
 		},
 		scalePhotos: true,
 		scrolling: false,
+		fastIframe: false
 	});
 	
 	// automatically grow textareas as you type
 	// $('textarea').autosize();
 
 	// match trigger play icon block to the item it's overlaying
-	$(".trigger").each(function(){
-		$(this).width($(this).next().width());
-		$(this).height($(this).next().height());
-	});
+	// $(".trigger").each(function(){
+	// 	$(this).width($(this).next().width());
+	// 	$(this).height($(this).next().height());
+	// });
 
 	// end
 });

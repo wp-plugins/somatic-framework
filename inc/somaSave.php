@@ -310,11 +310,15 @@ class somaSave extends somaticFramework {
 							}
 
 							// upload the image from url into library, and use as featured image if checked
-							$result = somaFunctions::attach_external_image($ext_media['thumb'], $pid, $_POST['use-ext-feature'], null, array('post_title' => '[frame] '.$ext_media['title'])); // title the attachment [frame] title (of external video)
+							$result = somaFunctions::attach_external_image($ext_media['thumb'], $pid, $_POST['use-ext-feature'], null, array('post_title' => '[ext] '.$ext_media['title'])); // title the attachment [frame] title (of external video)
 							if (is_wp_error($result)) wp_die($result->get_error_message());
 							
 							// save new attachment ID to indicate that we have already imported an attachment for this field, so we can overwrite it later (if user checks import-ext-image again) instead of spawning more attachments
 							somaFunctions::asset_meta('save', $pid, $field['id']."_attached", $result);
+						}
+						// field has been cleared, so get rid of any external metadata that may have been stored
+						if (empty($new) && $new != $old) {
+							somaFunctions::asset_meta('delete', $pid, $field['id']."_ext");
 						}
 					}
 

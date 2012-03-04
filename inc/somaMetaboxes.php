@@ -4,18 +4,6 @@ class somaMetaboxes extends somaticFramework {
 	function __construct() {
 		add_action( 'init', array(__CLASS__,'init' ) );
 		add_action( 'post_edit_form_tag' , array(__CLASS__,'post_edit_form_tag' ) );
-		add_action( 'admin_print_styles-post.php', array(__CLASS__, 'jplayer_styles') );
-		add_action( 'admin_print_scripts-post.php', array(__CLASS__, 'jplayer_scripts') );
-	}
-
-	// load jplayer on post.php for media objects (wish we could load these only if media metabox existed...)
-	function jplayer_scripts() {
-		wp_enqueue_script( 'jplayer' );
-		wp_enqueue_script( 'jplayer-playlist' );
-		// wp_enqueue_script( 'jplayer-inspector' );
-	}
-	function jplayer_styles() {
-		wp_enqueue_style( 'jplayer-style' );
 	}
 
 	// needed to allow file upload inputs (input[type="file"]) within post.php
@@ -64,7 +52,7 @@ class somaMetaboxes extends somaticFramework {
 	name
 	id
 	type
-	data - meta, core, user, p2p, media
+	data - meta, core, user, p2p, attachment
 	options
 	once - only allows data to be set one time, then becomes readonly
 	multple
@@ -166,8 +154,8 @@ class somaMetaboxes extends somaticFramework {
 			}
 
 			// get media attachment
-			if ($field['data'] == 'media') {
-				$meta = somaFunctions::fetch_attached_media($post->ID);
+			if ($field['data'] == 'attachment') {
+				$meta = somaFunctions::fetch_attached_media($post->ID, $field['type']);
 			}
 
 			// get connected posts by types and direction
@@ -649,12 +637,19 @@ class somaMetaboxes extends somaticFramework {
 						echo '<tr><td class="field-label">ID</td><td class="field-data">'.$ext["id"].'</td></tr>';
 						echo '<tr><td class="field-label">Source Title</td><td class="field-data">'.$ext["title"].'</td></tr>';
 						echo '<tr><td class="field-label">Source Desc</td><td class="field-data">'.$ext["desc"].'</td></tr>';
-						echo '<tr><td class="field-label">Source Image</td><td class="field-data"><a class="trigger colorbox" href="'.$ext['iframe'].'" iframe="true"></a><img src="'.$ext['thumb'].'"></td></tr>';
+
+						if ($ext['site'] == 'youtube' || $ext['site'] == 'vimeo') {
+							echo '<tr><td class="field-label">Source Image</td><td class="field-data"><a class="trigger colorbox" href="'.$ext['iframe'].'" iframe="true" innerWidth="853px" innerHeight="480px"></a><img src="'.$ext['thumb'].'"></td></tr>';
+						}
+						if ($ext['site'] == 'soundcloud') {
+							echo '<tr><td class="field-label">Source Image</td><td class="field-data" style="background-color:#000;"><a class="trigger colorbox" href="'.$ext['iframe'].'" iframe="true" width="85%" innerHeight="166px"><img src="'.$ext['thumb'].'" style="max-width:100%;"></a></td></tr>';
+							// echo '<tr><td class="field-label">Source Embed</td><td class="field-data">'.$ext['embed'].'</td></tr>';
+						}
 						// echo "<li>{$ext['embed']}</li>";
 					}
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
-				// external image (url)
+				// external image (direct url)
 				case 'external_image':
 					echo '<input type="text" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $meta : $field['default'], '" class="meta-text', $complete ? null : $missing, '" />';
 					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null, '</td></tr>';
@@ -680,13 +675,14 @@ class somaMetaboxes extends somaticFramework {
 					// add_action( 'admin_print_scripts', create_function('', 'wp_enqueue_script( "jplayer-inspector" );') );
 					// add_action( 'admin_print_styles', create_function('', 'wp_enqueue_style( "jplayer-style" );') );
 
-				// media player output
+				// upload/modify media file button
 				$label = $meta ? "Modify Media File" : "Upload Media File";
 				echo "<a href=\"media-upload.php?post_id=$post->ID&amp;TB_iframe=1&amp;height=800&amp;width=640\" id=\"add_media\" class=\"thickbox clicker\" onclick=\"return false;\">$label</a>";
-				echo $meta ? "" : "<p class=\"howto\">{$field['desc']}</p>";
+				echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null, '</td></tr>';
+				$dodesc = false;
+			
 				// don't attempt to show player if no media exist yet
-				if ($meta) {
-					$i = 1;
+				if (!empty($meta)) {
 					// cycle through array of attached media objects
 					foreach ($meta as $media) {
 						$url = wp_get_attachment_url( $media->ID);
@@ -699,137 +695,22 @@ class somaMetaboxes extends somaticFramework {
 								$type = 'video';
 							break;
 						}
-						// output jplayer
-						echo "<div id=\"jplayer-admin\" class=\"jp-jplayer $type\" rel=\"$url\"></div>";
-						if ( $type == 'audio') :  ?>
 
-							<script type="text/javascript">
-								jQuery(document).ready(function($) {
-									// jPlayer media player
-									$("#jquery_jplayer_<?php echo $i; ?>").jPlayer({
-										ready: function () {
-											$(this).jPlayer("setMedia", {
-												mp3: "<?php echo $url; ?>",
-											});
-										},
-										swfPath: "<?php echo SOMA_JS; ?>",
-										"backgroundColor":"#ff9",
-										supplied: "mp3",
-									});
-								});
-							</script>
-							<div id="jquery_jplayer_1" class="jp-jplayer"></div>
-							<div id="jp_container_1" class="jp-audio">
-								<div class="jp-type-single">
-									<div class="jp-gui jp-interface">
-										<ul class="jp-controls">
-											<li><a href="javascript:;" class="jp-play" tabindex="1">play</a></li>
-											<li><a href="javascript:;" class="jp-pause" tabindex="1">pause</a></li>
-											<li><a href="javascript:;" class="jp-stop" tabindex="1">stop</a></li>
-											<li><a href="javascript:;" class="jp-mute" tabindex="1" title="mute">mute</a></li>
-											<li><a href="javascript:;" class="jp-unmute" tabindex="1" title="unmute">unmute</a></li>
-											<li><a href="javascript:;" class="jp-volume-max" tabindex="1" title="max volume">max volume</a></li>
-										</ul>
-										<div class="jp-progress">
-											<div class="jp-seek-bar">
-												<div class="jp-play-bar"></div>
-											</div>
-										</div>
-										<div class="jp-volume-bar">
-											<div class="jp-volume-bar-value"></div>
-										</div>
-										<div class="jp-time-holder">
-											<div class="jp-current-time"></div>
-											<div class="jp-duration"></div>
-											<ul class="jp-toggles">
-												<li><a href="javascript:;" class="jp-repeat" tabindex="1" title="repeat">repeat</a></li>
-												<li><a href="javascript:;" class="jp-repeat-off" tabindex="1" title="repeat off">repeat off</a></li>
-											</ul>
-										</div>
-									</div>
-									<div class="jp-title">
-										<ul>
-											<li><?php echo $media->post_title ?></li>
-										</ul>
-									</div>
-									<div class="jp-no-solution">
-										<span>Update Required</span>
-										To play the media you will need to either update your browser to a recent version or update your <a href="http://get.adobe.com/flashplayer/" target="_blank">Flash plugin</a>.
-									</div>
-								</div>
-							</div>
-						<?php
+						// output html5 tags (handled by mediaelement)
+						if ( $type == 'video') :
+							echo '<tr><td></td><td class="field-data">';
+							echo do_shortcode('[video src="'.$url.'"]');
+							echo '</td></tr>';
+						endif;
+						if ( $type == 'audio') :
+							echo '<tr><td></td><td class="field-data">';
+							echo do_shortcode('[audio src="'.$url.'"]');
+							echo '</td></tr>';
 						endif;
 
-						if ($type == 'video') : ?>
 
-							<script type="text/javascript">
-								jQuery(document).ready(function($) {
-									// jPlayer media player
-									$("#jquery_jplayer_<?php echo $i; ?>").jPlayer({
-										ready: function () {
-											$(this).jPlayer("setMedia", {
-												m4v: "<?php echo $url; ?>",
-											});
-										},
-										swfPath: "<?php echo SOMA_JS; ?>",
-										"backgroundColor":"#ff9",
-										supplied: "m4v",
-									});
-								});
-							</script>
-							<div id="jp_container_<?php echo $i; ?>" class="jp-video ">
-								<div class="jp-type-single">
-									<div id="jquery_jplayer_<?php echo $i; ?>" class="jp-jplayer" rel=""></div>
-									<div class="jp-gui">
-										<div class="jp-video-play">
-											<a href="javascript:;" class="jp-video-play-icon" tabindex="1">play</a>
-										</div>
-										<div class="jp-interface">
-											<div class="jp-progress">
-												<div class="jp-seek-bar">
-													<div class="jp-play-bar"></div>
-												</div>
-											</div>
-											<div class="jp-current-time"></div>
-											<div class="jp-duration"></div>
-											<div class="jp-controls-holder">
-												<ul class="jp-controls">
-													<li><a href="javascript:;" class="jp-play" tabindex="1">play</a></li>
-													<li><a href="javascript:;" class="jp-pause" tabindex="1">pause</a></li>
-													<li><a href="javascript:;" class="jp-stop" tabindex="1">stop</a></li>
-													<li><a href="javascript:;" class="jp-mute" tabindex="1" title="mute">mute</a></li>
-													<li><a href="javascript:;" class="jp-unmute" tabindex="1" title="unmute">unmute</a></li>
-													<li><a href="javascript:;" class="jp-volume-max" tabindex="1" title="max volume">max volume</a></li>
-												</ul>
-												<div class="jp-volume-bar">
-													<div class="jp-volume-bar-value"></div>
-												</div>
-												<ul class="jp-toggles">
-													<li><a href="javascript:;" class="jp-full-screen" tabindex="1" title="full screen">full screen</a></li>
-													<li><a href="javascript:;" class="jp-restore-screen" tabindex="1" title="restore screen">restore screen</a></li>
-													<li><a href="javascript:;" class="jp-repeat" tabindex="1" title="repeat">repeat</a></li>
-													<li><a href="javascript:;" class="jp-repeat-off" tabindex="1" title="repeat off">repeat off</a></li>
-												</ul>
-											</div>
-											<div class="jp-title">
-												<ul>
-													<li><?php echo $media->post_title ?></li>
-												</ul>
-											</div>
-										</div>
-									</div>
-									<div class="jp-no-solution">
-										<span>Update Required</span>
-										To play the media you will need to either update your browser to a recent version or update your <a href="http://get.adobe.com/flashplayer/" target="_blank">Flash plugin</a>.
-									</div>
-								</div>
-							</div>
-						<?php
-						endif;
-						echo $field['type'] ? "" : "<em>Must specify a format first!</em>";
-						echo "<div id=\"jplayer_inspector\"></div>";
-						$i++;
+						
+						echo $field['type'] ? "" : "<em>Must specify a format first!</em>";		/// what is this for?
 					}
 				}
 				break;

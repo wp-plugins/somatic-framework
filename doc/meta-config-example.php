@@ -61,7 +61,8 @@ function meta_box_data() {
 				'id' => 'media',
 				'type' => 'external_media',
 				'data' => 'meta',
-				'desc' => 'Enter the URL of the YouTube or Vimeo video',
+				'desc' => 'Enter a URL from YouTube, Vimeo, or SoundCloud',
+				'required' => true
 			),
 			array(
 				'name' => 'External Image URL',

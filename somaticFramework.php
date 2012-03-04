@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.4
+Version: 1.4.1
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -94,7 +94,7 @@ class somaticFramework {
 
 		// framework scripts and styles
 		wp_register_script('soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.1', true);
-		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.0', 'all' );
+		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.1', 'all' );
 
 		// jquery plugin lightbox functionality
 		wp_register_style( 'colorbox-theme', SOMA_JS.'colorbox/colorbox.css', array(), '1.3.19', 'screen' );
@@ -107,12 +107,7 @@ class somaticFramework {
 		// autosize textareas  (not working quite right yet...)
 		// wp_register_script( 'autosize', SOMA_JS.'jquery.autosize-min.js', array('jquery'), '1.6' );
 		
-		// jplayer register
-		wp_register_script( 'jplayer', SOMA_JS.'jquery.jplayer.min.js', array('jquery'), '2.1', false);
-		wp_register_script( 'jplayer-playlist', SOMA_JS.'jplayer.playlist.min.js', array('jquery'), '2.1', false);
-		wp_register_script( 'jplayer-inspector', SOMA_JS.'jquery.jplayer.inspector.js', array('jquery'), '2.1', false);
-		wp_register_style( 'jplayer-style', SOMA_CSS.'jplayer-blue-skin/jplayer.blue.monday.css', array(), '2.1', 'all' );
-		// wp_register_style( 'jplayer-style', SOMA_CSS.'jplayer-blackyellow-skin/jplayer-black-and-yellow.css', array(), '', 'all' );
+		// going to need to register mediaelement.js instead of depending on external plugin....
 	}
 
 
