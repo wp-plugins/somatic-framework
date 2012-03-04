@@ -694,21 +694,21 @@ class somaMetaboxes extends somaticFramework {
 							case 'video/mp4':
 								$type = 'video';
 							break;
+							default:
+								$type = 'other';
+							break;
 						}
-
 						// output html5 tags (handled by mediaelement)
-						if ( $type == 'video') :
+						if ( $type == 'video') {
 							echo '<tr><td></td><td class="field-data">';
 							echo do_shortcode('[video src="'.$url.'"]');
 							echo '</td></tr>';
-						endif;
-						if ( $type == 'audio') :
+						}
+						if ( $type == 'audio') {
 							echo '<tr><td></td><td class="field-data">';
 							echo do_shortcode('[audio src="'.$url.'"]');
 							echo '</td></tr>';
-						endif;
-
-
+						}
 						
 						echo $field['type'] ? "" : "<em>Must specify a format first!</em>";		/// what is this for?
 					}
