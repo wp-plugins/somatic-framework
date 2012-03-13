@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com.com/code
 Requires at least: 3.3
 Tested up to: 3.3
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv2 or later
 
 Adds useful classes for getting the most out of Wordpress' advanced CMS features
@@ -33,6 +33,10 @@ Otherwise, not yet ;-)
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.4.2 =
+* fixed unreliable usage of isset() for array keys in soma_init_type. Wasn't registering user parameters for navbar and sortable properly [facepalm]
+* new somaFunctions::is_blank() for checking whether variable/array key is actually blank or just set to "0" or false
 
 = 1.4.1 =
 * soma_external_media() now supports SoundCloud URLs!

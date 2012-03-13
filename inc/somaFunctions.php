@@ -50,6 +50,11 @@ class somaFunctions extends somaticFramework {
 	function edit_list_length() {
 		return 40;
 	}
+	
+	// checks if something is truly empty (not set) or null, and not simply set to a valid but negative value, like false or - 0 (0 as an integer) - 0.0 (0 as a float) - "0" (0 as a string)
+	function is_blank( $value ) {
+		return empty( $value ) && !is_numeric( $value ) && $value !== false;
+	}
 
 	// checks if array is associative or not
 	function array_is_associative($arr) {

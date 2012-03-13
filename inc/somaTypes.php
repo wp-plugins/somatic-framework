@@ -22,7 +22,7 @@ class somaTypes extends somaticFramework {
 		// push to internal variables for convenience
 		$slug = $data['slug'];
 		$single = $data['single'];
-		if (isset($data['plural'])) {
+		if ( $data['plural'] === null ) {
 			$plural = $data['plural'];
 		} else {
 			$plural = $data['single'] . "s";
@@ -60,20 +60,17 @@ class somaTypes extends somaticFramework {
 		);
 
 		// use custom menu icon if defined
-		if ( isset( $data['icons'] ) ) {
-			$default_args['menu_icon'] =  $data['icons'] . $slug . '-menu-icon.png';
+		if ( !somaFunctions::is_blank($data['icons']) ) {
+			$default_args['menu_icon'] = $data['icons'] . $slug . '-menu-icon.png';
 		}
+
 
 		// default to not manually sortable (don't show the Sort Order admin page for this type)
-		if ( !isset( $data['sortable'] ) ) {
-			$data['sortable'] == false;
-		}
+		$data['sortable'] = somaFunctions::is_blank($data['sortable']) ? false : $data['sortable'];
 
 		// default to displaying in primary navbar
-		if ( !isset( $data['navbar'] ) ) {
-			$data['navbar'] == true;
-		}
-
+		$data['navbar'] = somaFunctions::is_blank($data['navbar']) ? true : $data['navbar'];
+		
 		// merge with incoming register cpt args
 		$args = wp_parse_args($data['args'], $default_args);
 
@@ -148,13 +145,13 @@ class somaTypes extends somaticFramework {
 	public function init_taxonomy($data) {
 		$slug = $data['slug'];
 		$single = $data['single'];
-		if (isset($data['plural'])) {
-			$plural = $data['plural'];
-		} else {
+		if (somaFunctions::is_blank($data['plural'])) {
 			$plural = $data['single'] . "s";
+		} else {
+			$plural = $data['plural'];
 		}
-		$metabox = isset($data['metabox']) ? $data['metabox'] : true;
-		$types = isset($data['types']) ? $data['types'] : new WP_Error('missing','can\'t declare taxonomy without post types...');
+		$metabox = somaFunctions::is_blank($data['metabox']) ? true : $data['metabox'];			// default to showing metabox
+		$types = somaFunctions::is_blank($data['types']) ? new WP_Error('missing','can\'t declare taxonomy without post types...') : $data['types'] ;
 
 		$default_args = array(
 			'hierarchical' => true,			// category vs. tag style
@@ -245,13 +242,10 @@ class somaTypes extends somaticFramework {
 	// images should be named "slug-add-icon.png" and be 32x32px and placed in directory defined as "icons" in init_type()
 	function custom_type_icons() {
 		global $pagenow, $post_type;
-		if ( !array_key_exists( $post_type, self::$type_data ) ) return null;	// check if custom post type has been defined for whatever type we're viewing
-
-		if ( isset( self::$type_data[$post_type]['icons'] ) ) {					// check if custom icons path has been provided
-			$url = self::$type_data[$post_type]['icons'] . $post_type;
-		} else {
-			return null;
-		}
+		if ( somaFunctions::is_blank( self::$type_data[$post_type] ) ) return null;				// abort if custom post type hasn't been defined for whatever type we're viewing
+		if ( somaFunctions::is_blank( self::$type_data[$post_type]['icons'] ) ) return null;	// abort if custom icons path hasn't been provided
+		
+		$url = self::$type_data[$post_type]['icons'] . $post_type;
 
 		if ( $pagenow == 'post-new.php' ) {
 			echo '<style>#wpbody-content .icon32 { background: transparent url("'. $url .'-add-icon.png") no-repeat; !important }</style>';
@@ -267,7 +261,6 @@ class somaTypes extends somaticFramework {
 	// automatically adds custom post types to the primary navbar and adds highlighting for current page - defaults tacking them on the end of existing nav items
 	function custom_type_nav($menuItems, $args) {
 
-		// var_dump($menuItems);
 		global $wp_query;
 		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
 		if ( 'primary' == $args->theme_location ) {
@@ -320,7 +313,7 @@ class somaTypes extends somaticFramework {
 	function custom_type_help_text( $contextual_help, $screen_id, $screen ) {
 		// $contextual_help .= var_dump( $screen ); // use this to help determine $screen->id
 		if ( array_key_exists( $screen->post_type, self::$type_data ) ) {				// see if a custom post type has been defined for the current screen display
-			if ( isset( self::$type_data[ $screen->post_type ][ 'help' ] ) ) {
+			if ( !somaFunctions::is_blank( self::$type_data[ $screen->post_type ][ 'help' ] ) ) {
 				$contextual_help = self::$type_data[ $screen->post_type ][ 'help' ];
 			}
 		}
