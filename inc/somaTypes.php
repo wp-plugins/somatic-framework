@@ -22,10 +22,10 @@ class somaTypes extends somaticFramework {
 		// push to internal variables for convenience
 		$slug = $data['slug'];
 		$single = $data['single'];
-		if ( $data['plural'] === null ) {
-			$plural = $data['plural'];
-		} else {
+		if ( somaFunctions::is_blank($data['plural'])) {
 			$plural = $data['single'] . "s";
+		} else {
+			$plural = $data['plural'];
 		}
 
 
