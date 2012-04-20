@@ -35,7 +35,8 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 == Changelog ==
 
 = 1.4.3 =
-* fixed suicide when trying to save a post/page if no custom metabox definitions exist yet...
+* fixed unnecessary suicide when trying to save a post/page if no custom metabox definitions exist yet...
+* now fully compliant with WP guidelines! ;-)
 
 = 1.4.2 =
 * fixed unreliable usage of isset() for array keys in soma_init_type. Wasn't registering user parameters for navbar and sortable properly [facepalm]
