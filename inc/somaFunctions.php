@@ -1276,8 +1276,8 @@ SQL;
 					$media['id']		= $id;
 					$media['site']		= $site;
 					$media['thumb']		= $meta['media$group']['media$thumbnail'][1]['url'];												// grabs url of medium 360x480 image
-					$media['title']		= $meta['media$group']['media$title']['$t'];
-					$media['desc']		= $meta['media$group']['media$description']['$t'];
+					$media['title']		= stripslashes($meta['media$group']['media$title']['$t']);
+					$media['desc']		= stripslashes($meta['media$group']['media$description']['$t']);
 					$media['duration']	= $meta['media$group']['media$content'][0]['duration'];
 					$media['mobile']	= "youtube:$id";																					// launches youtube app, i think...
 					$media['embed'] 	= "<iframe width=\"$width\" height=\"$height\" src=\"http://www.youtube.com/embed/$id?rel=0&hd=1\" frameborder=\"0\" allowfullscreen></iframe>";
@@ -1296,8 +1296,8 @@ SQL;
 					$media['id']		= $id;																								// store raw media ID
 					$media['site']		= $site;																							//
 					$media['thumb']		= $meta['thumbnail_url'];																			// grabs url of default image 640x360
-					$media['title']		= $meta['title'];																					//
-					$media['desc']		= $meta['description'];																				//
+					$media['title']		= stripslashes($meta['title']);																					//
+					$media['desc']		= stripslashes($meta['description']);																				//
 					$media['duration']	= $meta['duration'];																				// in seconds
 					$media['mobile']	= $meta['mobile_url'];																				// mobile-friendly display url
 					$media['embed']		= $meta['html'];																					// auto embed code (should be HTML5/ipad compatible)

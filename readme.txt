@@ -3,8 +3,8 @@ Contributors: somatic
 Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
-Tested up to: 3.3
-Stable tag: 1.4.3
+Tested up to: 3.3.2
+Stable tag: 1.4.4
 License: GPLv2 or later
 
 Adds useful classes for getting the most out of Wordpress' advanced CMS features
@@ -33,6 +33,9 @@ Otherwise, not yet ;-)
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.4.4 =
+* corrected critical bug introduced by 1.4.3 fixes - save routines now work again...
 
 = 1.4.3 =
 * fixed unnecessary suicide when trying to save a post/page if no custom metabox definitions exist yet...

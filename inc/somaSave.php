@@ -3,10 +3,7 @@ class somaSave extends somaticFramework {
 
 	function __construct() {
 		add_action('admin_notices', array(__CLASS__,'save_notices'));
-		// only run our custom save routines if custom metabox data has been defined
-		if (!empty(somaMetaboxes::$data)) {
-			add_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
-		}
+		add_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
 		// add_action('save_post', array(__CLASS__, 'completion_validator'), 70, 2); // must fire after metadata and doc completion is determined
 		// add_action('pending_to_publish', 'example'); // could be useful to only execute certain things once it's been approved? like stuff that should only happen after editors have finalized?
 	}
@@ -141,9 +138,11 @@ class somaSave extends somaticFramework {
 		if ($hook_suffix != 'post.php' || $type == 'post' || $type == 'page' ) { 	// only execute these functions when saving from an individual post edit page for custom types. (allows quick edit on edit.php to work)
 			return $pid;
 		}
-		// custom metabox data exists?
+	
+		// only run our custom save routines if custom metabox data has been defined
 		if (empty(somaMetaboxes::$data) || !somaMetaboxes::$data) {
-			wp_die('missing custom metabox data...', 'Save Error!', array('back_link' => true));
+			return $pid;
+			// wp_die('missing custom metabox data...', 'Save Error!', array('back_link' => true));
 		}
 
 		// verify nonce
