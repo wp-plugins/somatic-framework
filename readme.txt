@@ -1,10 +1,10 @@
 === Somatic Framework ===
 Contributors: somatic
 Tags: CMS, custom post type, metabox, custom taxonomy
-Donate link: http://somaticstudios.com.com/code
+Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.3
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 License: GPLv2 or later
 
 Adds useful classes for getting the most out of Wordpress' advanced CMS features
@@ -33,6 +33,9 @@ Otherwise, not yet ;-)
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.4.3 =
+* fixed suicide when trying to save a post/page if no custom metabox definitions exist yet...
 
 = 1.4.2 =
 * fixed unreliable usage of isset() for array keys in soma_init_type. Wasn't registering user parameters for navbar and sortable properly [facepalm]

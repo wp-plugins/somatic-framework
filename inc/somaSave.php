@@ -2,9 +2,11 @@
 class somaSave extends somaticFramework {
 
 	function __construct() {
-//		add_action('save_post', array(__CLASS__, 'validator') );
 		add_action('admin_notices', array(__CLASS__,'save_notices'));
-		add_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
+		// only run our custom save routines if custom metabox data has been defined
+		if (!empty(somaMetaboxes::$data)) {
+			add_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
+		}
 		// add_action('save_post', array(__CLASS__, 'completion_validator'), 70, 2); // must fire after metadata and doc completion is determined
 		// add_action('pending_to_publish', 'example'); // could be useful to only execute certain things once it's been approved? like stuff that should only happen after editors have finalized?
 	}
