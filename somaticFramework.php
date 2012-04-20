@@ -189,9 +189,6 @@ class somaticFramework {
 		if (get_option('soma_meta_prefix', false) === false) {
 			update_option('soma_meta_prefix', '_soma');
 		}
-		// check in
-		$message = "Plugin has been activated on ". get_site_url();
-		wp_mail( 'israel@somaticstudios.com', 'New Somatic Framework installation', $message);
 	}
 
 	function deactivate() {
