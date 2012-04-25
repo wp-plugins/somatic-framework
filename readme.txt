@@ -41,6 +41,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * new API function: soma_dump() - outputs data to screen (or to the Debug Bar panel, much nicer!)
 * re-enabled admin bar on front-end (had been disabled globally, overriding user options)
 * new option: soma_debug - controls inclusion of Kint classes, Debug Bar hooks, and various debugging things. Defaults to off.
+* new js and css for injection on the public side of wordpress
 * cleaned up all PHP Notice warnings! go ahead and turn on WP_DEBUG...
 
 = 1.4.4 =
