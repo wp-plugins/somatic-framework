@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.3.2
-Stable tag: 1.4.4
+Stable tag: 1.5
 License: GPLv2 or later
 
 Adds useful classes for getting the most out of Wordpress' advanced CMS features
@@ -33,6 +33,16 @@ Otherwise, not yet ;-)
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.5 =
+* included the awesome Kint PHP debugger v.32 (http://code.google.com/p/kint/)
+* integration with the Debug Bar plugin for maximum awesomeness (http://wordpress.org/extend/plugins/debug-bar/)
+* when Debug Bar is installed, hit the ";" or "'" keys to toggle the debug panel in maximized or partial view
+* new API function: soma_dump() - outputs data to screen (or to the Debug Bar panel, much nicer!)
+* re-enabled admin bar on front-end (had been disabled globally, overriding user options)
+* new option: soma_debug - controls inclusion of Kint classes, Debug Bar hooks, and various debugging things. Defaults to off.
+* new js and css for injection on the public side of wordpress
+* cleaned up all PHP Notice warnings! go ahead and turn on WP_DEBUG...
 
 = 1.4.4 =
 * corrected critical bug introduced by 1.4.3 fixes - save routines now work again...

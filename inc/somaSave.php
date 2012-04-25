@@ -25,7 +25,7 @@ class somaSave extends somaticFramework {
 				break;
 			}
 		}
-		if ($_GET['meta_missing'])
+		if (isset($_GET['meta_missing']))
 			echo '<div class="error"><p>Metadata fields are incomplete!</p></div>';
 	}
 

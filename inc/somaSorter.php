@@ -11,7 +11,7 @@ class somaSorter extends somaticFramework {
 	function filter_current_query($query) {
 		
 		// list sortable types by menu_order instead of date, so we can manually adjust order - note: this means the sorting by title in the edit listings won't do anything....
-		if ( somaTypes::$type_data[$query->post_type]['sortable'] ) {
+		if ( isset($query->post_type) && isset(somaTypes::$type_data[$query->post_type]['sortable']) && somaTypes::$type_data[$query->post_type]['sortable']) {
 			if ( $query->is_post_type_archive && !$query->query_vars['suppress_filters']) {
 				$query->set( 'orderby', 'menu_order' );
 				$query->set( 'order', 'ASC' );
@@ -26,7 +26,7 @@ class somaSorter extends somaticFramework {
 		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
 		foreach ($types as $type) {
 			// only add sort pages to hierarchical post types, which support menu-order
-			if (somaTypes::$type_data[$type->query_var]['sortable']) {
+			if (isset(somaTypes::$type_data[$type->query_var]['sortable']) && somaTypes::$type_data[$type->query_var]['sortable']) {
 				$menupage = add_submenu_page('edit.php?post_type='.$type->name, 'Sort '.$type->labels->name, 'Sort Order', 'edit_posts', 'sort-'. $type->name, array(__CLASS__,'soma_sort_page'));
 				add_action( 'admin_print_styles-'.$menupage, array( __CLASS__, 'soma_sorter_print_styles' ) );
 				add_action( 'admin_print_scripts-'.$menupage, array( __CLASS__, 'soma_sorter_print_scripts' ) );				

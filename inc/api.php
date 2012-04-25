@@ -349,3 +349,49 @@ function soma_singular_term( $pid = null, $tax = null ) {
 	}
 	return somaFunctions::fetch_the_singular_term( $pid, $tax );
 }
+
+/**
+ * Outputs contents of variables for debugging purposes
+ * Integrated with Debug Bar plugin (http://wordpress.org/extend/plugins/debug-bar/)
+ * Depends on Kint class and the 'soma_debug' option being true
+ *
+ * @since 1.5
+ * @param $data - variable to be rendered by Kint
+ * @param $inline - force debug output to be rendered inline on the page, even if Debug Panel is installed and active (will still show there, too)
+ * @return
+ */
+
+function soma_dump( $data, $inline = null ) {
+	if ( get_option('soma_debug') == 0 ) return null;					// abort if debug option is off
+	if ( !Kint::enabled() ) return null;								// abort if we don't have Kint to make output pretty
+	if ( $inline ) set_transient( 'debug_inline', true );				// make a note to force inline output
+
+	// $args = func_get_args();
+	return call_user_func_array( array( 'Kint', 'dump' ), array($data) );		// pass along args to the Kint Class
+}
+
+
+/**
+ * Used by modified Kint class to avoid output buffer problems
+ * And to store the buffer in a global variable to be fetched by the debug display functions
+ * inspired by Kint Debugger https://wordpress.org/extend/plugins/kint-debugger/
+ *
+ * @since 1.5
+ * @param $buffer - incoming output buffer
+ * @return $buffer - outgoing output buffer
+ */
+
+function soma_dump_globals( $buffer ) {
+	global $soma_dump;
+	$soma_dump[] = $buffer;
+	// if we're forcing output to be inline, then just spit it out
+	if ( get_transient( 'debug_inline') ) {
+		delete_transient( 'debug_inline');
+		return $buffer;
+	}
+	// we have Debug Bar, so don't output on the page
+	if ( class_exists( 'Debug_Bar' ) ) return;
+
+	// no Debug Bar, so output directly inline
+	return $buffer;
+}

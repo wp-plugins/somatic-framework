@@ -14,7 +14,7 @@ class somaFunctions extends somaticFramework {
 		// add_filter( 'login_redirect', array(__CLASS__, 'dashboard_redirect' ));
 		add_filter( 'add_menu_classes', array(__CLASS__, 'show_pending_number'));
 		// add_filter( 'wp_die_handler', array(__CLASS__, 'soma_wp_die_handler'),10,3);
-		add_action( 'show_admin_bar', '__return_false' );
+		// add_action( 'show_admin_bar', '__return_false' );
 		add_filter( 'editable_roles', array(__CLASS__, 'editable_roles'));
 		add_filter( 'map_meta_cap', array(__CLASS__, 'admin_map_meta_cap'), 10, 4);
 		remove_filter('check_comment_flood', 'check_comment_flood_db');	// deal with "posting too quickly" problem....
@@ -23,8 +23,24 @@ class somaFunctions extends somaticFramework {
 		// add_action( 'admin_notices', array(__CLASS__,'soma_notices'));
 	}
 
-	function foo() {
+	function console_debug($stuff, $type = null) {
 		// var_dump(func_get_args());
+		// switch ($type) {
+		// 	case "warn" :
+		// 		ChromePhp::warn($stuff);
+		// 		FB::warn($stuff);
+		// 	break;
+		// 	case "error" :
+		// 		ChromePhp::error($stuff);	
+		// 		FB::error($stuff);	
+		// 	break;
+		// 	default:
+		// 		return $stuff;
+		// 		// ChromePhp::log($stuff);
+		// 		// FB::log($stuff);
+		// 	break;
+		// }
+		// return true;
 	}
 
 	function init() {
@@ -52,6 +68,7 @@ class somaFunctions extends somaticFramework {
 	}
 	
 	// checks if something is truly empty (not set) or null, and not simply set to a valid but negative value, like false or - 0 (0 as an integer) - 0.0 (0 as a float) - "0" (0 as a string)
+	// NOTE: THIS DOESN'T AVOID THE PHP NOTICE ERROR IF SOMETHING DOESN'T EXIST (not set)
 	function is_blank( $value ) {
 		return empty( $value ) && !is_numeric( $value ) && $value !== false;
 	}

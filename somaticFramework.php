@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.4.4
+Version: 1.5
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -42,6 +42,8 @@ define( 'SOMA_URL', WP_PLUGIN_URL . '/somatic-framework/' );
 define( 'SOMA_IMG', SOMA_URL . 'images/' );
 // the server path to the plugin's includes
 define( 'SOMA_INC', SOMA_DIR . 'inc/' );
+// the server path to the plugin's dev includes
+define( 'SOMA_DEV', SOMA_DIR . 'dev/' );
 // the server path to the plugin's temporary storage
 define( 'SOMA_TEMP', SOMA_DIR . 'temp/' );
 // the URL path to the plugin's javascript
@@ -87,53 +89,80 @@ class somaticFramework {
 
 		register_activation_hook( __FILE__, array(__CLASS__,'activate') );
 		register_deactivation_hook( __FILE__, array(__CLASS__,'deactivate') );
-		
+
 		// replace builtin with google hosted
 		// wp_deregister_script('jquery-ui-core');
 		// wp_register_script('jquery-ui-core', 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js', false, '1.8.13');
 
 		// framework scripts and styles
-		wp_register_script('soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.1', true);
-		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.1', 'all' );
+		wp_register_script('soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.5', true);
+		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.5', 'all' );
+
+		wp_register_script('soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.5', true);
+		wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.5', 'all' );
+
 
 		// jquery plugin lightbox functionality
 		wp_register_style( 'colorbox-theme', SOMA_JS.'colorbox/colorbox.css', array(), '1.3.19', 'screen' );
 		wp_register_script( 'colorbox', SOMA_JS.'colorbox/jquery.colorbox-min.js', array('jquery'), '1.3.19' );
-		
+
 		// jquery UI
 		wp_register_style('jquery-ui-theme', SOMA_JS. 'ui/smoothness/jquery-ui-1.8.17.custom.css', false, '1.8.17');
 		wp_register_script('jquery-ui-datepicker', SOMA_JS.'ui/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
-		
+
 		// autosize textareas  (not working quite right yet...)
 		// wp_register_script( 'autosize', SOMA_JS.'jquery.autosize-min.js', array('jquery'), '1.6' );
-		
+
 		// going to need to register mediaelement.js instead of depending on external plugin....
 	}
 
 
 	function wp_print_styles() {
 		// wp_enqueue_style('colorbox-theme');
+		if (!is_admin()) {
+			wp_enqueue_script( 'soma-public-jquery' );
+			wp_enqueue_style( 'soma-public' );
+		}
 	}
 
 	function wp_print_scripts() {
 		// wp_enqueue_script('colorbox');
-		
+
 		// pass constants and vars to javascript to be available for jquery
 		global $post;
+		if ($post == null) {
+			$pid = null;
+			$type = null;
+		} else {
+			$pid = $post->ID;
+			$type = $post->post_type;
+		}
 		if (is_admin()) {
 			$admin = 'true';
 		} else {
 			$admin = 'false';
+		}
+		if (get_option('soma_debug') == 1) {
+			$debug = 'true';
+		} else {
+			$debug = 'false';
+		}
+		if (class_exists('Debug_Bar') && $debug == 'true') {
+			$debug_panel = 'true';
+		} else {
+			$debug_panel = 'false';
 		}
 		$params = array(
 			'SOMA_JS' => SOMA_JS,
 			'SOMA_DIR' => SOMA_IMG,
 			'SOMA_URL' => SOMA_URL,
 			'SOMA_INC' => SOMA_INC,
-			'pid' => $post->ID,
-			'type' => $post->post_type,
+			'pid' => $pid,
+			'type' => $type,
 			'getsize' => 'thumb',
 			'is_admin' => $admin,
+			'debug' => $debug,
+			'debug_panel' => $debug_panel,
 			'ajaxurl' => admin_url('admin-ajax.php'),	 						// need to define because ajaxurl isn't defined on front-end, only admin
 		);
 		wp_localize_script( 'jquery', 'soma_vars', $params); 	// will place in footer because of jquery registered in footer
@@ -172,7 +201,7 @@ class somaticFramework {
 
 	function wp_footer() {
 	}
-	
+
 	// custom admin footer credit
 	function admin_footer_text() {
 		echo 'Somatic Framework '. self::get_plugin_version() .'<br />';
@@ -183,11 +212,14 @@ class somaticFramework {
 	function activate() {
 		flush_rewrite_rules();
 		// check if option has already been set, perhaps by a plugin that uses somaframework
-		if (get_option('soma_meta_serialize', false) === false) {
+		if (get_option('soma_meta_serialize', "empty") === "empty") {
 			update_option('soma_meta_serialize', 0);
 		}
-		if (get_option('soma_meta_prefix', false) === false) {
+		if (get_option('soma_meta_prefix', "empty") === "empty") {
 			update_option('soma_meta_prefix', '_soma');
+		}
+		if (get_option('soma_debug', "empty") === "empty") {
+			update_option('soma_debug', 0);
 		}
 	}
 
@@ -203,7 +235,7 @@ class somaticFramework {
 	function change_wp_login_title() {
 		echo get_option('blogname');
 	}
-	
+
 	// adds custom vars to query
 	function query_vars($qvars) {
 		$qvars[] = "download";
@@ -216,7 +248,7 @@ class somaticFramework {
 			new somaDownload($wp->query_vars['download']);
 		}
 	}
-	
+
 	function get_plugin_version() {
 		if ( ! function_exists( 'get_plugins' ) )
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
@@ -239,4 +271,32 @@ if (class_exists("somaticFramework") && !$somaticFramework) {
 foreach( glob( SOMA_INC ."*.php" ) as $filename) {
     require_once $filename;
 }
-?>
+
+// load classes for debug output
+if (get_option('soma_debug') == 1) {
+
+	// php -> console hacks
+	// require_once SOMA_DEV . 'ChromePhp.php';
+	// require_once SOMA_DEV . 'FirePHPCore/fb.php
+
+
+	// include kint class
+	require SOMA_DEV . 'kint/Kint.class.php';
+
+	// hook our own output panel in the Debug Bar plugin
+	add_filter('debug_bar_panels', 'debug_bar_somatic_panel');
+	function debug_bar_somatic_panel( $panels ) {
+		// include our debug panel extensions
+		require_once SOMA_DEV . 'debug-bar-panel.php';
+		// build new panel array so we can re-order panels
+		$newpanels = array();
+		// PHP errors come first
+		if ( $panels[0]->_title == "Notices / Warnings") { $newpanels[] = array_shift($panels); }
+		// insert our somatic debug panel next
+		$newpanels[] = new somaDebugBarPanel();
+		// then the rest as they were
+		foreach ($panels as $panel) { $newpanels[] = $panel; }
+		// send back to debug bar for output
+		return $newpanels;
+	}
+}

@@ -168,5 +168,25 @@ jQuery(document).ready(function($) {
 	// 	$(this).height($(this).next().height());
 	// });
 
+
+	if (soma_vars['debug_panel']) {
+		// keycommands for displaying the debug panel
+		$("body").keydown(function(event) {
+			switch (true) {
+				// semicolon key
+				case ( event.keyCode == 186 ):
+					wpDebugBar.actions.maximize();
+					wpDebugBar.toggle.visibility();
+				break;
+				// apostrophe key
+				case ( event.keyCode == 222 ):
+					wpDebugBar.actions.restore();
+					wpDebugBar.toggle.visibility();
+				break;
+
+			}		
+		});		
+	}
+
 	// end
 });

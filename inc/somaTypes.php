@@ -242,8 +242,8 @@ class somaTypes extends somaticFramework {
 	// images should be named "slug-add-icon.png" and be 32x32px and placed in directory defined as "icons" in init_type()
 	function custom_type_icons() {
 		global $pagenow, $post_type;
-		if ( somaFunctions::is_blank( self::$type_data[$post_type] ) ) return null;				// abort if custom post type hasn't been defined for whatever type we're viewing
-		if ( somaFunctions::is_blank( self::$type_data[$post_type]['icons'] ) ) return null;	// abort if custom icons path hasn't been provided
+		if ( !isset( self::$type_data[$post_type] ) ) return null;				// abort if custom post type hasn't been defined for whatever type we're viewing
+		if ( !isset( self::$type_data[$post_type]['icons'] ) ) return null;		// abort if custom icons path hasn't been provided
 		
 		$url = self::$type_data[$post_type]['icons'] . $post_type;
 
@@ -263,9 +263,10 @@ class somaTypes extends somaticFramework {
 
 		global $wp_query;
 		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
+		$navItem = '';
 		if ( 'primary' == $args->theme_location ) {
 			foreach ($types as $type) {
-				if ( self::$type_data[$type->query_var]['navbar'] == false ) continue;		// make sure this custom post type wants to be displayed in the navbar
+				if ( !isset(self::$type_data[$type->query_var]['navbar']) || self::$type_data[$type->query_var]['navbar'] == false ) continue;		// make sure this custom post type wants to be displayed in the navbar
 				if ( $wp_query->query_vars['post_type'] == $type->query_var ) {
 					$class = 'class="current_page_item"';
 				} else {
