@@ -363,6 +363,7 @@ function soma_singular_term( $pid = null, $tax = null ) {
 
 function soma_dump( $data, $inline = null ) {
 	if ( get_option('soma_debug') == 0 ) return null;					// abort if debug option is off
+	if ( !class_exists('Kint') ) return null;							// abort if Kint doesn't exist
 	if ( !Kint::enabled() ) return null;								// abort if we don't have Kint to make output pretty
 	if ( $inline ) set_transient( 'debug_inline', true );				// make a note to force inline output
 
