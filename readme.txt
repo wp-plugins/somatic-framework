@@ -34,6 +34,14 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.5.2 =
+* NEW options page to toggle debug settings, plugin dependencies, dashboard widgets, editor metaboxes, and more
+* NEW daily cron task, use action hook 'soma_daily_event'
+* NEW csv export class, included in trunk but not ready for prime time
+* NEW plugin checks for minimum wordpress version, aborts otherwise...
+* sexy settings link right on the plugins page!
+* improved the example php config templates
+
 = 1.5.1 =
 * fixed fatal error in checking for Kint when debug mode is enabled...
 
@@ -41,10 +49,10 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * included the awesome Kint PHP debugger v.32 (http://code.google.com/p/kint/)
 * integration with the Debug Bar plugin for maximum awesomeness (http://wordpress.org/extend/plugins/debug-bar/)
 * when Debug Bar is installed, hit the ";" or "'" keys to toggle the debug panel in maximized or partial view
-* new API function: soma_dump() - outputs data to screen (or to the Debug Bar panel, much nicer!)
+* NEW API function: soma_dump() - outputs data to screen (or to the Debug Bar panel, much nicer!)
 * re-enabled admin bar on front-end (had been disabled globally, overriding user options)
-* new option: soma_debug - controls inclusion of Kint classes, Debug Bar hooks, and various debugging things. Defaults to off.
-* new js and css for injection on the public side of wordpress
+* NEW option: soma_debug - controls inclusion of Kint classes, Debug Bar hooks, and various debugging things. Defaults to off.
+* NEW js and css for injection on the public side of wordpress
 * cleaned up all PHP Notice warnings! go ahead and turn on WP_DEBUG...
 
 = 1.4.4 =
@@ -56,7 +64,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 = 1.4.2 =
 * fixed unreliable usage of isset() for array keys in soma_init_type. Wasn't registering user parameters for navbar and sortable properly [facepalm]
-* new somaFunctions::is_blank() for checking whether variable/array key is actually blank or just set to "0" or false
+* NEW somaFunctions::is_blank() for checking whether variable/array key is actually blank or just set to "0" or false
 
 = 1.4.1 =
 * soma_external_media() now supports SoundCloud URLs!
@@ -66,14 +74,14 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * mediaelement.js replaces jPlayer when displaying media attachments in admin metaboxes (though at the moment requires wp plugin http://wordpress.org/extend/plugins/media-element-html5-video-and-audio-player/)
 
 = 1.4 = 
-* new metabox field type: external_media - Text field that accepts vimeo or youtube URLs, and fetches that video's metadata via each site's public API. Also saves that response in post_meta for quicker retrieval.
-* new metabox field type: external_image - Text field that accepts image URL, and can import the image as an attachment, also setting imported image as Featured Image
-* new API function: soma_external_media() - parses URL from either youtube or vimeo, returns an array with basic metadata, including ID, title, thumbnails - optionally imports source image to local library and sets the post_thumbnail!. NOTE: desired video must not be private, password-protected, or have embedding disabled by the owner!
-* new internal function: somaFunctions::attach_external_image() - sideloads an external image URL into the wordpress media library and attaches to a post
+* NEW metabox field type: external_media - Text field that accepts vimeo or youtube URLs, and fetches that video's metadata via each site's public API. Also saves that response in post_meta for quicker retrieval.
+* NEW metabox field type: external_image - Text field that accepts image URL, and can import the image as an attachment, also setting imported image as Featured Image
+* NEW API function: soma_external_media() - parses URL from either youtube or vimeo, returns an array with basic metadata, including ID, title, thumbnails - optionally imports source image to local library and sets the post_thumbnail!. NOTE: desired video must not be private, password-protected, or have embedding disabled by the owner!
+* NEW internal function: somaFunctions::attach_external_image() - sideloads an external image URL into the wordpress media library and attaches to a post
 * updated colorbox.js to 1.3.19
 * fixed broken url for jquery UI smoothness css
 * fixed link output in custom_type_nav() for when the custom post type slug includes variables for taxonomy permalinks
-* new filter: soma_custom_type_nav_position, for determining with the nav items that are automatically generated for custom post types are placed before or after the existing menu items. Defaults to "after" (return "before" via filter to change)
+* NEW filter: soma_custom_type_nav_position, for determining with the nav items that are automatically generated for custom post types are placed before or after the existing menu items. Defaults to "after" (return "before" via filter to change)
 * fixed soma_init_type ignoring navbar=false and inserting menu item anyway
 * fixed broken css on Sort Order pages
 * consolidated metabox description row code (too much duplication)
@@ -86,8 +94,8 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 = 1.3.1 =
 * fixed problem with setting the option soma_meta_serialize, which needs to be passed 0 or 1, not boolean true or false (false resulted in empty option_value, which broke everything)
 * NOTE: when using soma_asset_meta(), don't include the prefix when specifying the post_meta key! it gets added automatically. Just use the exact ID you gave when declaring the field in  soma_metabox_data()
-* new API function: soma_singular_term() for retrieving the term of a taxonomy that is meant to have only one value at a time.
-* new documentation - example PHP code in the doc folder, to help demonstrate how to use the somatic framework
+* NEW API function: soma_singular_term() for retrieving the term of a taxonomy that is meant to have only one value at a time.
+* NEW documentation - example PHP code in the doc folder, to help demonstrate how to use the somatic framework
 
 = 1.3 =
 * added 'navbar' argument to soma_init_type to choose whether to display a nav menu item to the primary navbar for custom post types [default: true]
@@ -95,8 +103,8 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * post meta keys are now stored individually by default. If you want to store all metadata per post as a serialized array in a single key, you need to set the option 'soma_meta_serialize' to true
 * the default post meta key name prefix is "_soma" (what you give as the ID for a metabox field is added to it). If you want a custom prefix, you need to set the option 'soma_meta_prefix' to "_YOUR_PREFIX"
 * admin type sorting page rows fit content better
-* new API function: soma_asset_meta() for manipulating post_meta (abstracts the core functions to better handle serialization cases)
-* new API function: soma_featured_image() for retrieving everything you could possibly need to know about the featured image (post thumbnail)
+* NEW API function: soma_asset_meta() for manipulating post_meta (abstracts the core functions to better handle serialization cases)
+* NEW API function: soma_featured_image() for retrieving everything you could possibly need to know about the featured image (post thumbnail)
 * in edit listing columns, the checkbox column is always included now, so don't need to pass it in soma_init_type column array
 * fixed a query parsing filter that was forcing everything to order by menu_order ASC, no matter what...
 * had forgotten to actually enqueue jquery UI datepicker and slider js and css this whole time <facepalm>
@@ -108,7 +116,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * When passing "p2p" field data with soma_metabox_data(), you must also pass "p2pname" for the unique registered p2p connection ID and "type" (p2p-list or p2p-thumb) for output
 * cleaned up save routines, stripslashes bugs
 * metabox type "richtext" now uses the new WP3.3 wp_editor() function (multiple rich editors possible, yay!)
-* new metabox type "html" uses the new WP3.3 wp_editor() function, but without the visual editor
+* NEW metabox type "html" uses the new WP3.3 wp_editor() function, but without the visual editor
 * metabox type "editor" removed - use "richtext" instead with ID of "post_content" and data of "core" if you're trying to replace the core post editor (just make sure to NOT include "editor" in the post type support!)
 * some css tweaks in the editor to keep up with WP3.3
 * added action hook "soma_column_data" to inject custom post type column data output
@@ -150,13 +158,13 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * fixed ridiculous metabox field table layout issues
 * fixed saving of incomplete "date" fields
 * included soma-admin-jquery.js
-* new fetch_index function for dealing with $_GET and $_POST
+* NEW fetch_index function for dealing with $_GET and $_POST
 
 = 0.3 =
 * purged tons of outdated/unused code from other projects
 * changed save_asset() for core data types to use wp_update_post instead of $wpdb->update
-* added new metabox field type: richtext (with tinymce)
-* new functions for fetching userdata
+* NEW metabox field type: richtext (with tinymce)
+* NEW functions for fetching userdata
 * individual metabox save buttons
 
 = 0.2 =

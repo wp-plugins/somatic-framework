@@ -63,6 +63,11 @@ if (!class_exists("somaticFramework")) :
 class somaticFramework {
 
 	function __construct() {
+		// 
+		register_activation_hook( __FILE__, array(__CLASS__,'activate') );
+		register_deactivation_hook( __FILE__, array(__CLASS__,'deactivate') );
+		register_uninstall_hook( __FILE__, array(__CLASS__,'uninstall') );
+		
 		// mapping wp hooks to internal functions
 		add_action( 'init', array(__CLASS__,'init') );
 		add_action( 'admin_init', array(__CLASS__,'admin_init') );
@@ -70,6 +75,7 @@ class somaticFramework {
 		add_action( 'admin_head', array(__CLASS__,'admin_head') );
 		add_action( 'admin_footer', array(__CLASS__, 'admin_footer') );
 		add_filter( 'admin_footer_text', array(__CLASS__,'admin_footer_text') );
+		add_filter( 'plugin_action_links', array(__CLASS__, 'soma_plugin_action_links'), 10, 2 );
 
 		add_action( 'wp_head', array(__CLASS__,'wp_head') );
 
@@ -87,16 +93,9 @@ class somaticFramework {
 		add_action( 'wp_footer', array(__CLASS__, 'wp_footer') );
 		remove_action( 'wp_head', 'wp_generator' );
 
-		register_activation_hook( __FILE__, array(__CLASS__,'activate') );
-		register_deactivation_hook( __FILE__, array(__CLASS__,'deactivate') );
-
-		// replace builtin with google hosted
-		// wp_deregister_script('jquery-ui-core');
-		// wp_register_script('jquery-ui-core', 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js', false, '1.8.13');
-
 		// framework scripts and styles
 		wp_register_script('soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.5', true);
-		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.5', 'all' );
+		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.5.2', 'all' );
 
 		wp_register_script('soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.5', true);
 		wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.5', 'all' );
@@ -127,7 +126,8 @@ class somaticFramework {
 
 	function wp_print_scripts() {
 		// wp_enqueue_script('colorbox');
-
+		$opt = get_option('somatic_framework_options');
+		
 		// pass constants and vars to javascript to be available for jquery
 		global $post;
 		if ($post == null) {
@@ -142,7 +142,7 @@ class somaticFramework {
 		} else {
 			$admin = 'false';
 		}
-		if (get_option('soma_debug') == 1) {
+		if ($opt['debug']) {
 			$debug = 'true';
 		} else {
 			$debug = 'false';
@@ -185,6 +185,7 @@ class somaticFramework {
 	}
 
 	function admin_init() {
+		self::requires_wordpress_version();
 	}
 
 	function admin_menu() {
@@ -210,22 +211,21 @@ class somaticFramework {
 	}
 
 	function activate() {
+		// somaOptions::set_wp_options();			// dangerous - only use on a fresh wp install!!
+		somaOptions::set_soma_options();
+		// somaOptions::setup_capabilities();		// creates/modifies user roles
 		flush_rewrite_rules();
-		// check if option has already been set, perhaps by a plugin that uses somaframework
-		if (get_option('soma_meta_serialize', "empty") === "empty") {
-			update_option('soma_meta_serialize', 0);
-		}
-		if (get_option('soma_meta_prefix', "empty") === "empty") {
-			update_option('soma_meta_prefix', '_soma');
-		}
-		if (get_option('soma_debug', "empty") === "empty") {
-			update_option('soma_debug', 0);
-		}
 	}
 
 	function deactivate() {
-		delete_option('soma_meta_serialize');
-		delete_option('soma_meta_prefix');
+
+	}
+
+	function uninstall() {
+		if ( __FILE__ != WP_UNINSTALL_PLUGIN ) return;		// important: check if the file is the one that was registered with the uninstall hook (function)
+		somaOptions::delete_soma_options();
+		// get rid of any framework-generated pages?
+		// get rid of custom user roles?
 	}
 
 	function change_wp_login_url() {
@@ -257,6 +257,29 @@ class somaticFramework {
 		return $plugin_folder[$plugin_file]['Version'];
 	}
 
+	function requires_wordpress_version() {
+		global $wp_version;
+		$plugin = plugin_basename( __FILE__ );
+		$plugin_data = get_plugin_data( __FILE__, false );
+
+		if ( version_compare($wp_version, "3.3", "<" ) ) {
+			if( is_plugin_active($plugin) ) {
+				deactivate_plugins( $plugin );
+				wp_die( "'".$plugin_data['Name']."' requires WordPress 3.3 or higher, and has been deactivated! Please upgrade WordPress and try again.<br /><br />Back to <a href='".admin_url()."'>WordPress admin</a>." );
+			}
+		}
+	}
+	
+	// Display a Settings link on the main Plugins page, under our plugin
+	function soma_plugin_action_links( $links, $file ) {
+		if ( $file == plugin_basename( __FILE__ ) ) {
+			$soma_links = '<a href="'.get_admin_url().'options-general.php?page=soma-options-page">'.__('Settings').'</a>';
+			// make the 'Settings' link appear first
+			array_unshift( $links, $soma_links );
+		}
+		return $links;
+	}
+
 }
 // end somaticFramework class /////////////////////////////////////
 
@@ -273,12 +296,12 @@ foreach( glob( SOMA_INC ."*.php" ) as $filename) {
 }
 
 // load classes for debug output
-if (get_option('soma_debug') == 1) {
+$opt = get_option('somatic_framework_options');
+if ($opt['debug']) {
 
 	// php -> console hacks
 	// require_once SOMA_DEV . 'ChromePhp.php';
 	// require_once SOMA_DEV . 'FirePHPCore/fb.php
-
 
 	// include kint class
 	require SOMA_DEV . 'kint/Kint.class.php';

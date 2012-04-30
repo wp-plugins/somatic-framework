@@ -1,6 +1,4 @@
-/* @override 
-	http://somakat.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.1 */
-
+/* @override http://www.placentawise.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.5.2 */
 
 /* clicker button */
 
@@ -230,4 +228,16 @@ ul.meta-attachment-actions {
 }
 .trigger:hover {
 	background: transparent url('../images/play-hover.png') no-repeat center center;
+}
+
+/* framework settings page */
+.tools_page_soma-options-page th {
+	font-weight: bold;
+	color: #666;
+	padding-left: 0;
+}
+.tools_page_soma-options-page tr {
+	border-bottom: 1px dotted #ccc;
+	display: block;
+	padding: 1em 0 1em 0;
 }

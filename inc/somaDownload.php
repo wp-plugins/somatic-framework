@@ -6,8 +6,6 @@ class somaDownload extends somaticFramework {
 	
 	function __construct($id) {
 		
-		// if (!is_admin()) return;	// admin only?
-		// $this->$_asset_id = $id;
 		check_admin_referer( 'soma-download', 'security' ); // will die if invalid or missing nonce
 
 		// init group

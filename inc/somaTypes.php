@@ -56,20 +56,12 @@ class somaTypes extends somaticFramework {
 			'supports' => array( 'editor', 'title', 'thumbnail' ),
 			'rewrite' => array( 'slug' => $slug, 'with_front' => false ),
 			'register_meta_box_cb' => array('somaMetaBoxes','add_boxes'),
-			'labels' => $labels
+			'labels' => $labels,
+			'sortable' => false,											// whether to show a sorting admin menu for this type
+			'navbar' => true,												// automatically generate a nav menu item for this type
+			'menu_icon' => $data['icons'] . $slug . '-menu-icon.png',		// use custom menu icon if defined
 		);
 
-		// use custom menu icon if defined
-		if ( !somaFunctions::is_blank($data['icons']) ) {
-			$default_args['menu_icon'] = $data['icons'] . $slug . '-menu-icon.png';
-		}
-
-
-		// default to not manually sortable (don't show the Sort Order admin page for this type)
-		$data['sortable'] = somaFunctions::is_blank($data['sortable']) ? false : $data['sortable'];
-
-		// default to displaying in primary navbar
-		$data['navbar'] = somaFunctions::is_blank($data['navbar']) ? true : $data['navbar'];
 		
 		// merge with incoming register cpt args
 		$args = wp_parse_args($data['args'], $default_args);

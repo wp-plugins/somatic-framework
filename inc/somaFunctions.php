@@ -896,7 +896,9 @@ class somaFunctions extends somaticFramework {
 	//** checks for activation of plugins that somaFramework is dependent on ------------------------------------------------------//
 	function check_plugin_dependency() {
 		// require scribu's p2p plugin
-		if ( !function_exists('p2p_register_connection_type') ) {
+		$opt = get_option('somatic_framework_options');
+		
+		if ( $opt['p2p'] && !function_exists('p2p_register_connection_type') ) {
 			add_action( 'admin_notices', create_function('', "
 				echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>PLUGIN REQUIRED: \"Posts 2 Posts\" - please <a href=\"http://scribu.net/wordpress/posts-to-posts\" target=\"_blank\">download</a> and/or activate!</p></div>';
 			"));
@@ -937,7 +939,7 @@ class somaFunctions extends somaticFramework {
 			add_action('admin_notices', 'wp_version_update' );
 			function wp_version_update() {
 				echo '<div id="message" class="error" style="font-weight: bold">';
-				echo '<p>WORDPRESS 3.2 MINIMUM REQUIRED - please update WP or de-activate this plugin!</p>';
+				echo '<p>WORDPRESS 3.3 MINIMUM REQUIRED - please update WP or de-activate this plugin!</p>';
 				echo '</div>';
 			}
 		}

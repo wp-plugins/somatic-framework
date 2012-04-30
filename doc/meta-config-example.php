@@ -3,7 +3,7 @@
 //** it won't do you much good if you don't have the Somatic Framework installed **//
 
 
-add_action('admin_init', 'my_meta_box_data' );								// define metabox vars only in admin
+add_action('admin_init', 'mysite_metabox_data' );								// define metabox vars only in admin
 
 // add_action('soma_field_type_case', 'media_field_type', 10, 4);
 // add_filter('soma_field_fetch_meta', 'fetch_media_field', 10, 3);
@@ -19,7 +19,7 @@ add_action('admin_init', 'my_meta_box_data' );								// define metabox vars onl
 
 
 // outline and inject metaboxes and fields into the somaMetaboxes data container
-function meta_box_data() {
+function mysite_metabox_data() {
 	if ( !class_exists("somaticFramework") ) return null; // only proceed if framework plugin is active
 
 	// call the framework function for each individual metabox to be rendered

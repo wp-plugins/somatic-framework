@@ -3,11 +3,11 @@
 //** it won't do you much good if you don't have the Somatic Framework installed **//
 
 
-add_action( 'init', 'init' );
+add_action( 'init', 'mysite_type_data' );
 add_action( 'soma_column_data', 'custom_column_data', 10, 2);
 add_filter( 'soma_custom_type_nav_position', create_function('$pos','return "before";') );				// place custom post type nav items before others, default is "after"
 
-function init() {
+function mysite_type_data() {
 	// only proceed if framework plugin is active
 	if ( !class_exists("somaticFramework") ) return null;
 

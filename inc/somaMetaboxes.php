@@ -4,17 +4,27 @@ class somaMetaboxes extends somaticFramework {
 	function __construct() {
 		add_action( 'init', array(__CLASS__,'init' ) );
 		add_action( 'post_edit_form_tag' , array(__CLASS__,'post_edit_form_tag' ) );
+		add_action( 'do_meta_boxes', array(__CLASS__, 'kill_metaboxes'), 10, 3);
 	}
 
 	// needed to allow file upload inputs (input[type="file"]) within post.php
 	function post_edit_form_tag( ) {
 	    echo ' enctype="multipart/form-data"';
 	}
-
-	//
-	// function load_tiny_mce() {
-	// 	wp_tiny_mce( false ); // true gives you a stripped down version of the editor
-	// }
+	
+	// removes unwanted metaboxes from post editor
+	function kill_metaboxes($type, $context, $post) {
+		$opt = get_option('somatic_framework_options');
+		// $boxes = $opt['metaboxes'];
+		$boxes = array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta');
+		foreach ($boxes as $box) {
+			foreach (array('link', 'post', 'page') as $page){
+				foreach (array('normal', 'advanced', 'side') as $context){
+					remove_meta_box($box, $type, $context);
+				}
+			}
+		}
+	}
 
 	static $data = array();				// container for other plugins and themes to store custom metabox and field data
 
