@@ -35,7 +35,9 @@ class somaMetaboxes extends somaticFramework {
 	function add_boxes($post) {
 
 		if (empty(self::$data) || !self::$data) {
-			wp_die('missing custom metabox data...', 'Load Error!', array('back_link' => true));
+			add_action( 'admin_notices', create_function('', "
+				echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>No metaboxes have been defined! Make use of soma_metabox_data() [consult meta-config-example.php]</p></div>';
+			"));
 		}
 
 		// hook for insertion before any box content
@@ -47,6 +49,10 @@ class somaMetaboxes extends somaticFramework {
 				if ( !$meta_box['restrict'] || $meta_box['restrict'] && SOMA_STAFF ) {	// don't show certain boxes for non-staff
 					add_meta_box($meta_box['id'], $meta_box['title'], array(__CLASS__,'soma_metabox_generator'), $post->post_type, $meta_box['context'], $meta_box['priority'], array('box'=>$meta_box));
 				}
+			} else {
+				add_action( 'admin_notices', create_function('', "
+					echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>No metaboxes have been defined for this custom post type...</p></div>';
+				"));
 			}
 		}
 
@@ -79,7 +85,7 @@ class somaMetaboxes extends somaticFramework {
 	help
 	numeric
 	textarea
-	richtext
+	richtext (using wp_editor())
 	html
 	upload
 	select

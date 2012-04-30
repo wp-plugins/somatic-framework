@@ -11,7 +11,6 @@ function mysite_type_data() {
 	// only proceed if framework plugin is active
 	if ( !class_exists("somaticFramework") ) return null;
 
-	$my_image_directory = 
 	//
 	soma_init_type( array(
 		"slug" => "resource",													// primary identifier

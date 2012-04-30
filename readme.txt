@@ -41,6 +41,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * NEW plugin checks for minimum wordpress version, aborts otherwise...
 * sexy settings link right on the plugins page!
 * improved the example php config templates
+* better handling of missing metabox config data in add_boxes()
 
 = 1.5.1 =
 * fixed fatal error in checking for Kint when debug mode is enabled...
