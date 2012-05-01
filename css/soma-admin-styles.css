@@ -241,3 +241,9 @@ ul.meta-attachment-actions {
 	display: block;
 	padding: 1em 0 1em 0;
 }
+
+/* admin notice box mod */
+div.success {
+	background-color: #dfd;
+	border-color: #006505;
+}

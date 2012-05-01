@@ -4,7 +4,8 @@ class somaTypes extends somaticFramework {
 
 	function __construct() {
 		add_action( 'admin_head', array(__CLASS__, 'custom_type_icons' ) );
-		add_filter( 'wp_nav_menu_items', array(__CLASS__,'custom_type_nav'), 10, 2 );
+		// add_filter( 'wp_nav_menu_items', array(__CLASS__,'custom_type_nav'), 10, 2 );
+		add_filter( 'nav_menu_css_class', array(__CLASS__, 'fix_nav_classes'), 10, 3);
 		add_filter( 'post_updated_messages', array(__CLASS__,'custom_type_messages') );
 		add_action( 'contextual_help', array(__CLASS__, 'custom_type_help_text'), 10, 3 );
 		add_action( 'right_now_content_table_end' , array(__CLASS__, 'custom_types_rightnow' ) );
@@ -62,12 +63,38 @@ class somaTypes extends somaticFramework {
 			'menu_icon' => $data['icons'] . $slug . '-menu-icon.png',		// use custom menu icon if defined
 		);
 
-		
+
 		// merge with incoming register cpt args
 		$args = wp_parse_args($data['args'], $default_args);
 
 		// create the post-type
 		$result = register_post_type($slug, $args);
+		
+		if (is_wp_error($result)) {
+			return $result;
+		}
+
+		// create a nav menu item for this type
+		if ( $args['navbar'] ) {
+			// check if we've already made one... THIS IS AN EXTRA QUERY EVERY PAGE LOAD! NEED TO FIND BETTER WAY OF HANDLING THIS!!
+			$existargs = array(
+			  'name' => $slug,
+			  'post_type' => 'nav_menu_item',
+			);
+			$exists = get_posts($existargs);
+			if ( empty( $exists ) ) {				
+				$archive_url = get_post_type_archive_link($slug);
+				$menu_item_data = array(
+					'menu-item-object' => 'custom',
+					'menu-item-type' => 'custom',
+					'menu-item-title' => $labels['name'],
+					'menu-item-url' => $archive_url,
+					'menu-item-status' => 'publish',
+				);
+				$menu_id = 3;
+				wp_update_nav_menu_item( $menu_id, 0, $menu_item_data );
+			}
+		}
 
 		// store cpt data for later
 		self::$type_data[$slug] = $data;
@@ -236,7 +263,7 @@ class somaTypes extends somaticFramework {
 		global $pagenow, $post_type;
 		if ( !isset( self::$type_data[$post_type] ) ) return null;				// abort if custom post type hasn't been defined for whatever type we're viewing
 		if ( !isset( self::$type_data[$post_type]['icons'] ) ) return null;		// abort if custom icons path hasn't been provided
-		
+
 		$url = self::$type_data[$post_type]['icons'] . $post_type;
 
 		if ( $pagenow == 'post-new.php' ) {
@@ -275,7 +302,7 @@ class somaTypes extends somaticFramework {
 					$args->after .
 					'</li>';
 			}
-			
+
 			// before or after existing items?
 			$position = "after";
 			$position = apply_filters('soma_custom_type_nav_position', $position);
@@ -289,6 +316,33 @@ class somaTypes extends somaticFramework {
 
 		}
 		return $menuItems;
+	}
+
+	// adds 'current' highlighting classes to nav menu items (otherwise missing for custom post )
+	// props to Kevin Langley http://profiles.wordpress.org/users/kevinlangleyjr
+	function fix_nav_classes( $classes, $item, $args ){
+		global $wp_query;
+		$post_type = $wp_query->query_vars[ 'post_type' ];
+		$posts_page = get_option( 'page_for_posts', true );
+		if ( $item->object_id == $posts_page && ( $post_type != 'post' && $post_type != '' ) ) {
+			$remove_array = array('current_page_parent', 'current_page_item', 'current-menu-item');
+			foreach ( $remove_array as $remove ) {
+				$class_index = array_search( $remove, $classes );
+				if ( $class_index ) {
+					unset( $classes[ $class_index ] );
+				}
+			}
+		}
+		if ( $post_type != '' ) {
+			$post_type_url = get_post_type_archive_link( $post_type );
+			$check = strpos( $post_type_url, $item->url );
+			if ( $check !== false && $check == 0 && $item->url != trailingslashit( site_url() ) ){
+				$classes[] = 'current_page_parent';
+				$classes[] = 'current_page_item';
+				$classes[] = 'current-menu-item';
+			}
+		}
+		return $classes;
 	}
 
 

@@ -11,7 +11,7 @@ class somaMetaboxes extends somaticFramework {
 	function post_edit_form_tag( ) {
 	    echo ' enctype="multipart/form-data"';
 	}
-	
+
 	// removes unwanted metaboxes from post editor
 	function kill_metaboxes($type, $context, $post) {
 		$opt = get_option('somatic_framework_options');
@@ -35,6 +35,7 @@ class somaMetaboxes extends somaticFramework {
 	function add_boxes($post) {
 
 		if (empty(self::$data) || !self::$data) {
+			// THIS IS BAD - OUPTUTS BEFORE PAGE HEADERS
 			add_action( 'admin_notices', create_function('', "
 				echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>No metaboxes have been defined! Make use of soma_metabox_data() [consult meta-config-example.php]</p></div>';
 			"));
@@ -50,9 +51,11 @@ class somaMetaboxes extends somaticFramework {
 					add_meta_box($meta_box['id'], $meta_box['title'], array(__CLASS__,'soma_metabox_generator'), $post->post_type, $meta_box['context'], $meta_box['priority'], array('box'=>$meta_box));
 				}
 			} else {
-				add_action( 'admin_notices', create_function('', "
-					echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>No metaboxes have been defined for this custom post type...</p></div>';
-				"));
+				// add_action( 'admin_notices', create_function('', "
+				// 	echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>No metaboxes have been defined for this custom post type...</p></div>';
+				// "));
+				// THIS IS BAD - OUPTUTS BEFORE PAGE HEADERS
+				add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined for this custom post type...'));
 			}
 		}
 
@@ -636,7 +639,7 @@ class somaMetaboxes extends somaticFramework {
 
 					$existing = soma_asset_meta('get', $post->ID, $field['id']."_attached");			// did we already save an attachment for this field?
 					if (empty($existing)) {
-						$import = 'checked="checked"';														// we haven't, so check import by default	
+						$import = 'checked="checked"';														// we haven't, so check import by default
 					}
 					$thumb = get_post_thumbnail_id( $post->ID );											// grab featured image
 					if ( empty($thumb) ) {																	// if featured hasn't been set, check featured by default
@@ -696,7 +699,7 @@ class somaMetaboxes extends somaticFramework {
 				echo "<a href=\"media-upload.php?post_id=$post->ID&amp;TB_iframe=1&amp;height=800&amp;width=640\" id=\"add_media\" class=\"thickbox clicker\" onclick=\"return false;\">$label</a>";
 				echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null, '</td></tr>';
 				$dodesc = false;
-			
+
 				// don't attempt to show player if no media exist yet
 				if (!empty($meta)) {
 					// cycle through array of attached media objects
@@ -725,7 +728,7 @@ class somaMetaboxes extends somaticFramework {
 							echo do_shortcode('[audio src="'.$url.'"]');
 							echo '</td></tr>';
 						}
-						
+
 						echo $field['type'] ? "" : "<em>Must specify a format first!</em>";		/// what is this for?
 					}
 				}

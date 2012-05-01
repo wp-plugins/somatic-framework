@@ -777,20 +777,21 @@ class somaFunctions extends somaticFramework {
 
 	// handles saving and retrieving post_meta via serialized arrays
 	public function asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null ) {
+		$opt = get_option('somatic_framework_options');				// fetch options
 		if ( $serialize === null ) {
-			$serialize = get_option('soma_meta_serialize');		// use default var if not passed in params
+			$serialize = $opt['meta_serialize'];					// use default var if not passed in params
 			if ($serialize == 1) {									// explicit true if evaluates as true
 				$serialize = true;
 			} else {
-				$serialize = false;								// default false
+				$serialize = false;									// default false
 			}
 		}
-		$prefix = get_option('soma_meta_prefix');
-		if (!$prefix) $prefix = "_soma";	// default in case didn't get set at activation....
+		$prefix = $opt['_meta_prefix'];
+		// if (!$prefix) $prefix = "_soma";	// default in case didn't get set at activation....
 		if ( $serialize ) {
-			$meta_key =  get_option('soma_meta_prefix') . "_asset_meta";
+			$meta_key =  $prefix . "_asset_meta";
 		} else {
-			$meta_key = get_option('soma_meta_prefix') . "_" . $key;
+			$meta_key = $prefix . "_" . $key;
 		}
 
 		if ( !$pid || !$action ) {
@@ -933,15 +934,12 @@ class somaFunctions extends somaticFramework {
 	// displays warning error msg if wp version too old ------------------------------------------------------//
 	function wp_version_check() {
 		global $wp_version; #wp
-		$new_admin_version = '3.2';
+		$new_admin_version = '3.3';
 		$updateURL = "";
 		if (version_compare($wp_version, $new_admin_version, '<')) {
-			add_action('admin_notices', 'wp_version_update' );
-			function wp_version_update() {
-				echo '<div id="message" class="error" style="font-weight: bold">';
-				echo '<p>WORDPRESS 3.3 MINIMUM REQUIRED - please update WP or de-activate this plugin!</p>';
-				echo '</div>';
-			}
+			add_action( 'admin_notices', create_function('', "
+				echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>WORDPRESS 3.3 MINIMUM REQUIRED - please update WP or de-activate this plugin!</p></div>';
+			"));
 		}
 	}
 

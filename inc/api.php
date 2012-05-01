@@ -36,7 +36,7 @@ function soma_init_type( $args ) {
 	}
 	
 	if ( empty( $args['slug'] ) ) {
-		somaFunctions::soma_notices( __FUNCTION__ , "Must provide a slug (as a text string)!");
+		somaFunctions::soma_notices( __FUNCTION__ , "Must provide a slug (as a text string)!");			// does this work for admin notices?? have we tested??
 		return null;
 		// return new WP_Error("missing","Must provide a slug (as a text string)!");
 	}
@@ -396,4 +396,23 @@ function soma_dump_globals( $buffer ) {
 
 	// no Debug Bar, so output directly inline
 	return $buffer;
+}
+
+// incomplete effort to consolidate notice reporting and have it output in the right place (rather than before the page headers)
+function soma_notices($type, $msg) {
+	switch ($type) {
+		case 'update':
+			$output = "<div id=\"message\" class=\"updated\" style=\"font-weight: bold\"><p>$msg</p></div>";
+		break;
+		case 'error':
+			$output = "<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>$msg</p></div>";
+		break;
+		case 'success':
+			$output = "<div id=\"message\" class=\"updated success\" style=\"font-weight: bold\"><p>$msg</p></div>";
+		break;
+		default:
+			$output = "<div id=\"message\" class=\"updated\" style=\"font-weight: bold\"><p>$msg</p></div>";
+		break;
+	}
+	echo $output;
 }

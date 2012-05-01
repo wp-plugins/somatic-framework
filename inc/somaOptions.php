@@ -18,7 +18,10 @@ class somaOptions extends somaticFramework  {
 		add_action( 'admin_action_flush', array(__CLASS__,'flush_rules' ) );						// dynamically generated hook created by the ID on forms POSTed from admin.php
 		// add_action( 'admin_action_purge', array(__CLASS__,'purge_all_data' ) );					// dynamically generated hook created by the ID on forms POSTed from admin.php
 		// add_action( 'admin_action_export', array(__CLASS__,'export_csv' ) );						// dynamically generated hook created by the ID on forms POSTed from admin.php
-		add_action('wp_dashboard_setup', array(__CLASS__, 'disable_dashboard_widgets'), 100);
+		add_action( 'wp_dashboard_setup', array(__CLASS__, 'disable_dashboard_widgets'), 100);
+		add_action( 'admin_menu', array(__CLASS__, 'disable_admin_menus' ) );						// hide the admin sidebar menu items
+		add_action( 'wp_print_scripts', array(__CLASS__, 'disable_autosave' ) );					// optional disable autosave
+		add_action( 'init', array(__CLASS__, 'disable_revisions') );								// optional disable revisions
 	}
 
 	// init container for help text and options
@@ -105,11 +108,22 @@ class somaOptions extends somaticFramework  {
 			"dashboard_primary" => 1,
 			"dashboard_secondary" => 1,
 			"thesis_news_widget" => 1,
+			"hide_links_menu" => 1,
+			"hide_comments_menu" => 0,
+			"hide_media_menu" => 0,
+			"hide_tools_menu" => 1,
+			"kill_autosave" => array(),
 			"metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),		// hide these in post editor
 			"reset_default_options" => 0,			// will reset options to defaults next time plugin is activated
 			"plugin_db_version" => self::get_plugin_version()
 		);
 
+		$current = get_option('somatic_framework_options', null);								// fetch current options if they exist
+
+	    if ( ( is_null( $current ) ) || ( $current['reset_default_options'] == '1' ) ) {		// options don't exist yet OR user has requested reset
+			update_option('somatic_framework_options', $defaults);								// write defaults
+		}
+		
 		// convert old options
 		$old_serialize = get_option( 'soma_meta_serialize', null );
 		if ( !is_null( $old_serialize ) ) {
@@ -119,7 +133,7 @@ class somaOptions extends somaticFramework  {
 		// convert old options
 		$old_prefix = get_option( 'soma_meta_prefix', null );
 		if ( !is_null( $old_prefix ) ) {
-			update_option('somatic_framework_options', array('meta_prefix', $old_serialize));
+			update_option('somatic_framework_options', array('meta_prefix', $old_prefix));
 			delete_option( 'soma_meta_prefix' );
 		}
 		// convert old options
@@ -127,15 +141,6 @@ class somaOptions extends somaticFramework  {
 		if ( !is_null( $old_debug ) ) {
 			update_option('somatic_framework_options', array('debug', $old_debug));
 			delete_option( 'soma_debug' );
-		}
-		
-		$current = get_option('somatic_framework_options', null);									// fetch current options
-
-	    if ( ( is_null( $current ) ) || ( $current['reset_default_options'] == '1' ) ) {		// options don't exist yet OR user has requested reset
-			update_option('somatic_framework_options', $defaults);								// write defaults
-		} else {
-			$merge = wp_parse_args( $current, $defaults );										// combine existing with defaults
-			update_option('somatic_framework_options', $merge);									// write merged options
 		}
 	}
 
@@ -251,22 +256,20 @@ class somaOptions extends somaticFramework  {
 
 		// retrieve options
 		$options = get_option('somatic_framework_options');
-		$open_human = date("F d, Y", strtotime($options['open_date']));
-		$close_human = date("F d, Y", strtotime($options['close_date']));
 		soma_dump($options);
-		
-		
+
+
 		// retrieve custom post types
 		$custom_types = get_post_types(array("_builtin" => false));
 		$custom_taxes = get_taxonomies(array("_builtin" => false));
-		
+
 		?>
 		<div class="wrap">
 			<div id="icon-options-general" class="icon32"><br/></div>
 			<h2>Somatic Framework Options</h2>
 
 			<?php if (SOMA_STAFF) : ?>
-				
+
 			<table class="form-table">
 				<tr valign="top">
 					<th scope="row">Declared Custom Post Types</th>
@@ -280,14 +283,15 @@ class somaOptions extends somaticFramework  {
 						<?php echo implode(', ', $custom_taxes); ?>
 					</td>
 				</tr>
-				
-			</table>
 
+			</table>
+			<br />
 			<!-- soma options -->
 			<form action="options.php" method="post">
 				<?php settings_fields( 'somatic_framework_plugin_options' ); // adds hidden form elements, nonce ?>
-				<!-- SAMPLE Table Structure Containing Form Controls -->
-				<!-- Each Plugin Option Defined on a New Table Row -->
+				
+				<input type="submit" class="clicker" value="Save Changes" />
+				<br />
 				<table class="form-table">
 
 					<!-- Checkbox Buttons -->
@@ -296,6 +300,16 @@ class somaOptions extends somaticFramework  {
 						<td>
 							<label><input name="somatic_framework_options[debug]" type="checkbox" value="1" <?php if (isset($options['debug'])) { checked('1', $options['debug']); } ?> /> Debug Mode</label><br />
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if (isset($options['p2p'])) { checked('1', $options['p2p']); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
+						</td>
+					</tr>
+					<!-- Checkbox Buttons -->
+					<tr valign="top">
+						<th scope="row">Disable Admin Menus</th>
+						<td>
+							<label><input name="somatic_framework_options[hide_links_menu]" type="checkbox" value="1" <?php if (isset($options['hide_links_menu'])) { checked('1', $options['hide_links_menu']); } ?> /> Links</label><br />
+							<label><input name="somatic_framework_options[hide_comments_menu]" type="checkbox" value="1" <?php if (isset($options['hide_comments_menu'])) { checked('1', $options['hide_comments_menu']); } ?> /> Comments</label><br />
+							<label><input name="somatic_framework_options[hide_media_menu]" type="checkbox" value="1" <?php if (isset($options['hide_media_menu'])) { checked('1', $options['hide_media_menu']); } ?> /> Media</label><br />
+							<label><input name="somatic_framework_options[hide_tools_menu]" type="checkbox" value="1" <?php if (isset($options['hide_tools_menu'])) { checked('1', $options['hide_tools_menu']); } ?> /> Tools</label><br />
 						</td>
 					</tr>
 
@@ -324,12 +338,40 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[metaboxes][]" type="checkbox" value="thesis_javascript_meta" <?php if (is_array($options['metaboxes'])) { checked('1', in_array('thesis_javascript_meta', $options['metaboxes'])); } ?> /> Thesis Javascript</label><br />
 						</td>
 					</tr>
+					
+					<!-- Checkbox Buttons -->
+					<tr valign="top">
+						<th scope="row">Disable Autosave for Types</th>
+						<td>
+							<?php
+							$types = get_post_types(array('show_ui' => true), 'objects');
+							foreach ($types as $type) {
+?>							<label><input name="somatic_framework_options[kill_autosave][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if (is_array($options['kill_autosave'])) { checked('1', in_array($type->name, $options['kill_autosave'])); } ?> /> <?php echo $type->label; ?></label><br />								
+							<?php }
+							
+							?>
+						</td>
+					</tr>
+					<!-- Checkbox Buttons -->
+					<tr valign="top">
+						<th scope="row">Disable Revisions for Types</th>
+						<td>
+							<?php
+							$types = get_post_types(array('show_ui' => true), 'objects');
+							foreach ($types as $type) {
+?>							<label><input name="somatic_framework_options[kill_revisions][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if (is_array($options['kill_revisions'])) { checked('1', in_array($type->name, $options['kill_revisions'])); } ?> /> <?php echo $type->label; ?></label><br />								
+							<?php }
+
+							?>
+						</td>
+					</tr>
+
 
 					<!-- Textbox Control -->
 					<tr>
 						<th scope="row">Post Meta</th>
 						<td>
-							CAUTION! <em>don't change these values after you've already saved a post with metadata - you won't lose anything (it will still exist in the database) but it won't be visible anymore...</em><br />
+							<strong>CAUTION!</strong> <em>don't change these values after you've already saved a post with metadata - you won't lose anything (it will still exist in the database) but it won't be visible anymore...</em><br />
 							<label>Post Meta Prefix <input type="text" size="7" name="somatic_framework_options[meta_prefix]" value="<?php echo $options['meta_prefix']; ?>" /> <em>(just a few letters, can begin with but not end in underscore)</em></label><br />
 							<label><input name="somatic_framework_options[meta_serialize]" type="checkbox" value="1" <?php if (isset($options['meta_serialize'])) { checked('1', $options['meta_serialize']); } ?> /> Serialize post-meta when saving?</label><br />
 						</td>
@@ -420,16 +462,16 @@ class somaOptions extends somaticFramework  {
 
 	function soma_options_validate($input) {
 		// ensure date in mysql format
-		$input['open_date'] = date("Y-m-d", strtotime($input['open_date']));
-		$input['close_date'] = date("Y-m-d", strtotime($input['close_date']));
+		// $input['open_date'] = date("Y-m-d", strtotime($input['open_date']));
+		// $input['close_date'] = date("Y-m-d", strtotime($input['close_date']));
 		// strip html from textboxes
 		// $input['textarea_one'] =  wp_filter_nohtml_kses($input['textarea_one']); // Sanitize textarea input (strip html tags, and escape characters)
 		// $input['txt_one'] =  wp_filter_nohtml_kses($input['txt_one']); // Sanitize textbox input (strip html tags, and escape characters)
 		// anything else?
 		return $input;
 	}
-	
-	// 
+
+	//
 	function flush_rules() {
 		check_admin_referer( 'soma-flush', 'security' ); // die if invalid or missing nonce
 
@@ -495,7 +537,8 @@ class somaOptions extends somaticFramework  {
 
 	// modifies the user profile page fields
 	function extend_user_contactmethod( $contactmethods ) {
-		$prefix = get_option('soma_meta_prefix');
+		$opt = get_option('somatic_framework_options');
+		$prefix = $opt['meta_prefix'];
 		$contactmethods[$prefix .'user_phone'] = 'Phone Number';
 		$contactmethods[$prefix .'user_facebook'] = 'Facebook Profile URL';
 		unset($contactmethods['yim']);
@@ -515,6 +558,58 @@ class somaOptions extends somaticFramework  {
 		if ($opt['dashboard_primary']) remove_meta_box('dashboard_primary', 'dashboard', 'side');
 		if ($opt['dashboard_secondary']) remove_meta_box('dashboard_secondary', 'dashboard', 'side');
 		if ($opt['thesis_news_widget']) remove_meta_box('thesis_news_widget', 'dashboard', 'normal');
+	}
+
+	//
+	function disable_admin_menus() {
+		$opt = get_option('somatic_framework_options');
+		if ($opt['hide_links_menu'])
+			remove_menu_page('link-manager.php');
+		if ($opt['hide_comments_menu'])
+			remove_menu_page('edit-comments.php');
+		if ($opt['hide_media_menu'])
+			remove_menu_page('upload.php');
+	}
+	
+	//
+	function disable_autosave() {
+		$opt = get_option('somatic_framework_options');
+		global $post;
+		if ( is_array( $opt[ 'kill_autosave' ] ) && in_array( $post->post_type, $opt[ 'kill_autosave' ] ) ) {
+			wp_dequeue_script('autosave');
+			// soma_dump($post->post_type,"no autosave for you");
+		}
+
+	}
+
+	// not sure if this works - need to test
+	function disable_revisions() {
+		$opt = get_option('somatic_framework_options');
+		if ( is_array( $opt[ 'kill_revisions' ] ) ) {
+			foreach ($opt[ 'kill_revisions' ] as $type) {
+				remove_post_type_support( $type, 'revisions' );
+			}
+		}
+	}
+	
+	// this is very deeeeep - need to finish and create UI for it above
+	function disable_support() {
+		if ( post_type_supports($post_type, $feature) && $opt['kill_support'] ) {
+			
+		}
+		/*
+		'title'
+		'editor'
+		'author'
+		'thumbnail'
+		'excerpt'// (posts only) (toggle for pages?)
+		'trackbacks'// (posts only)
+		'page-attributes' // (template and menu order, pages only)
+		'custom-fields'
+		'comments'
+		'revisions'
+		'post-format' // i guess if we've declared it globally elsewhere, should be able to turn off per post-type - should check
+		*/
 	}
 
 }
