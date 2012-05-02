@@ -44,10 +44,10 @@ class somaOptions extends somaticFramework  {
 			"meta_serialize" => 0,											// whether to serialize somatic post_meta
 			'bottom_admin_bar' => 0,										// pin the admin bar to the bottom of the window
 			"kill_autosave" => array(),										// array of post types slugs to disable autosave
-			"disable_menus" => array('links', 'tools'),																													// hide admin sidebar menu items (but you could still go to the page directly)
-			"disable_dashboard" => array('quick_press','recent_drafts','recent_comments','incoming_links','plugins','primary','secondary','thesis_news_widget'),		// hide dashboard widgets
-			"disable_metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),									// hide metaboxes in post editor
-			"disable_drag_metabox" => 1,									// prevent users from dragging metaboxes (even dashboard widgets)
+			"disable_menus" => array('links', 'tools'),																													// hide admin sidebar menu items from everyone (but you could still go to the page directly)
+			"disable_dashboard" => array('quick_press','recent_drafts','recent_comments','incoming_links','plugins','primary','secondary','thesis_news_widget'),		// hide dashboard widgets from everyone
+			"disable_metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),									// hide metaboxes in post editor from everyone
+			"disable_drag_metabox" => 1,									// prevent users from dragging/rearranging metaboxes (even dashboard widgets)
 			"reset_default_options" => 0,									// will reset options to defaults next time plugin is activated
 			"plugin_db_version" => self::get_plugin_version()
 		);
@@ -58,7 +58,7 @@ class somaOptions extends somaticFramework  {
 			update_option('somatic_framework_options', $defaults);								// write defaults
 			$current = get_option('somatic_framework_options');								// populate $current again
 		}
-		
+
 		// convert old options
 		$old_serialize = get_option( 'soma_meta_serialize', null );
 		if ( !is_null( $old_serialize ) ) {
@@ -92,7 +92,7 @@ class somaOptions extends somaticFramework  {
 		// register_setting( 'soma_help', 'soma_help_text', array(__CLASS__, 'soma_help_validate' ) );
 		register_setting( 'somatic_framework_plugin_options', 'somatic_framework_options', array(__CLASS__, 'soma_options_validate' ) );
 	}
-	
+
 	// stash options in global var -- NOTE: since this is hooked to 'init', it won't be ready in time for usage by functions.php or other initial file loads - will have to just use get_option()
 	function soma_global_options() {
 		global $soma_options;
@@ -165,7 +165,7 @@ class somaOptions extends somaticFramework  {
 		// 	update_option( $k, $v );
 		// }
 
-		// delete dummy post, page and comment
+		// delete dummy post, page and comment - DANGEROUS if this plugin is installed after someone is actually using those pages...
 		// wp_delete_post(1, TRUE);
 		// wp_delete_post(2, TRUE);
 		// wp_delete_comment(1);
@@ -301,7 +301,7 @@ class somaOptions extends somaticFramework  {
 			<!-- soma options -->
 			<form action="options.php" method="post">
 				<?php settings_fields( 'somatic_framework_plugin_options' ); // adds hidden form elements, nonce ?>
-				
+
 				<table class="form-table">
 
 					<!-- Checkbox Buttons -->
@@ -310,14 +310,17 @@ class somaOptions extends somaticFramework  {
 						<td>
 							<label><input name="somatic_framework_options[debug]" type="checkbox" value="1" <?php if (isset($soma_options['debug'])) { checked('1', $soma_options['debug']); } ?> /> Debug Mode</label><br />
 							<label><input name="somatic_framework_options[bottom_admin_bar]" type="checkbox" value="1" <?php if (isset($soma_options['bottom_admin_bar'])) { checked('1', $soma_options['bottom_admin_bar']); } ?> /> Pin the Admin Bar to the bottom of the window</label><br />
+							<label><input name="somatic_framework_options[disable_drag_metabox]" type="checkbox" value="1" <?php if (isset($soma_options['disable_drag_metabox'])) { checked('1', $soma_options['disable_drag_metabox']); } ?> /> Disable dragging of metaboxes</label><br />
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if (isset($soma_options['p2p'])) { checked('1', $soma_options['p2p']); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
 						</td>
 					</tr>
-					
+
 					<!-- Checkbox Buttons -->
 					<tr valign="top">
 						<th scope="row">Disable Admin Menus</th>
 						<td>
+							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="posts" <?php if (is_array($soma_options['disable_menus'])) { checked('1', in_array('posts', $soma_options['disable_menus'])); } ?> /> Posts</label><br />
+							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="pages" <?php if (is_array($soma_options['disable_menus'])) { checked('1', in_array('pages', $soma_options['disable_menus'])); } ?> /> Pages</label><br />
 							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="links" <?php if (is_array($soma_options['disable_menus'])) { checked('1', in_array('links', $soma_options['disable_menus'])); } ?> /> Links</label><br />
 							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="comments" <?php if (is_array($soma_options['disable_menus'])) { checked('1', in_array('comments', $soma_options['disable_menus'])); } ?> /> Comments</label><br />
 							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="media" <?php if (is_array($soma_options['disable_menus'])) { checked('1', in_array('media', $soma_options['disable_menus'])); } ?> /> Media</label><br />
@@ -350,7 +353,7 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_javascript_meta" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('thesis_javascript_meta', $soma_options['disable_metaboxes'])); } ?> /> Thesis Javascript</label><br />
 						</td>
 					</tr>
-					
+
 					<!-- Checkbox Buttons -->
 					<tr valign="top">
 						<th scope="row">Disable Autosave for Types</th>
@@ -358,9 +361,9 @@ class somaOptions extends somaticFramework  {
 							<?php
 							$types = get_post_types(array('show_ui' => true), 'objects');
 							foreach ($types as $type) {
-?>							<label><input name="somatic_framework_options[kill_autosave][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if (is_array($soma_options['kill_autosave'])) { checked('1', in_array($type->name, $soma_options['kill_autosave'])); } ?> /> <?php echo $type->label; ?></label><br />								
+?>							<label><input name="somatic_framework_options[kill_autosave][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if (is_array($soma_options['kill_autosave'])) { checked('1', in_array($type->name, $soma_options['kill_autosave'])); } ?> /> <?php echo $type->label; ?></label><br />
 							<?php }
-							
+
 							?>
 						</td>
 					</tr>
@@ -371,7 +374,7 @@ class somaOptions extends somaticFramework  {
 							<?php
 							$types = get_post_types(array('show_ui' => true), 'objects');
 							foreach ($types as $type) {
-?>							<label><input name="somatic_framework_options[kill_revisions][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if (is_array($soma_options['kill_revisions'])) { checked('1', in_array($type->name, $soma_options['kill_revisions'])); } ?> /> <?php echo $type->label; ?></label><br />								
+?>							<label><input name="somatic_framework_options[kill_revisions][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if (is_array($soma_options['kill_revisions'])) { checked('1', in_array($type->name, $soma_options['kill_revisions'])); } ?> /> <?php echo $type->label; ?></label><br />
 							<?php }
 
 							?>
@@ -401,7 +404,7 @@ class somaOptions extends somaticFramework  {
 				<input type="submit" class="clicker" value="Save Changes" />
 			</form>
 			<br/>
-			
+
 			<table class="form-table">
 				<tr valign="top">
 					<th scope="row">Declared Custom Post Types</th>
@@ -569,7 +572,7 @@ class somaOptions extends somaticFramework  {
 		if ( in_array( "secondary", $soma_options['disable_dashboard'] ) ) remove_meta_box('dashboard_secondary', 'dashboard', 'side');
 		if ( in_array( "thesis_news_widget", $soma_options['disable_dashboard'] ) ) remove_meta_box('thesis_news_widget', 'dashboard', 'normal');
 	}
-	
+
 	// removes unwanted metaboxes from post editor
 	function disable_metaboxes($type, $context, $post) {
 		global $soma_options;
@@ -596,8 +599,12 @@ class somaOptions extends somaticFramework  {
 			remove_menu_page('upload.php');
 		if ( in_array( 'tools', $soma_options['disable_menus'] ) )
 			remove_menu_page('tools.php');
+		if ( in_array( 'posts', $soma_options['disable_menus'] ) )
+			remove_menu_page('edit.php');
+		if ( in_array( 'pages', $soma_options['disable_menus'] ) )
+			remove_menu_page('edit.php?post_type=page');
 	}
-	
+
 	//
 	function disable_autosave() {
 		global $soma_options;
@@ -617,12 +624,12 @@ class somaOptions extends somaticFramework  {
 			}
 		}
 	}
-	
+
 	// this is very deeeeep - need to finish and create UI for it above
 	function disable_support() {
 		global $soma_options;
 		if ( post_type_supports($post_type, $feature) && $soma_options['kill_support'] ) {
-			
+
 		}
 		/*
 		'title'
@@ -638,8 +645,8 @@ class somaOptions extends somaticFramework  {
 		'post-format' // i guess if we've declared it globally elsewhere, should be able to turn off per post-type - should check
 		*/
 	}
-	
-	
+
+
 	function disable_drag_metabox() {
 		global $soma_options;
 		if ($soma_options['disable_drag_metabox'])
