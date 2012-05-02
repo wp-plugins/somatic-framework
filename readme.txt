@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.3.2
-Stable tag: 1.5.1
+Stable tag: 1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Adds useful classes for getting the most out of Wordpress' advanced CMS features
 
 == Description ==
 
-This framework is a collection of classes and functions for handling advanced custom post types cases. With just a few pre-populated arrays, it can create custom post types, their labels, metaboxes, save routines, and any custom taxonomies.
+This framework is a collection of classes and functions for handling advanced custom post types cases. With just a defined arrays, it can create custom post types, their labels, menus, metaboxes, save routines, and any custom taxonomies.
 
 NOTE: this began life as an internal development tool, and as such, does not have much (if any documentation) just yet. It's not really end-user friendly in its current state. So if you're not running a site I have built for you personally, you probably don't need it ;-)
 
