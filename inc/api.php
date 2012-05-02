@@ -362,8 +362,8 @@ function soma_singular_term( $pid = null, $tax = null ) {
  */
 
 function soma_dump( $data, $inline = null ) {
-	$opt = get_option('somatic_framework_options');
-	if ( !$opt['debug'] ) return null;									// abort if debug option is off
+	global $soma_options;
+	if ( !$soma_options['debug'] ) return null;									// abort if debug option is off
 	if ( !class_exists('Kint') ) return null;							// abort if Kint doesn't exist
 	if ( !Kint::enabled() ) return null;								// abort if we don't have Kint to make output pretty
 	if ( $inline ) set_transient( 'debug_inline', true );				// make a note to force inline output
@@ -399,38 +399,51 @@ function soma_dump_globals( $buffer ) {
 }
 
 /*
+OPTIONS
 $defaults = array(
-	"debug" => 0,							// debug mode
-	"p2p" => 1,								// require posts 2 posts
-	"meta_prefix" => "_soma",				// prefix added to post_meta keys
-	"meta_serialize" => 0,					// whether to serialize somatic post_meta
-	"dashboard_quick_press" => 1,			// hiding dashboards widgets?
-	"dashboard_recent_drafts" => 1,
-	"dashboard_recent_comments" => 1,
-	"dashboard_incoming_links" => 1,
-	"dashboard_plugins" => 1,
-	"dashboard_primary" => 1,
-	"dashboard_secondary" => 1,
-	"thesis_news_widget" => 1,
-	"hide_links_menu" => 1,
-	"hide_comments_menu" => 0,
-	"hide_media_menu" => 0,
-	"hide_tools_menu" => 1,
-	'bottom_admin_bar' => 0,
-	"kill_autosave" => array(),				// array of post types slugs to disable autosave
-	"favicon" => null,						// full url path to a .png or .ico
-	"metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),		// hide these in post editor
+	"favicon" => null,												// full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
+	"debug" => 0,													// debug mode output enabled (renders to debug bar if installed, ouput inline if not)
+	"p2p" => 1,														// require posts 2 posts plugin by scribu
+	"meta_prefix" => "_soma",										// prefix added to post_meta keys
+	"meta_serialize" => 0,											// whether to serialize somatic post_meta
+	'bottom_admin_bar' => 0,										// pin the admin bar to the bottom of the window
+	"kill_autosave" => array(),										// array of post types slugs to disable autosave
+	"disable_menus" => array('links', 'tools'),																													// hide admin sidebar menu items (but you could still go to the page directly)
+	"disable_dashboard" => array('quick_press','recent_drafts','recent_comments','incoming_links','plugins','primary','secondary','thesis_news_widget'),		// hide dashboard widgets
+	"disable_metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),									// hide metaboxes in post editor
+	"disable_drag_metabox" => 1,									// prevent users from dragging metaboxes (even dashboard widgets)
+	"reset_default_options" => 0,									// will reset options to defaults next time plugin is activated
+	"plugin_db_version" => self::get_plugin_version()
+);
 */
-function soma_set_option( $which = null, $value = null ) {
-	$opt = get_option('somatic_framework_options', null);
-	if (is_null($opt)) return new WP_Error('missing', "Can't find somatic options to save into...");
-	if (!is_null($which) && !is_null($value)) {
-		$opt[$which] = $value;
-		$update = update_option('somatic_framework_options', $opt);
-		return $update;
-	} else {
-		return new WP_Error('missing', "Must pass an option name and a value");
-	}
+
+// NOTE: if setting an option to on/off, true/false, you should really be passing '1'/'0' as it comes back that way after passing thru the DB
+// NOTE: for options that themselves are arrays (like disable_dashboard), whatever gets passed in completely overwrites the existing array - probably need to merge the two instead?
+// QUESTION: should all this be an action hook on init instead?
+
+function soma_set_option( $which = null, $new_value = null ) {
+	$soma_options = get_option('somatic_framework_options', null);
+	if (is_wp_error($soma_options) || is_null($soma_options)) return new WP_Error('missing', "Can't find somatic options to save into...");
+
+	if (is_null($which) || is_null($new_value)) return new WP_Error('missing', "Must pass an option name and a value");				// make sure we've got something to save
+	if (is_array($which)) return new WP_Error('missing', "First argument should be a string name of option (call the function once for each option to be set)");		// right now, we're only handling single options at a time - could change to passing and merging whole array later
+		
+	if ($new_value === true || $new_value == "true") $new_value = '1';						// sanitize boolean input values
+	if ($new_value === false || $new_value == "false") $new_value = '0';					// sanitize boolean input values
+
+	// this option must stay an array!
+	if (is_array($soma_options[$which])) {
+		if (!is_array($new_value)) return new WP_Error('missing', "Must set this option with a simple array...");
+		$old_value = $soma_options[$which];													// store old array
+		$new_value = array_merge($old_value, $new_value);									// combine them
+		$new_value = array_unique($new_value);												// remove duplicates
+		$new_value = array_values($new_value);												// flatten the array keys
+	} 
+
+	$soma_options[$which] = $new_value;														// mod or insert our array key's value
+
+	$update = update_option('somatic_framework_options', $soma_options);					// update with modified full array
+	return $update;																			// true if success, false if fail
 }
 
 // incomplete effort to consolidate notice reporting and have it output in the right place (rather than before the page headers)

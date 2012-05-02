@@ -123,16 +123,15 @@ class somaticFramework {
 			wp_enqueue_script( 'soma-public-jquery' );
 			wp_enqueue_style( 'soma-public' );
 			if (is_user_logged_in()) {
-				$opt = get_option('somatic_framework_options');
-				if ($opt['bottom_admin_bar']) wp_enqueue_style( 'bottom-admin-bar' );			// credit to CoenJacobs https://wordpress.org/extend/plugins/stick-admin-bar-to-bottom/
+				global $soma_options;
+				if ($soma_options['bottom_admin_bar']) wp_enqueue_style( 'bottom-admin-bar' );			// credit to CoenJacobs https://wordpress.org/extend/plugins/stick-admin-bar-to-bottom/
 			}
 		}
 	}
 
 	function wp_print_scripts() {
 		// wp_enqueue_script('colorbox');
-		$opt = get_option('somatic_framework_options');
-
+		global $soma_options;
 		// pass constants and vars to javascript to be available for jquery
 		global $post;
 		if ($post == null) {
@@ -147,7 +146,7 @@ class somaticFramework {
 		} else {
 			$admin = 'false';
 		}
-		if ($opt['debug']) {
+		if ($soma_options['debug']) {
 			$debug = 'true';
 		} else {
 			$debug = 'false';
@@ -177,8 +176,8 @@ class somaticFramework {
 		wp_enqueue_style( 'soma-admin' );
 		wp_enqueue_style( 'colorbox-theme' );
 		wp_enqueue_style( 'jquery-ui-theme' );
-		$opt = get_option('somatic_framework_options');
-		if ($opt['bottom_admin_bar']) wp_enqueue_style( 'bottom-admin-bar' );
+		global $soma_options;
+		if ($soma_options['bottom_admin_bar']) wp_enqueue_style( 'bottom-admin-bar' );
 	}
 
 	function admin_print_scripts() {
@@ -199,9 +198,9 @@ class somaticFramework {
 	}
 
 	function admin_head() {
-		$opt = get_option('somatic_framework_options');
-		if (!is_null($opt['favicon'])) {
-			echo "<link rel=\"shortcut icon\" href=\"{$opt['favicon']}\">";
+		global $soma_options;
+		if (!empty($soma_options['favicon'])) {
+			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";
 		};
 	}
 
@@ -209,9 +208,9 @@ class somaticFramework {
 	}
 
 	function wp_head() {
-		$opt = get_option('somatic_framework_options');
-		if (!is_null($opt['favicon'])) {
-			echo "<link rel=\"shortcut icon\" href=\"{$opt['favicon']}\">";
+		global $soma_options;
+		if (!empty($soma_options['favicon'])) {
+			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";
 		};
 	}
 
@@ -311,8 +310,8 @@ foreach( glob( SOMA_INC ."*.php" ) as $filename) {
 }
 
 // load classes for debug output
-$opt = get_option('somatic_framework_options');
-if ($opt['debug']) {
+$soma_options = get_option('somatic_framework_options', null);
+if (!is_null($soma_options) && $soma_options['debug']) {
 
 	// php -> console hacks
 	// require_once SOMA_DEV . 'ChromePhp.php';

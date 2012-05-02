@@ -46,7 +46,7 @@ class somaFunctions extends somaticFramework {
 	function init() {
 		// localization init needed?? no translations yet
 		// load_plugin_textdomain( 'stock-media-asset-manager', SOMA_DIR . '/lang', basename( dirname( __FILE__ ) ) . '/lang' );
-		self::session_manager();
+		// self::session_manager(); /// WARNING this occasionally causes PHP errors: "Cannot send session cache limiter - headers already sent" -- do we need this?
 		self::wp_version_check();
 		self::check_staff();
 	}
@@ -777,24 +777,25 @@ class somaFunctions extends somaticFramework {
 
 	// handles saving and retrieving post_meta via serialized arrays
 	public function asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null, $use_prefix = true ) {
-		$opt = get_option('somatic_framework_options');				// fetch options
+		global $soma_options;										// fetch options
 		if ( $serialize === null ) {
-			$serialize = $opt['meta_serialize'];					// use default var if not passed in params
+			$serialize = $soma_options['meta_serialize'];			// use default var if not passed in params
 			if ($serialize == 1) {									// explicit true if evaluates as true
 				$serialize = true;
 			} else {
 				$serialize = false;									// default false
 			}
 		}
-		$prefix = $opt['_meta_prefix'];
-		// if (!$prefix) $prefix = "_soma";	// default in case didn't get set at activation....
-		if ( $use_prefix ) {
+		$prefix = $soma_options['_meta_prefix'];
+		// if we're supposed to use a prefix and we have one...
+		if ( $use_prefix && !empty($prefix) ) {
 			if ( $serialize ) {
 				$meta_key =  $prefix . "_asset_meta";
 			} else {
 				$meta_key = $prefix . "_" . $key;
 			}
 		} else {
+			// just use the given key, no prefix
 			$meta_key = $key;
 		}
 
@@ -901,9 +902,9 @@ class somaFunctions extends somaticFramework {
 	//** checks for activation of plugins that somaFramework is dependent on ------------------------------------------------------//
 	function check_plugin_dependency() {
 		// require scribu's p2p plugin
-		$opt = get_option('somatic_framework_options');
+		global $soma_options;
 		
-		if ( $opt['p2p'] && !function_exists('p2p_register_connection_type') ) {
+		if ( $soma_options['p2p'] && !function_exists('p2p_register_connection_type') ) {
 			add_action( 'admin_notices', create_function('', "
 				echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>PLUGIN REQUIRED: \"Posts 2 Posts\" - please <a href=\"http://scribu.net/wordpress/posts-to-posts\" target=\"_blank\">download</a> and/or activate!</p></div>';
 			"));
