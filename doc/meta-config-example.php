@@ -11,8 +11,8 @@ add_action('admin_init', 'mysite_metabox_data' );								// define metabox vars 
 
 //** you should only set these options when activating your plugin/theme **//
 
-// update_option('somatic_framework_options', array('meta_serialize', 1));			// If you want to store all post_meta items as a serialized array in a single key, you need to set the option 'soma_meta_serialize' to 1 (true) (false (0) by default)
-// update_option('somatic_framework_options', array('meta_prefix', '_myprefix'));	// specify your own post_meta prefix, otherwise default is "_soma"
+// soma_set_option('meta_serialize', 1));			// If you want to store all post_meta items as a serialized array in a single key, you need to set the option 'soma_meta_serialize' to 1 (true) (false (0) by default)
+// soma_set_option('meta_prefix', '_myprefix'));	// specify your own post_meta prefix, otherwise default is "_soma"
 
 //**  END options  **//
 

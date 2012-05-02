@@ -4,7 +4,6 @@ class somaTypes extends somaticFramework {
 
 	function __construct() {
 		add_action( 'admin_head', array(__CLASS__, 'custom_type_icons' ) );
-		// add_filter( 'wp_nav_menu_items', array(__CLASS__,'custom_type_nav'), 10, 2 );
 		add_filter( 'nav_menu_css_class', array(__CLASS__, 'fix_nav_classes'), 10, 3);
 		add_filter( 'post_updated_messages', array(__CLASS__,'custom_type_messages') );
 		add_action( 'contextual_help', array(__CLASS__, 'custom_type_help_text'), 10, 3 );
@@ -276,47 +275,6 @@ class somaTypes extends somaticFramework {
 		if ( $pagenow == 'edit.php' ) {
 			echo '<style>#wpbody-content .icon32 { background: transparent url("'. $url .'-list-icon.png") no-repeat; !important }</style>';
 		}
-	}
-
-	// automatically adds custom post types to the primary navbar and adds highlighting for current page - defaults tacking them on the end of existing nav items
-	function custom_type_nav($menuItems, $args) {
-
-		global $wp_query;
-		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
-		$navItem = '';
-		if ( 'primary' == $args->theme_location ) {
-			foreach ($types as $type) {
-				if ( !isset(self::$type_data[$type->query_var]['navbar']) || self::$type_data[$type->query_var]['navbar'] == false ) continue;		// make sure this custom post type wants to be displayed in the navbar
-				if ( $wp_query->query_vars['post_type'] == $type->query_var ) {
-					$class = 'class="current_page_item"';
-				} else {
-					$class = '';
-				}
-				// build nav item
-				$navItem .= '<li ' . $class . '>' .
-					$args->before .
-					'<a href="' . home_url( '/'. $type->name ) . '" title="'.$type->labels->name.'">' .			// would have used $type->rewrite['slug'], but that gave problems when using slug rewrites like 'customtype/%customcat%'
-					$args->link_before .
-					$type->labels->name .
-					$args->link_after .
-					'</a>' .
-					$args->after .
-					'</li>';
-			}
-
-			// before or after existing items?
-			$position = "after";
-			$position = apply_filters('soma_custom_type_nav_position', $position);
-			if ($position == "after") {
-				$menuItems = $menuItems . $navItem;
-			}
-			if ($position == "before") {
-				$menuItems = $navItem . $menuItems;
-			}
-
-
-		}
-		return $menuItems;
 	}
 
 	// adds 'current' highlighting classes to nav menu items (otherwise missing for custom post )

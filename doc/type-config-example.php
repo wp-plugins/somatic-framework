@@ -5,7 +5,6 @@
 
 add_action( 'init', 'mysite_type_data' );
 add_action( 'soma_column_data', 'custom_column_data', 10, 2);
-add_filter( 'soma_custom_type_nav_position', create_function('$pos','return "before";') );				// place custom post type nav items before others, default is "after"
 
 function mysite_type_data() {
 	// only proceed if framework plugin is active
@@ -20,6 +19,7 @@ function mysite_type_data() {
 				'menu_position' => 5,											// where the admin menu item where sit
 				'supports' => array( 'title', 'thumbnail'),						// which features and core metaboxes to show
 				'public' => true,
+				'create_nav_item'=> true,										// automatically generate a nav menu item for this type in Appearance->Menus which you can rearrange - NOTE: will re-create the nav item if you manually delete it!
 			),
 		"icons" => "http://mysite.com/mytheme/img/",							// set url path to where your custom icons are located
 		"columns" => array(														// custom columns for edit.php listing
