@@ -3,7 +3,7 @@ jQuery(document).ready(function($) {
 	console.log("jquery version: "+$().jquery);	// jquery version
 	console.log("jqueryUI version: "+$.ui.version);	// jquery version
 	console.log(soma_vars);	// array of vars passed from admin.php
-	
+
 	// pull in GET Vars
 	$._GET = [];
 	var urlHalves = String(document.location).split('?');
@@ -16,7 +16,7 @@ jQuery(document).ready(function($) {
 			}
 		}
 	}
-	
+
 	// limit characters for numeric input
 	$("input[alt=numeric]").keydown(function(event) {
 		switch (true) {
@@ -41,7 +41,7 @@ jQuery(document).ready(function($) {
 			break;
 			default:
 				event.preventDefault();		// stop character entry
-		}		
+		}
 	});
 
 	// jquery UI datepicker for metaboxes
@@ -67,13 +67,13 @@ jQuery(document).ready(function($) {
 		// for the p2p input box
 		if ($(this).parents('div').hasClass("missing") ) {
 			$(this).parents('div').removeClass("missing");
-		}		
+		}
 	});
-	
+
 	$(':checkbox, :radio').click(function () {
 	    $(this).parents('ul').removeClass("missing");
 	});
-	
+
 	// removes missing class when the user clicks on picker button
 	$(".ui-datepicker-trigger").click(function(){
 		if ($(this).siblings('input').hasClass("missing") ) {
@@ -86,15 +86,15 @@ jQuery(document).ready(function($) {
 		$(this).siblings('.datepicker').datepicker( "setDate" , null );
 		$(this).siblings('.datemirror').val('(none selected)');
 	});
-	
-	
+
+
 	// clones additional inputs
 	$(".addinput").click(function() {
 		rowid = $(this).attr("rel");
 		$("#"+rowid+"-row input:first").clone().insertAfter("#"+rowid+"-row input:last").show();
 		return false;
 	});
-		
+
 	// ajax file attachment killer
 	$("a.deletefile").click(function () {
 		if (confirm('Are you sure you want to delete this file?')) {
@@ -111,7 +111,7 @@ jQuery(document).ready(function($) {
 				},
 				"json"
 			);
-			parent.fadeOut("slow");	
+			parent.fadeOut("slow");
 		}
 		return false;
 	});
@@ -158,7 +158,7 @@ jQuery(document).ready(function($) {
 		scrolling: false,
 		fastIframe: false
 	});
-	
+
 	// automatically grow textareas as you type
 	// $('textarea').autosize();
 
@@ -168,25 +168,31 @@ jQuery(document).ready(function($) {
 	// 	$(this).height($(this).next().height());
 	// });
 
-
+	// key commands for toggling the debug bar panels
 	if (soma_vars['debug_panel']) {
-		// keycommands for displaying the debug panel
-		$("body").keydown(function(event) {
+		$(document).keydown(function(event) {
 			switch (true) {
-				// semicolon key
-				case ( event.keyCode == 186 ):
-					wpDebugBar.actions.maximize();
-					wpDebugBar.toggle.visibility();
-				break;
-				// apostrophe key
-				case ( event.keyCode == 222 ):
-					wpDebugBar.actions.restore();
-					wpDebugBar.toggle.visibility();
-				break;
+				// backslash (mini-panel)
+				case ( event.keyCode == 220 && event.altKey == false):
+					if ($("body").hasClass("debug-bar-partial") && $("body").hasClass("debug-bar-visible")) {
+						wpDebugBar.toggle.visibility(false);
+					} else {
+						wpDebugBar.actions.restore();
+						wpDebugBar.toggle.visibility(true);
+					}
 
-			}		
-		});		
+				break;
+				// backslash + alt (full-panel)
+				case ( event.keyCode == 220 && event.altKey == true ):
+					if ($("body").hasClass("debug-bar-maximized") && $("body").hasClass("debug-bar-visible")) {
+						wpDebugBar.toggle.visibility(false);
+					} else {
+						wpDebugBar.actions.maximize();
+						wpDebugBar.toggle.visibility(true);
+					}
+				break;
+			}
+		});
 	}
-
 	// end
 });

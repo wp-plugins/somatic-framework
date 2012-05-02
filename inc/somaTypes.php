@@ -9,6 +9,7 @@ class somaTypes extends somaticFramework {
 		add_filter( 'post_updated_messages', array(__CLASS__,'custom_type_messages') );
 		add_action( 'contextual_help', array(__CLASS__, 'custom_type_help_text'), 10, 3 );
 		add_action( 'right_now_content_table_end' , array(__CLASS__, 'custom_types_rightnow' ) );
+		add_action( 'admin_head-nav-menus.php', array( __CLASS__, 'filters_for_cpt_archives' ) );				// hacks the output of CPT nav menu items displayed in Appearance -> Menus
 	}
 
 	//** CUSTOM POST TYPES -----------------------------------------------------------------------------------------------------//
@@ -59,7 +60,7 @@ class somaTypes extends somaticFramework {
 			'register_meta_box_cb' => array('somaMetaBoxes','add_boxes'),
 			'labels' => $labels,
 			'sortable' => false,											// whether to show a sorting admin menu for this type
-			'navbar' => true,												// automatically generate a nav menu item for this type
+			'create_nav_item' => true,										// automatically generate a nav menu item for this type - NOTE: will re-create it if you manually delete the nav item!
 			'menu_icon' => $data['icons'] . $slug . '-menu-icon.png',		// use custom menu icon if defined
 		);
 
@@ -427,6 +428,42 @@ class somaTypes extends somaticFramework {
 		}
 	}
 
+	// generate filter hooks for adding cpt archive checkboxes
+	// props to Kevin Langley https://github.com/klangley/cpt-archive-to-nav
+	function filters_for_cpt_archives() {
+		$post_type_args = array(
+			'show_in_nav_menus' => true
+		);
+
+		$post_types = get_post_types( $post_type_args, 'object' );
+
+		foreach ( $post_types as $post_type ) {
+			if ( $post_type->has_archive ) {
+				add_filter( 'nav_menu_items_' . $post_type->name, array( __CLASS__, 'add_cpt_archive_checkbox' ), null, 3 );
+			}
+		}
+	}
+
+	// inject a new checkbox item in Apppearance -> Menus -> (your cpt) visible in the "view all" tab --- so you can manually add a custom nav menu item for your CPT archive pages
+	// props to Kevin Langley https://github.com/klangley/cpt-archive-to-nav
+	function add_cpt_archive_checkbox( $posts, $args, $post_type ) {
+		global $_nav_menu_placeholder, $wp_rewrite;
+		$_nav_menu_placeholder = ( 0 > $_nav_menu_placeholder ) ? intval($_nav_menu_placeholder) - 1 : -1;
+
+		array_unshift( $posts, (object) array(
+			'ID' => 0,
+			'object_id' => $_nav_menu_placeholder,
+			'post_content' => '',
+			'post_excerpt' => '',
+			'post_title' => $post_type['args']->labels->name,
+			'post_name' => $post_type['args']->name,
+			'post_type' => 'nav_menu_item',
+			'type' => 'custom',
+			'url' => get_post_type_archive_link($args['post_type'])
+		) );
+
+		return $posts;
+	}
 
 
 }

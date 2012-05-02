@@ -8,13 +8,15 @@
  *
  * Takes the following parameters, as an associative array:
  *
- * - 'slug' - string A unique identifier for this custom post type (required).
- * - 'single' - string: Singular label name for this custom post type (required).
- * - 'plural' - string: Plural label name for this custom post type (optional).
- * - 'args' - array( key => value ): arguments to override default custom post type registration (optional).
- * - 'columns' - array( id => Title ): define the column listings in edit.php (optional)
- * - 'help' - string: html text to display in the help menu when this custom post type is active (optional).
- * - 'icons' - string: full http:// URL to directory (including trailing slash) where icons for this custom post type are located (optional).
+ * - 'slug' (string): A unique identifier for this custom post type (required).
+ * - 'single' (string): Singular label name for this custom post type (required).
+ * - 'plural' (string): Plural label name for this custom post type (optional).
+ * - 'args' (array( key => value )): arguments to override default custom post type registration (optional).
+ * - 'columns' (array( id => Title )): define the column listings in edit.php (optional)
+ * - 'help' (string): html text to display in the help menu when this custom post type is active (optional).
+ * - 'sortable' (bool): list items by menu_order instead of date, so we can manually adjust order - also displays a Sort page for this CPT
+ * - 'create_nav_item' (bool): automatically generate a custom nav menu item linked the archive page for this CPT
+ * - 'icons' (string): full http:// URL to directory (including trailing slash) where icons for this custom post type are located (optional).
  *
  *		place 4 PNG files for each custom post type you wish to show a custom icon in that directory, following the naming scheme:
  *			[slug]-menu-icon.png  (16x16px)
@@ -34,7 +36,7 @@ function soma_init_type( $args ) {
 	if ( !is_array( $args ) || empty( $args ) ) {
 		return new WP_Error("missing","Must pass custom type parameters as array");
 	}
-	
+
 	if ( empty( $args['slug'] ) ) {
 		somaFunctions::soma_notices( __FUNCTION__ , "Must provide a slug (as a text string)!");			// does this work for admin notices?? have we tested??
 		return null;
@@ -64,7 +66,7 @@ function soma_init_type( $args ) {
  * - 'metabox' - bool: display the default taxonomy metabox in the post editor (defaults true) - NOTE the wp arg "show_ui" also determines this, but it toggles both the post editor metabox and the admin menu item for adding/editing/deleting terms.
  * 				This allows us to preserve that menu, but hide the automatically generated metabox on the side so we can select terms in our custom metaboxes instead
  * - 'terms' - array( term, term ): list of terms to pre-populate for this taxonomy (optional).
- * - 'terms' - array( term => array( slug => 'apple', description => "A yummy fruit" ) ): alternate method to specify slug and description when generating terms for this taxonomy (optional). 
+ * - 'terms' - array( term => array( slug => 'apple', description => "A yummy fruit" ) ): alternate method to specify slug and description when generating terms for this taxonomy (optional).
  * - 'args' - array( key => value ): arguments to override default custom post type registration (optional).
  *
  * @since 1.1
@@ -74,16 +76,16 @@ function soma_init_type( $args ) {
 function soma_init_taxonomy( $args ) {
 	if ( !did_action('init') )
 		return new WP_Error("broken","Taxonomies should not be registered before the 'init' hook.");
-	
+
 	if ( empty( $args ) )
 		return new WP_Error("missing","Must pass custom taxonomy parameters as array");
-	
+
 	if ( empty( $args['slug'] ) )
 		return new WP_Error("missing","Must provide a slug (as a text string)!");
-		
+
 	if ( !isset( $args['single'] ) || !is_string( $args['single'] ) )
 		return new WP_Error("missing","Must provide a singular name (as a text string)!");
-	
+
 	return somaTypes::init_taxonomy( $args );
 }
 
@@ -127,10 +129,10 @@ function soma_init_taxonomy( $args ) {
 function soma_metabox_data( $args ) {
 	if ( !did_action('admin_init') )
 		return new WP_Error("broken","Metabox data should not be registered before the 'admin_init' hook.");
-	
+
 	if ( empty( $args ) || !is_array( $args) )
 		return new WP_Error("missing","Must pass custom metabox data as array");
-	
+
 	somaMetaboxes::$data[] = $args;
 	return true;
 }
@@ -263,27 +265,25 @@ function soma_select_generic($items) {
  * http://codex.wordpress.org/Function_Reference/get_post_meta
  * http://codex.wordpress.org/Function_Reference/update_post_meta
  *
- * Takes the following parameters
- *
- * - 'action' - string ["save", "get", "delete"]: what to do (required).
- * - 'pid' - integer/string: the post ID to be manipulated (required).
- * - 'key' - string: name of the post_meta key to work on (required).
- * - 'value' - string/array: what to save to this post_meta key (optional, unless saving).
- * - 'serialize' - boolean: override the global option for serializing the data (optional)
  *
  * @since 1.3
- * @param $action
+ * @param $action (string) ["save", "get", "delete"]: what to do (required).
+ * @param $pid (integer/string): the post ID to be manipulated (required).
+ * @param $key (string): name of the post_meta key to work on (required).
+ * @param $value (string/array): what to save to this post_meta key (optional, unless saving).
+ * @param $serialize (boolean): override the global option for serializing the data (optional)
+ * @param $use_prefix (boolean): append the global post_meta key prefix to the beginning of $key before saving (optional, defaults true)
  * @return bool True on success, False on failure (when action = 'save')
  * @return value of the post_meta key requested (when action = 'get')
- */ 
+ */
 
-function soma_asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null ) {
-			
+function soma_asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null, $use_prefix = true ) {
+
 	if ( !$pid || !$action ) {
 		return new WP_Error('missing', "Must pass ID and action...");
 	}
-	
-	return somaFunctions::asset_meta( $action, $pid, $key, $value, $serialize );
+
+	return somaFunctions::asset_meta( $action, $pid, $key, $value, $serialize, $use_prefix );
 }
 
 /**
@@ -396,6 +396,41 @@ function soma_dump_globals( $buffer ) {
 
 	// no Debug Bar, so output directly inline
 	return $buffer;
+}
+
+/*
+$defaults = array(
+	"debug" => 0,							// debug mode
+	"p2p" => 1,								// require posts 2 posts
+	"meta_prefix" => "_soma",				// prefix added to post_meta keys
+	"meta_serialize" => 0,					// whether to serialize somatic post_meta
+	"dashboard_quick_press" => 1,			// hiding dashboards widgets?
+	"dashboard_recent_drafts" => 1,
+	"dashboard_recent_comments" => 1,
+	"dashboard_incoming_links" => 1,
+	"dashboard_plugins" => 1,
+	"dashboard_primary" => 1,
+	"dashboard_secondary" => 1,
+	"thesis_news_widget" => 1,
+	"hide_links_menu" => 1,
+	"hide_comments_menu" => 0,
+	"hide_media_menu" => 0,
+	"hide_tools_menu" => 1,
+	'bottom_admin_bar' => 0,
+	"kill_autosave" => array(),				// array of post types slugs to disable autosave
+	"favicon" => null,						// full url path to a .png or .ico
+	"metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),		// hide these in post editor
+*/
+function soma_set_option( $which = null, $value = null ) {
+	$opt = get_option('somatic_framework_options', null);
+	if (is_null($opt)) return new WP_Error('missing', "Can't find somatic options to save into...");
+	if (!is_null($which) && !is_null($value)) {
+		$opt[$which] = $value;
+		$update = update_option('somatic_framework_options', $opt);
+		return $update;
+	} else {
+		return new WP_Error('missing', "Must pass an option name and a value");
+	}
 }
 
 // incomplete effort to consolidate notice reporting and have it output in the right place (rather than before the page headers)

@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * Used to set/modify various options
+ *
+ * @since 1.6
+ */
 class somaOptions extends somaticFramework  {
 
 	function __construct() {
@@ -22,6 +26,7 @@ class somaOptions extends somaticFramework  {
 		add_action( 'admin_menu', array(__CLASS__, 'disable_admin_menus' ) );						// hide the admin sidebar menu items
 		add_action( 'wp_print_scripts', array(__CLASS__, 'disable_autosave' ) );					// optional disable autosave
 		add_action( 'init', array(__CLASS__, 'disable_revisions') );								// optional disable revisions
+		add_action( 'do_meta_boxes', array(__CLASS__, 'disable_metaboxes'), 10, 3);					// removes metaboxes from post editor
 	}
 
 	// init container for help text and options
@@ -93,27 +98,19 @@ class somaOptions extends somaticFramework  {
 
 	//** sets somatic framework options defaults
 	// if there are no theme options currently set, or the user has selected the checkbox to reset options to their defaults then the options are set/reset.
-	function set_soma_options() {
+	function init_soma_options() {
 
 		$defaults = array(
-			"debug" => 0,							// debug mode
-			"p2p" => 1,								// require posts 2 posts
-			"meta_prefix" => "_soma",				// prefix added to post_meta keys
-			"meta_serialize" => 0,					// whether to serialize somatic post_meta
-			"dashboard_quick_press" => 1,			// hiding dashboards widgets?
-			"dashboard_recent_drafts" => 1,
-			"dashboard_recent_comments" => 1,
-			"dashboard_incoming_links" => 1,
-			"dashboard_plugins" => 1,
-			"dashboard_primary" => 1,
-			"dashboard_secondary" => 1,
-			"thesis_news_widget" => 1,
-			"hide_links_menu" => 1,
-			"hide_comments_menu" => 0,
-			"hide_media_menu" => 0,
-			"hide_tools_menu" => 1,
-			"kill_autosave" => array(),
-			"metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),		// hide these in post editor
+			"favicon" => null,											// full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
+			"debug" => 0,												// debug mode
+			"p2p" => 1,													// require posts 2 posts plugin by scribu
+			"meta_prefix" => "_soma",									// prefix added to post_meta keys
+			"meta_serialize" => 0,										// whether to serialize somatic post_meta
+			'bottom_admin_bar' => 0,									// pin the admin bar to the bottom of the window
+			"kill_autosave" => array(),									// array of post types slugs to disable autosave
+			"disable_menus" => array('links', 'tools'),																													// hide admin sidebar menu items (but you could still go to the page directly)
+			"disable_dashboard" => array('quick_press','recent_drafts','recent_comments','incoming_links','plugins','primary','secondary','thesis_news_widget'),		// hide dashboard widgets
+			"disable_metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),									// hide metaboxes in post editor
 			"reset_default_options" => 0,			// will reset options to defaults next time plugin is activated
 			"plugin_db_version" => self::get_plugin_version()
 		);
@@ -122,24 +119,28 @@ class somaOptions extends somaticFramework  {
 
 	    if ( ( is_null( $current ) ) || ( $current['reset_default_options'] == '1' ) ) {		// options don't exist yet OR user has requested reset
 			update_option('somatic_framework_options', $defaults);								// write defaults
+			$current = get_option('somatic_framework_options');								// populate $current again
 		}
 		
 		// convert old options
 		$old_serialize = get_option( 'soma_meta_serialize', null );
 		if ( !is_null( $old_serialize ) ) {
-			update_option('somatic_framework_options', array('meta_serialize', $old_serialize));
+			$current['meta_serialize'] = $old_serialize;
+			update_option('somatic_framework_options', $current);
 			delete_option( 'soma_meta_serialize' );
 		}
 		// convert old options
 		$old_prefix = get_option( 'soma_meta_prefix', null );
 		if ( !is_null( $old_prefix ) ) {
-			update_option('somatic_framework_options', array('meta_prefix', $old_prefix));
+			$current['meta_prefix'] = $old_prefix;
+			update_option('somatic_framework_options', $current);
 			delete_option( 'soma_meta_prefix' );
 		}
 		// convert old options
 		$old_debug = get_option( 'soma_debug', null );
 		if ( !is_null( $old_debug ) ) {
-			update_option('somatic_framework_options', array('debug', $old_debug));
+			$current['debug'] = $old_debug;
+			update_option('somatic_framework_options', $current);
 			delete_option( 'soma_debug' );
 		}
 	}
@@ -192,7 +193,7 @@ class somaOptions extends somaticFramework  {
 	function add_pages() {
 		if ( SOMA_STAFF ) {
 			// add_submenu_page('options-general.php', 'Help Text', 'Help Text', 'update_core', 'soma-help-editor', array(__CLASS__,'soma_help_page'), SOMA_IMG.'soma-downloads-menu.png');
-			add_submenu_page('tools.php', 'Somatic Framework', 'Somatic Framework', 'update_core', 'soma-options-page', array(__CLASS__,'soma_options_page'), SOMA_IMG.'soma-downloads-menu.png');
+			add_submenu_page('options-general.php', 'Somatic Framework', 'Somatic Framework', 'update_core', 'soma-options-page', array(__CLASS__,'soma_options_page'), SOMA_IMG.'soma-downloads-menu.png');
 		}
 	}
 
@@ -200,8 +201,7 @@ class somaOptions extends somaticFramework  {
 	function soma_help_page() {
 		if (somaFunctions::fetch_index($_REQUEST, 'settings-updated') ) {
 			echo "<div id='notice_post' class='updated fade'><p>Text Saved...</p></div>";
-		}
-		?>
+		}		?>
 		<div class="wrap">
 			<div id="icon-soma-editor" class="icon32"><br/></div>
 			<h2>Help Text Editor</h2>
@@ -258,6 +258,9 @@ class somaOptions extends somaticFramework  {
 		$options = get_option('somatic_framework_options');
 		soma_dump($options);
 
+		if ($options['reset_default_options']) {
+			echo "<div class='updated fade'><p><strong>NOTICE:</strong> Settings are set be reset to defaults next time this plugin is activated!</p></div>";
+		}
 
 		// retrieve custom post types
 		$custom_types = get_post_types(array("_builtin" => false));
@@ -270,28 +273,10 @@ class somaOptions extends somaticFramework  {
 
 			<?php if (SOMA_STAFF) : ?>
 
-			<table class="form-table">
-				<tr valign="top">
-					<th scope="row">Declared Custom Post Types</th>
-					<td>
-						<?php echo implode(', ', $custom_types); ?>
-					</td>
-				</tr>
-				<tr valign="top">
-					<th scope="row">Declared Custom Taxonomies</th>
-					<td>
-						<?php echo implode(', ', $custom_taxes); ?>
-					</td>
-				</tr>
-
-			</table>
-			<br />
 			<!-- soma options -->
 			<form action="options.php" method="post">
 				<?php settings_fields( 'somatic_framework_plugin_options' ); // adds hidden form elements, nonce ?>
 				
-				<input type="submit" class="clicker" value="Save Changes" />
-				<br />
 				<table class="form-table">
 
 					<!-- Checkbox Buttons -->
@@ -299,17 +284,19 @@ class somaOptions extends somaticFramework  {
 						<th scope="row">General Options</th>
 						<td>
 							<label><input name="somatic_framework_options[debug]" type="checkbox" value="1" <?php if (isset($options['debug'])) { checked('1', $options['debug']); } ?> /> Debug Mode</label><br />
+							<label><input name="somatic_framework_options[bottom_admin_bar]" type="checkbox" value="1" <?php if (isset($options['bottom_admin_bar'])) { checked('1', $options['bottom_admin_bar']); } ?> /> Pin the Admin Bar to the bottom of the window</label><br />
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if (isset($options['p2p'])) { checked('1', $options['p2p']); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
 						</td>
 					</tr>
+					
 					<!-- Checkbox Buttons -->
 					<tr valign="top">
 						<th scope="row">Disable Admin Menus</th>
 						<td>
-							<label><input name="somatic_framework_options[hide_links_menu]" type="checkbox" value="1" <?php if (isset($options['hide_links_menu'])) { checked('1', $options['hide_links_menu']); } ?> /> Links</label><br />
-							<label><input name="somatic_framework_options[hide_comments_menu]" type="checkbox" value="1" <?php if (isset($options['hide_comments_menu'])) { checked('1', $options['hide_comments_menu']); } ?> /> Comments</label><br />
-							<label><input name="somatic_framework_options[hide_media_menu]" type="checkbox" value="1" <?php if (isset($options['hide_media_menu'])) { checked('1', $options['hide_media_menu']); } ?> /> Media</label><br />
-							<label><input name="somatic_framework_options[hide_tools_menu]" type="checkbox" value="1" <?php if (isset($options['hide_tools_menu'])) { checked('1', $options['hide_tools_menu']); } ?> /> Tools</label><br />
+							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="links" <?php if (is_array($options['disable_menus'])) { checked('1', in_array('links', $options['disable_menus'])); } ?> /> Links</label><br />
+							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="comments" <?php if (is_array($options['disable_menus'])) { checked('1', in_array('comments', $options['disable_menus'])); } ?> /> Comments</label><br />
+							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="media" <?php if (is_array($options['disable_menus'])) { checked('1', in_array('media', $options['disable_menus'])); } ?> /> Media</label><br />
+							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="tools" <?php if (is_array($options['disable_menus'])) { checked('1', in_array('tools', $options['disable_menus'])); } ?> /> Tools</label><br />
 						</td>
 					</tr>
 
@@ -317,14 +304,14 @@ class somaOptions extends somaticFramework  {
 					<tr valign="top">
 						<th scope="row">Disable Dashboard Widgets</th>
 						<td>
-							<label><input name="somatic_framework_options[dashboard_quick_press]" type="checkbox" value="1" <?php if (isset($options['dashboard_quick_press'])) { checked('1', $options['dashboard_quick_press']); } ?> /> Quick Press </label><br />
-							<label><input name="somatic_framework_options[dashboard_recent_drafts]" type="checkbox" value="1" <?php if (isset($options['dashboard_recent_drafts'])) { checked('1', $options['dashboard_recent_drafts']); } ?> /> Recent Drafts </label><br />
-							<label><input name="somatic_framework_options[dashboard_recent_comments]" type="checkbox" value="1" <?php if (isset($options['dashboard_recent_comments'])) { checked('1', $options['dashboard_recent_comments']); } ?> /> Recent Comments </label><br />
-							<label><input name="somatic_framework_options[dashboard_incoming_links]" type="checkbox" value="1" <?php if (isset($options['dashboard_incoming_links'])) { checked('1', $options['dashboard_incoming_links']); } ?> /> Incoming Links </label><br />
-							<label><input name="somatic_framework_options[dashboard_plugins]" type="checkbox" value="1" <?php if (isset($options['dashboard_plugins'])) { checked('1', $options['dashboard_plugins']); } ?> /> Plugins </label><br />
-							<label><input name="somatic_framework_options[dashboard_primary]" type="checkbox" value="1" <?php if (isset($options['dashboard_primary'])) { checked('1', $options['dashboard_primary']); } ?> /> Wordpress Blog </label><br />
-							<label><input name="somatic_framework_options[dashboard_secondary]" type="checkbox" value="1" <?php if (isset($options['dashboard_secondary'])) { checked('1', $options['dashboard_secondary']); } ?> /> Other Wordpress News </label><br />
-							<label><input name="somatic_framework_options[thesis_news_widget]" type="checkbox" value="1" <?php if (isset($options['thesis_news_widget'])) { checked('1', $options['thesis_news_widget']); } ?> /> Thesis News </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="quick_press" <?php if (is_array($options['disable_dashboard'])) { checked('1', in_array('quick_press', $options['disable_dashboard'])); } ?> /> Quick Press </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="recent_drafts" <?php if (is_array($options['disable_dashboard'])) { checked('1', in_array('recent_drafts', $options['disable_dashboard'])); } ?> /> Recent Drafts </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="recent_comments" <?php if (is_array($options['disable_dashboard'])) { checked('1', in_array('recent_comments', $options['disable_dashboard'])); } ?> /> Recent Comments </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="incoming_links" <?php if (is_array($options['disable_dashboard'])) { checked('1', in_array('incoming_links', $options['disable_dashboard'])); } ?> /> Incoming Links </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="plugins" <?php if (is_array($options['disable_dashboard'])) { checked('1', in_array('plugins', $options['disable_dashboard'])); } ?> /> Plugins </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="primary" <?php if (is_array($options['disable_dashboard'])) { checked('1', in_array('primary', $options['disable_dashboard'])); } ?> /> Wordpress Blog </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="secondary" <?php if (is_array($options['disable_dashboard'])) { checked('1', in_array('secondary', $options['disable_dashboard'])); } ?> /> Other Wordpress News </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="thesis_news_widget" <?php if (is_array($options['disable_dashboard'])) { checked('1', in_array('thesis_news_widget', $options['disable_dashboard'])); } ?> /> Thesis News </label><br />
 						</td>
 					</tr>
 
@@ -332,10 +319,10 @@ class somaOptions extends somaticFramework  {
 					<tr valign="top">
 						<th scope="row">Disable Meta Boxes</th>
 						<td>
-							<label><input name="somatic_framework_options[metaboxes][]" type="checkbox" value="thesis_seo_meta" <?php if (is_array($options['metaboxes'])) { checked('1', in_array('thesis_seo_meta', $options['metaboxes'])); } ?> /> Thesis SEO</label><br />
-							<label><input name="somatic_framework_options[metaboxes][]" type="checkbox" value="thesis_image_meta" <?php if (is_array($options['metaboxes'])) { checked('1', in_array('thesis_image_meta', $options['metaboxes'])); } ?> /> Thesis Image</label><br />
-							<label><input name="somatic_framework_options[metaboxes][]" type="checkbox" value="thesis_multimedia_meta" <?php if (is_array($options['metaboxes'])) { checked('1', in_array('thesis_multimedia_meta', $options['metaboxes'])); } ?> /> Thesis Multimedia</label><br />
-							<label><input name="somatic_framework_options[metaboxes][]" type="checkbox" value="thesis_javascript_meta" <?php if (is_array($options['metaboxes'])) { checked('1', in_array('thesis_javascript_meta', $options['metaboxes'])); } ?> /> Thesis Javascript</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_seo_meta" <?php if (is_array($options['disable_metaboxes'])) { checked('1', in_array('thesis_seo_meta', $options['disable_metaboxes'])); } ?> /> Thesis SEO</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_image_meta" <?php if (is_array($options['disable_metaboxes'])) { checked('1', in_array('thesis_image_meta', $options['disable_metaboxes'])); } ?> /> Thesis Image</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_multimedia_meta" <?php if (is_array($options['disable_metaboxes'])) { checked('1', in_array('thesis_multimedia_meta', $options['disable_metaboxes'])); } ?> /> Thesis Multimedia</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_javascript_meta" <?php if (is_array($options['disable_metaboxes'])) { checked('1', in_array('thesis_javascript_meta', $options['disable_metaboxes'])); } ?> /> Thesis Javascript</label><br />
 						</td>
 					</tr>
 					
@@ -389,6 +376,23 @@ class somaOptions extends somaticFramework  {
 				<input type="submit" class="clicker" value="Save Changes" />
 			</form>
 			<br/>
+			
+			<table class="form-table">
+				<tr valign="top">
+					<th scope="row">Declared Custom Post Types</th>
+					<td>
+						<?php echo implode(', ', $custom_types); ?>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row">Declared Custom Taxonomies</th>
+					<td>
+						<?php echo implode(', ', $custom_taxes); ?>
+					</td>
+				</tr>
+
+			</table>
+			<br />
 
 			<!-- flush via admin_action_flush hook -->
 			<form action="<?php echo admin_url( 'admin.php' ); ?>" method="post">
@@ -407,7 +411,7 @@ class somaOptions extends somaticFramework  {
 			<!-- export csv via admin_action_export hook -->
 			<form action="<?php echo admin_url( 'admin.php' ); ?>" method="post">
 				<ul>
-					<h3>Export All Application Data</h3>
+					<h3>Export All Application Data (CHANGE THIS TO EXPORT SOMA SETTINGS FILE)</h3>
 					<li>This will download a CSV file to your computer with an entry line for each application</li>
 					<input type="hidden" name="security" value="<?php echo wp_create_nonce( "soma-export" ); ?>" />
 					<input type="hidden" name="items" value="24">
@@ -550,25 +554,42 @@ class somaOptions extends somaticFramework  {
 	//
 	function disable_dashboard_widgets() {
 		$opt = get_option('somatic_framework_options');
-		if ($opt['dashboard_quick_press']) remove_meta_box('dashboard_quick_press', 'dashboard', 'side');
-		if ($opt['dashboard_recent_drafts']) remove_meta_box('dashboard_recent_drafts', 'dashboard', 'side');
-		if ($opt['dashboard_recent_comments']) remove_meta_box('dashboard_recent_comments', 'dashboard', 'normal');
-		if ($opt['dashboard_incoming_links']) remove_meta_box('dashboard_incoming_links', 'dashboard', 'normal');
-		if ($opt['dashboard_plugins']) remove_meta_box('dashboard_plugins', 'dashboard', 'normal');
-		if ($opt['dashboard_primary']) remove_meta_box('dashboard_primary', 'dashboard', 'side');
-		if ($opt['dashboard_secondary']) remove_meta_box('dashboard_secondary', 'dashboard', 'side');
-		if ($opt['thesis_news_widget']) remove_meta_box('thesis_news_widget', 'dashboard', 'normal');
+		if ( in_array( "quick_press", $opt['disable_dashboard'] ) ) remove_meta_box('dashboard_quick_press', 'dashboard', 'side');
+		if ( in_array( "recent_drafts", $opt['disable_dashboard'] ) ) remove_meta_box('dashboard_recent_drafts', 'dashboard', 'side');
+		if ( in_array( "recent_comments", $opt['disable_dashboard'] ) ) remove_meta_box('dashboard_recent_comments', 'dashboard', 'normal');
+		if ( in_array( "incoming_links", $opt['disable_dashboard'] ) ) remove_meta_box('dashboard_incoming_links', 'dashboard', 'normal');
+		if ( in_array( "plugins", $opt['disable_dashboard'] ) ) remove_meta_box('dashboard_plugins', 'dashboard', 'normal');
+		if ( in_array( "primary", $opt['disable_dashboard'] ) ) remove_meta_box('dashboard_primary', 'dashboard', 'side');
+		if ( in_array( "secondary", $opt['disable_dashboard'] ) ) remove_meta_box('dashboard_secondary', 'dashboard', 'side');
+		if ( in_array( "thesis_news_widget", $opt['disable_dashboard'] ) ) remove_meta_box('thesis_news_widget', 'dashboard', 'normal');
+	}
+	
+	// removes unwanted metaboxes from post editor
+	function disable_metaboxes($type, $context, $post) {
+		$opt = get_option('somatic_framework_options');
+		$boxes = $opt['disable_metaboxes'];
+		if (!is_array($boxes)) return false;
+		foreach ($boxes as $box) {
+			foreach (array('link', 'post', 'page') as $page){
+				foreach (array('normal', 'advanced', 'side') as $context){
+					remove_meta_box($box, $type, $context);
+				}
+			}
+		}
 	}
 
 	//
 	function disable_admin_menus() {
-		$opt = get_option('somatic_framework_options');
-		if ($opt['hide_links_menu'])
+		$opt = get_option( 'somatic_framework_options' );
+		if ( !is_array( $opt['disable_menus'] ) ) return false;
+		if ( in_array( 'links', $opt['disable_menus'] ) )
 			remove_menu_page('link-manager.php');
-		if ($opt['hide_comments_menu'])
+		if ( in_array( 'comments', $opt['disable_menus'] ) )
 			remove_menu_page('edit-comments.php');
-		if ($opt['hide_media_menu'])
+		if ( in_array( 'media', $opt['disable_menus'] ) )
 			remove_menu_page('upload.php');
+		if ( in_array( 'tools', $opt['disable_menus'] ) )
+			remove_menu_page('tools.php');
 	}
 	
 	//

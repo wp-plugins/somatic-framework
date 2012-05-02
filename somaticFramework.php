@@ -63,11 +63,11 @@ if (!class_exists("somaticFramework")) :
 class somaticFramework {
 
 	function __construct() {
-		// 
+		//
 		register_activation_hook( __FILE__, array(__CLASS__,'activate') );
 		register_deactivation_hook( __FILE__, array(__CLASS__,'deactivate') );
 		register_uninstall_hook( __FILE__, array(__CLASS__,'uninstall') );
-		
+
 		// mapping wp hooks to internal functions
 		add_action( 'init', array(__CLASS__,'init') );
 		add_action( 'admin_init', array(__CLASS__,'admin_init') );
@@ -91,14 +91,15 @@ class somaticFramework {
 		add_action( 'admin_print_scripts', array(__CLASS__, 'admin_print_scripts') );
 
 		add_action( 'wp_footer', array(__CLASS__, 'wp_footer') );
-		remove_action( 'wp_head', 'wp_generator' );
+		remove_action( 'wp_head', 'wp_generator' );				// hide wp version html output?
 
 		// framework scripts and styles
-		wp_register_script('soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.5', true);
-		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.5.2', 'all' );
+		wp_register_script('soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
+		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.6', 'all' );
 
-		wp_register_script('soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.5', true);
-		wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.5', 'all' );
+		wp_register_script('soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
+		wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.6', 'all' );
+		wp_register_style( 'bottom-admin-bar', SOMA_CSS.'bottom-admin-bar.css', array(), '1.6', 'all' );
 
 
 		// jquery plugin lightbox functionality
@@ -121,13 +122,17 @@ class somaticFramework {
 		if (!is_admin()) {
 			wp_enqueue_script( 'soma-public-jquery' );
 			wp_enqueue_style( 'soma-public' );
+			if (is_user_logged_in()) {
+				$opt = get_option('somatic_framework_options');
+				if ($opt['bottom_admin_bar']) wp_enqueue_style( 'bottom-admin-bar' );			// credit to CoenJacobs https://wordpress.org/extend/plugins/stick-admin-bar-to-bottom/
+			}
 		}
 	}
 
 	function wp_print_scripts() {
 		// wp_enqueue_script('colorbox');
 		$opt = get_option('somatic_framework_options');
-		
+
 		// pass constants and vars to javascript to be available for jquery
 		global $post;
 		if ($post == null) {
@@ -172,6 +177,8 @@ class somaticFramework {
 		wp_enqueue_style( 'soma-admin' );
 		wp_enqueue_style( 'colorbox-theme' );
 		wp_enqueue_style( 'jquery-ui-theme' );
+		$opt = get_option('somatic_framework_options');
+		if ($opt['bottom_admin_bar']) wp_enqueue_style( 'bottom-admin-bar' );
 	}
 
 	function admin_print_scripts() {
@@ -192,12 +199,20 @@ class somaticFramework {
 	}
 
 	function admin_head() {
+		$opt = get_option('somatic_framework_options');
+		if (!is_null($opt['favicon'])) {
+			echo "<link rel=\"shortcut icon\" href=\"{$opt['favicon']}\">";
+		};
 	}
 
 	function admin_footer() {
 	}
 
 	function wp_head() {
+		$opt = get_option('somatic_framework_options');
+		if (!is_null($opt['favicon'])) {
+			echo "<link rel=\"shortcut icon\" href=\"{$opt['favicon']}\">";
+		};
 	}
 
 	function wp_footer() {
@@ -212,7 +227,7 @@ class somaticFramework {
 
 	function activate() {
 		// somaOptions::set_wp_options();			// dangerous - only use on a fresh wp install!!
-		somaOptions::set_soma_options();
+		somaOptions::init_soma_options();
 		// somaOptions::setup_capabilities();		// creates/modifies user roles
 		flush_rewrite_rules();
 	}
@@ -269,7 +284,7 @@ class somaticFramework {
 			}
 		}
 	}
-	
+
 	// Display a Settings link on the main Plugins page, under our plugin
 	function soma_plugin_action_links( $links, $file ) {
 		if ( $file == plugin_basename( __FILE__ ) ) {
