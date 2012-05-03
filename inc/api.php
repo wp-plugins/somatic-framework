@@ -278,11 +278,6 @@ function soma_select_generic($items) {
  */
 
 function soma_asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null, $use_prefix = true ) {
-
-	if ( !$pid || !$action ) {
-		return new WP_Error('missing', "Must pass ID and action...");
-	}
-
 	return somaFunctions::asset_meta( $action, $pid, $key, $value, $serialize, $use_prefix );
 }
 
