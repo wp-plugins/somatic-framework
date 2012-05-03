@@ -786,7 +786,7 @@ class somaFunctions extends somaticFramework {
 				$serialize = false;									// default false
 			}
 		}
-		$prefix = $soma_options['_meta_prefix'];
+		$prefix = $soma_options['meta_prefix'];
 		// if we're supposed to use a prefix and we have one...
 		if ( $use_prefix && !empty($prefix) ) {
 			if ( $serialize ) {
