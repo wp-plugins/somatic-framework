@@ -26,7 +26,7 @@ class somaOptions extends somaticFramework  {
 		add_action( 'wp_dashboard_setup', array(__CLASS__, 'disable_dashboard_widgets'), 100);		// disable dashboard widgets
 		add_action( 'admin_menu', array(__CLASS__, 'disable_admin_menus' ) );						// hide the admin sidebar menu items
 		add_action( 'wp_print_scripts', array(__CLASS__, 'disable_autosave' ) );					// optional disable autosave
-		add_action( 'init', array(__CLASS__, 'disable_revisions') );								// optional disable revisions
+		add_action( 'init', array(__CLASS__, 'disable_revisions'), 50 );							// optional disable revisions
 		add_action( 'admin_init', array(__CLASS__, 'disable_drag_metabox' ) );						// disable dragging of any metaboxes (including dashboard widgets)
 		add_action( 'do_meta_boxes', array(__CLASS__, 'disable_metaboxes'), 10, 3);					// removes metaboxes from post editor
 		add_filter( 'sanitize_option_somatic_framework_options', array(__CLASS__, 'sanitize_soma_options'), 10, 2);  // hooks into core update_option function to allow sanitizing before saving
@@ -80,6 +80,8 @@ class somaOptions extends somaticFramework  {
 			update_option('somatic_framework_options', $current);
 			delete_option( 'soma_debug' );
 		}
+		
+		return $current;					// output settings array
 	}
 
 	// Delete options table entries ONLY when plugin deactivated AND deleted
@@ -98,7 +100,7 @@ class somaOptions extends somaticFramework  {
 		global $soma_options;
 		$soma_options = get_option('somatic_framework_options', null);
 		if (is_null($soma_options)) {
-			$soma_options = new WP_Error('missing','can\'t seem to find a somatic_framework_options entry in the DB...');
+			$soma_options = self::init_soma_options();
 		}
 	}
 
