@@ -99,7 +99,6 @@ class somaticFramework {
 
 		wp_register_script('soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
 		wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.6', 'all' );
-		wp_register_style( 'bottom-admin-bar', SOMA_CSS.'bottom-admin-bar.css', array(), '1.6', 'all' );
 
 
 		// jquery plugin lightbox functionality
@@ -122,10 +121,6 @@ class somaticFramework {
 		if (!is_admin()) {
 			wp_enqueue_script( 'soma-public-jquery' );
 			wp_enqueue_style( 'soma-public' );
-			if (is_user_logged_in()) {
-				global $soma_options;
-				if ($soma_options['bottom_admin_bar']) wp_enqueue_style( 'bottom-admin-bar' );			// credit to CoenJacobs https://wordpress.org/extend/plugins/stick-admin-bar-to-bottom/
-			}
 		}
 	}
 
@@ -177,7 +172,6 @@ class somaticFramework {
 		wp_enqueue_style( 'colorbox-theme' );
 		wp_enqueue_style( 'jquery-ui-theme' );
 		global $soma_options;
-		if ($soma_options['bottom_admin_bar']) wp_enqueue_style( 'bottom-admin-bar' );
 	}
 
 	function admin_print_scripts() {
@@ -197,21 +191,43 @@ class somaticFramework {
 	function admin_menu() {
 	}
 
+	// back-end <head>
 	function admin_head() {
 		global $soma_options;
 		if (!empty($soma_options['favicon'])) {
 			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";
-		};
+		}
+		if ($soma_options['bottom_admin_bar']) :
+			?><style type="text/css" media="screen">
+			* html body{margin-top:0 !important;}
+			body.admin-bar{margin-top:-28px;padding-bottom:28px;}
+			body.wp-admin #footer{padding-bottom:28px;}
+			#wpadminbar{top:auto !important;bottom:0;}
+			#wpadminbar .quicklinks .ab-sub-wrapper{bottom:28px;}
+			#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}			
+			</style><?php
+		endif;
 	}
 
 	function admin_footer() {
 	}
 
+	// front-end <head>
 	function wp_head() {
 		global $soma_options;
 		if (!empty($soma_options['favicon'])) {
 			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";
-		};
+		}
+		if ($soma_options['bottom_admin_bar']) :
+			?><style type="text/css" media="screen">
+			* html body{margin-top:0 !important;}
+			body.admin-bar{margin-top:-28px;padding-bottom:28px;}
+			body.wp-admin #footer{padding-bottom:28px;}
+			#wpadminbar{top:auto !important;bottom:0;}
+			#wpadminbar .quicklinks .ab-sub-wrapper{bottom:28px;}
+			#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}			
+			</style><?php
+		endif;
 	}
 
 	function wp_footer() {

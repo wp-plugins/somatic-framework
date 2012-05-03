@@ -35,6 +35,12 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.6.1 =
+* disabling admin menus also gets rid of the +New admin bar item
+* using checked() on html forms now
+* better handling of missing metabox config data...
+* tabs on the option page
+
 = 1.6 =
 * NEW somatic_framework_options settings container (serialized array of default options)
 * NEW api function: soma_set_option() - allows easy manipulation of somatic_framework_options in wp_options table

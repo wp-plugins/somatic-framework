@@ -22,27 +22,28 @@ class somaMetaboxes extends somaticFramework {
 
 		if (empty(self::$data) || !self::$data) {
 			// THIS IS BAD - OUPTUTS BEFORE PAGE HEADERS
-			add_action( 'admin_notices', create_function('', "
-				echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>No metaboxes have been defined! Make use of soma_metabox_data() [consult meta-config-example.php]</p></div>';
-			"));
+			add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined! Make use of soma_metabox_data() [consult meta-config-example.php]'));
 		}
 
 		// hook for insertion before any box content
 		do_action('soma_before_all_metaboxes', $post);
 
+		$typehasabox = false;	// init marker
+
 		// Generate meta box for each array
 		foreach ( self::$data as $meta_box ) {
-			if ( in_array($post->post_type, $meta_box['types'] ) ) {	// check if current post type is to use this metabox
-				if ( !$meta_box['restrict'] || $meta_box['restrict'] && SOMA_STAFF ) {	// don't show certain boxes for non-staff
+			if ( in_array($post->post_type, $meta_box['types'] ) ) {									// check if current metabox is indicated for the current post type
+				if ( !$meta_box['restrict'] || $meta_box['restrict'] && SOMA_STAFF ) {					// don't show certain boxes for non-staff
 					add_meta_box($meta_box['id'], $meta_box['title'], array(__CLASS__,'soma_metabox_generator'), $post->post_type, $meta_box['context'], $meta_box['priority'], array('box'=>$meta_box));
+					$typehasabox = true;			// set marker
 				}
-			} else {
-				// add_action( 'admin_notices', create_function('', "
-				// 	echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>No metaboxes have been defined for this custom post type...</p></div>';
-				// "));
-				// THIS IS BAD - OUPTUTS BEFORE PAGE HEADERS
-				add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined for this custom post type...'));
 			}
+		}
+		
+		// if no metaboxes were added, then none were declared or matched the post type
+		if (!$typehasabox) {
+			// THIS IS BAD - OUPTUTS BEFORE PAGE HEADERS
+			add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined for this custom post type! [consult meta-config-example.php]'));		
 		}
 
 		// hook for insertion before any box content
@@ -380,17 +381,18 @@ class somaMetaboxes extends somaticFramework {
 							} else {
 								$select = false;
 							}
-							echo '<li><label><input type="radio" name="', $field['id'], '" value="', $option['value'], '"', $select ? ' checked="checked"' : '', ' />', $option['name'],'</label></li>';
+							echo '<li><label><input type="radio" name="', $field['id'], '" value="', $option['value'], '"', checked($select), ' />', $option['name'],'</label></li>';
 						}
 					} else {
 						// if meta isn't array, default to single behaviour
-						echo '<li><label><input type="radio" name="', $field['id'], '" value="', $option['value'], '"', $meta == $option['value'] ? ' checked="checked"' : '', ' />', $option['name'],'</label></li>';
+						echo '<li><label><input type="radio" name="', $field['id'], '" value="', $option['value'], '"', checked($meta, $option['value']) , ' />', $option['name'],'</label></li>';
 					}
 					echo '</ul>';
 					break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'checkbox-single':
-					echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', $meta ? ' checked="checked"' : null, ' class="meta-checkbox-single', $complete ? null : $missing, '" />';
+					// would have been better to include 'value="1"' so that 1 gets stored in the DB (which is easier to test as true), but by leaving the value off, the string "on" is what gets stored - if I change this, everyone's legacy post_meta won't work...
+					echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', checked($meta, "on") , ' class="meta-checkbox-single', $complete ? null : $missing, '" />';
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'checkbox-multi':
@@ -406,7 +408,7 @@ class somaMetaboxes extends somaticFramework {
 						}
 					} else {
 						// if meta isn't array, default to checkbox-single behaviour
-						echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', $meta ? ' checked="checked"' : null, ' class="', $complete ? null : $missing, '" />';
+						echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', checked($meta, "on") , ' class="', $complete ? null : $missing, '" />';
 					}
 					echo '</ul>';
 					break;

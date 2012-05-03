@@ -348,7 +348,7 @@ function soma_singular_term( $pid = null, $tax = null ) {
 /**
  * Outputs contents of variables for debugging purposes
  * Integrated with Debug Bar plugin (http://wordpress.org/extend/plugins/debug-bar/)
- * Depends on Kint class and the 'soma_debug' option being true
+ * Depends on Kint class and the 'debug' option being true
  *
  * @since 1.5
  * @param $data - variable to be rendered by Kint
