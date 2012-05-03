@@ -777,6 +777,10 @@ class somaFunctions extends somaticFramework {
 
 	// handles saving and retrieving post_meta via serialized arrays
 	public function asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null, $use_prefix = true ) {
+		if ( !$pid || !$action ) {
+			return new WP_Error('missing', "Must pass ID and action...");
+		}
+
 		global $soma_options;										// fetch options
 		if ( $serialize === null ) {
 			$serialize = $soma_options['meta_serialize'];			// use default var if not passed in params
@@ -799,9 +803,7 @@ class somaFunctions extends somaticFramework {
 			$meta_key = $key;
 		}
 
-		if ( !$pid || !$action ) {
-			return new WP_Error('missing', "Must pass ID and action...");
-		}
+
 
 		switch ( $action ) {
 			case ('save') :
