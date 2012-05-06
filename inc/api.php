@@ -396,7 +396,7 @@ function soma_dump_globals( $buffer ) {
 /*
 OPTIONS
 $defaults = array(
-	"favicon" => null,												// full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
+	"favicon" => null,												// full url path to a .png or .ico, usually set in a theme - framework will output <head> tags on front-end, admin, and login pages automatically
 	"debug" => 0,													// debug mode output enabled (renders to debug bar if installed, ouput inline if not)
 	"p2p" => 1,														// require posts 2 posts plugin by scribu
 	"meta_prefix" => "_soma",										// prefix added to post_meta keys

@@ -25,7 +25,7 @@ class somaOptions extends somaticFramework  {
 		// add_action( 'admin_action_export', array(__CLASS__,'export_csv' ) );						// dynamically generated hook created by the ID on forms POSTed from admin.php
 		add_action( 'wp_dashboard_setup', array(__CLASS__, 'disable_dashboard_widgets'), 100);		// disable dashboard widgets
 		add_action( 'admin_menu', array(__CLASS__, 'disable_admin_menus' ) );						// hide the admin sidebar menu items
-		add_action( 'wp_print_scripts', array(__CLASS__, 'disable_autosave' ) );					// optional disable autosave
+		add_action( 'admin_enqueue_scripts', array(__CLASS__, 'disable_autosave' ) );				// optional disable autosave
 		add_action( 'init', array(__CLASS__, 'disable_revisions'), 50 );							// optional disable revisions
 		add_action( 'admin_init', array(__CLASS__, 'disable_drag_metabox' ) );						// disable dragging of any metaboxes (including dashboard widgets)
 		add_action( 'do_meta_boxes', array(__CLASS__, 'disable_metaboxes'), 10, 3);					// removes metaboxes from post editor
@@ -39,7 +39,7 @@ class somaOptions extends somaticFramework  {
 	function init_soma_options() {
 
 		$defaults = array(
-			"favicon" => null,												// full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
+			"favicon" => "",												// full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
 			"debug" => 0,													// debug mode output enabled (renders to debug bar if installed, ouput inline if not)
 			"p2p" => 1,														// require posts 2 posts plugin by scribu
 			"meta_prefix" => "_soma",										// prefix added to post_meta keys
@@ -323,6 +323,15 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[bottom_admin_bar]" type="checkbox" value="1" <?php if (isset($soma_options['bottom_admin_bar'])) { checked('1', $soma_options['bottom_admin_bar']); } ?> /> Pin the Admin Bar to the bottom of the window</label><br />
 							<label><input name="somatic_framework_options[disable_drag_metabox]" type="checkbox" value="1" <?php if (isset($soma_options['disable_drag_metabox'])) { checked('1', $soma_options['disable_drag_metabox']); } ?> /> Disable dragging of metaboxes</label><br />
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if (isset($soma_options['p2p'])) { checked('1', $soma_options['p2p']); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
+
+						</td>
+					</tr>
+
+					<!-- Textfield -->
+					<tr valign="top">
+						<th scope="row">Favicon</th>
+						<td>
+							<?php if (!empty($soma_options['favicon'])) : ?><img src="<?php echo $soma_options['favicon']; ?>" style="vertical-align:middle;margin-right:8px;"><?php echo $soma_options['favicon']; else: echo "(not set)"; endif; ?><br />
 						</td>
 					</tr>
 

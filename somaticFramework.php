@@ -78,23 +78,19 @@ class somaticFramework {
 		add_filter( 'plugin_action_links', array(__CLASS__, 'soma_plugin_action_links'), 10, 2 );
 
 		add_action( 'wp_head', array(__CLASS__,'wp_head') );
+		add_action( 'wp_footer', array(__CLASS__, 'wp_footer') );
+		remove_action( 'wp_head', 'wp_generator' );				// hide wp version html output?
+
+		add_action( 'wp_enqueue_scripts', array(__CLASS__, 'wp_enqueue_scripts') );
+		add_action( 'admin_enqueue_scripts', array(__CLASS__, 'admin_enqueue_scripts') );
 
 		add_filter( 'login_headerurl', array(__CLASS__,'login_headerurl') );
 		add_filter( 'login_headertitle', array(__CLASS__,'login_headertitle') );
 		add_action( 'login_enqueue_scripts', array(__CLASS__,'login_enqueue_scripts'));
 		add_action( 'login_footer', array(__CLASS__,'change_login_footer'));
-		
 
 		add_filter( 'query_vars', array(__CLASS__,'query_vars' ) );
 		add_action( 'parse_request', array(__CLASS__, 'parse_request' ) );
-
-		add_action( 'wp_print_styles', array(__CLASS__, 'wp_print_styles') );
-		add_action( 'wp_print_scripts', array(__CLASS__, 'wp_print_scripts') );
-		add_action( 'admin_print_styles', array(__CLASS__, 'admin_print_styles') );
-		add_action( 'admin_print_scripts', array(__CLASS__, 'admin_print_scripts') );
-
-		add_action( 'wp_footer', array(__CLASS__, 'wp_footer') );
-		remove_action( 'wp_head', 'wp_generator' );				// hide wp version html output?
 
 		// framework scripts and styles
 		wp_register_script( 'soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
@@ -120,16 +116,14 @@ class somaticFramework {
 	}
 
 
-	
-	function wp_print_styles() {
-		// wp_enqueue_style('colorbox-theme');
+	// hooking front-end for scripts AND styles! -- https://wpdevel.wordpress.com/2011/12/12/use-wp_enqueue_scripts-not-wp_print_styles-to-enqueue-scripts-and-styles-for-the-frontend/
+	function wp_enqueue_scripts() {
+
 		if (!is_admin()) {
 			wp_enqueue_script( 'soma-public-jquery' );
 			wp_enqueue_style( 'soma-public' );
 		}
-	}
 
-	function wp_print_scripts() {
 		// wp_enqueue_script('colorbox');
 		global $soma_options;
 		// pass constants and vars to javascript to be available for jquery
@@ -172,18 +166,24 @@ class somaticFramework {
 		wp_localize_script( 'jquery', 'soma_vars', $params); 	// will place in footer because of jquery registered in footer
 	}
 
-	function admin_print_styles() {
-		wp_enqueue_style( 'soma-admin' );
-		wp_enqueue_style( 'colorbox-theme' );
-		wp_enqueue_style( 'jquery-ui-theme' );
-		global $soma_options;
-	}
-
-	function admin_print_scripts() {
+	// hooking admin for scripts and styles!
+	function admin_enqueue_scripts() {
 		wp_enqueue_script( 'soma-admin-jquery' );
 		wp_enqueue_script( 'colorbox' );
 		// wp_enqueue_script( 'autosize' );
 		wp_enqueue_script( 'jquery-ui-datepicker' );
+		wp_enqueue_style( 'soma-admin' );
+		wp_enqueue_style( 'colorbox-theme' );
+		wp_enqueue_style( 'jquery-ui-theme' );
+	}
+
+	// hooking login for scripts and styles!
+	function login_enqueue_scripts() {
+		wp_enqueue_style('soma-login');		// for some reason this is being output in the footer, instead of <head>...
+		global $soma_options;
+		if (!empty($soma_options['favicon'])) {
+			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";
+		}
 	}
 
 	function init() {
@@ -209,7 +209,7 @@ class somaticFramework {
 			body.wp-admin #footer{padding-bottom:28px;}
 			#wpadminbar{top:auto !important;bottom:0;}
 			#wpadminbar .quicklinks .ab-sub-wrapper{bottom:28px;}
-			#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}			
+			#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}
 			</style><?php
 		endif;
 	}
@@ -230,7 +230,7 @@ class somaticFramework {
 			body.wp-admin #footer{padding-bottom:28px;}
 			#wpadminbar{top:auto !important;bottom:0;}
 			#wpadminbar .quicklinks .ab-sub-wrapper{bottom:28px;}
-			#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}			
+			#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}
 			</style><?php
 		endif;
 	}
@@ -270,13 +270,7 @@ class somaticFramework {
 	function login_headertitle() {
 		echo get_option('blogname');
 	}
-	
-	function login_enqueue_scripts() {
-		wp_enqueue_style('soma-login');
-		wp_dequeue_script('colorbox');
-		wp_dequeue_script('colorbox');
-	}
-	
+
 	function change_login_footer() {
 		echo "<div id=\"soma-login-footer\">Somatic Framework</div>\n";
 	}
@@ -324,7 +318,7 @@ class somaticFramework {
 		}
 		return $links;
 	}
-	
+
 
 
 }
