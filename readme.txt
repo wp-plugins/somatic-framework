@@ -40,6 +40,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * using checked() on html forms now
 * better handling of missing metabox config data...
 * tabs on the option page
+* subtle tweaks to login page
 
 = 1.6 =
 * NEW somatic_framework_options settings container (serialized array of default options)

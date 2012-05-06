@@ -81,6 +81,9 @@ class somaticFramework {
 
 		add_filter( 'login_headerurl', array(__CLASS__,'change_wp_login_url') );
 		add_filter( 'login_headertitle', array(__CLASS__,'change_wp_login_title') );
+		add_action( 'login_enqueue_scripts', array(__CLASS__,'change_login_css'));
+		add_action( 'login_footer', array(__CLASS__,'change_login_footer'));
+		
 
 		add_filter( 'query_vars', array(__CLASS__,'query_vars' ) );
 		add_action( 'parse_request', array(__CLASS__, 'parse_request' ) );
@@ -99,6 +102,7 @@ class somaticFramework {
 
 		wp_register_script('soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
 		wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.6', 'all' );
+		wp_register_style( 'soma-login', SOMA_CSS.'soma-login-styles.css', array(), '1.6', 'all' );
 
 
 		// jquery plugin lightbox functionality
@@ -116,6 +120,7 @@ class somaticFramework {
 	}
 
 
+	
 	function wp_print_styles() {
 		// wp_enqueue_style('colorbox-theme');
 		if (!is_admin()) {
@@ -265,6 +270,15 @@ class somaticFramework {
 	function change_wp_login_title() {
 		echo get_option('blogname');
 	}
+	
+	function change_login_css() {
+	  // echo '<link rel="stylesheet" type="text/css" href="'.'/login.css ">';
+		wp_enqueue_style('soma-login');
+	}
+	
+	function change_login_footer() {
+		echo "<div id=\"soma-login-footer\">Somatic Framework</div>\n";
+	}
 
 	// adds custom vars to query
 	function query_vars($qvars) {
@@ -309,6 +323,8 @@ class somaticFramework {
 		}
 		return $links;
 	}
+	
+
 
 }
 // end somaticFramework class /////////////////////////////////////
