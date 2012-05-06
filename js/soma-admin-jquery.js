@@ -2,8 +2,8 @@ jQuery(document).ready(function($) {
 	// debug
 	console.log("jquery version: "+$().jquery);	// jquery version
 	console.log("jqueryUI version: "+$.ui.version);	// jquery version
-	console.log(soma_vars);	// array of vars passed from admin.php
-
+	console.log(soma_vars);	// array of vars passed over by wp_localize_script()
+	
 	// pull in GET Vars
 	$._GET = [];
 	var urlHalves = String(document.location).split('?');
@@ -167,6 +167,7 @@ jQuery(document).ready(function($) {
 	// 	$(this).width($(this).next().width());
 	// 	$(this).height($(this).next().height());
 	// });
+
 
 	// key commands for toggling the debug bar panels
 	if (soma_vars['debug_panel']) {

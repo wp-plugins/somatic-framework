@@ -1,9 +1,10 @@
-/* @override http://www.placentawise.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.5.2 */
+/* @override http://www.placentawise.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.5.2
+	http://www.placentawise.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.6 */
 
 /* clicker button */
 
 .clicker, input.clicker {
-	display: inline-block;
+	display: block;
 	margin-right: 6px;
 	margin-bottom: 6px;
 	text-transform: uppercase;
@@ -56,15 +57,15 @@
 
 /* metabox fields */
 
-#poststuff .form-table tr.fieldrow {
+.metabox-holder .form-table tr.fieldrow {
 	border-top: 1px dotted #ddd;
 }
 
-#poststuff .form-table tr:first-child {
+.metabox-holder .form-table tr:first-child {
 	border-top: none;
 }
 
-#poststuff .form-table .field-label {
+.metabox-holder .form-table .field-label {
 	min-width: 50px;
 	width: 20%;
 	vertical-align: top;
@@ -72,27 +73,27 @@
 	padding-bottom: 20px;
 }
 
-#poststuff .form-table .field-data {
+.metabox-holder .form-table .field-data {
 	min-width: 200px;
 	width: 95%;
 	display: block;
 }
 
-#poststuff .form-table .field-data img,
-#poststuff .form-table .field-data a img {
+.metabox-holder .form-table .field-data img,
+.metabox-holder .form-table .field-data a img {
 	max-width: 100%;
 	display: block;
 }
 
 
-#poststuff .form-table .field-data.field-option {
+.metabox-holder .form-table .field-data.field-option {
 	margin-bottom: 0;
 	padding-bottom: 0;
 	padding-top: 0;
 	color: #acacac;
 }
 
-#poststuff .form-table .field-desc {
+.metabox-holder .form-table .field-desc {
 	padding-top: 0;
 	padding-bottom: 10px;
 	color: #acacac;
@@ -102,48 +103,48 @@
 }
 
 
-#poststuff .form-table .field-data input[type='text'],
-#poststuff .form-table .field-data input[type='file'] {
+.metabox-holder .form-table .field-data input[type='text'],
+.metabox-holder .form-table .field-data input[type='file'] {
 	width: 100%;
 }
 
-#poststuff .form-table .field-data input[alt='numeric'] {
+.metabox-holder .form-table .field-data input[alt='numeric'] {
 	width: 110px;
 }
 /*	html5 media tags (mediaelement handles)*/
-#poststuff .form-table .field-data video {
+.metabox-holder .form-table .field-data video {
 	display: block;
 	background: #666;
 	max-width: 100%;
 	height: auto;
 }
 
-#poststuff .form-table .field-data audio {	
+.metabox-holder .form-table .field-data audio {	
 	width:100%;
 	display: block;
 }
 
-#poststuff .form-table .field-save {
+.metabox-holder .form-table .field-save {
 	width: 100%;
 }
 
-#poststuff p.help {
+.metabox-holder p.help {
 	margin: 0;
 	color: #999;
 }
 
-#poststuff .datemirror,
-#poststuff .timemirror {
+.metabox-holder .datemirror,
+.metabox-holder .timemirror {
 	border: none;
 	background: none;
 	padding: 0;
 	width: auto !important;
 	margin-left: 4px;
 }
-#poststuff .ui-datepicker-trigger {
+.metabox-holder .ui-datepicker-trigger {
 	cursor: pointer;
 }
-#poststuff .datereset {
+.metabox-holder .datereset {
 	display: inline-block;
 	cursor: pointer;
 	width: 16px;
@@ -230,16 +231,22 @@ ul.meta-attachment-actions {
 	background: transparent url('../images/play-hover.png') no-repeat center center;
 }
 
-/* framework settings page */
-.tools_page_soma-options-page th {
-	font-weight: bold;
-	color: #666;
+/* settings page tweaks */
+.somatic-options .form-table th {
 	padding-left: 0;
+	color: #666;
+	font-weight: bold;
 }
-.tools_page_soma-options-page tr {
-	border-bottom: 1px dotted #ccc;
+.somatic-options .form-table tr {
+	border-bottom: 1px dotted #cdcdcd;
 	display: block;
-	padding: 1em 0 1em 0;
+	padding: .5em 0 .5em 0;
+}
+.somatic-options .form-table tr:last-child {
+	border-bottom: none;
+}
+.somatic-options .form-table .clicker {
+	margin-top: 1em;
 }
 
 /* admin notice box mod */

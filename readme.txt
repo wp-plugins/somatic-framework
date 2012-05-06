@@ -43,12 +43,14 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * subtle tweaks to login page
 * using wp_enqueue_scripts() globally now
 * favicon set and display on options page
+* options page is now top-level, with subpages
+* import/export of framework options
 
 = 1.6 =
 * NEW somatic_framework_options settings container (serialized array of default options)
 * NEW api function: soma_set_option() - allows easy manipulation of somatic_framework_options in wp_options table
 * NEW global var: $soma_options - quick checking of current options with DB query
-* NEW settings page (under Tools) to toggle debug mode, plugin dependencies, dashboard widgets, bottom admin bar, editor metaboxes, admin menus, and more
+* NEW settings page to toggle debug mode, plugin dependencies, dashboard widgets, bottom admin bar, editor metaboxes, admin menus, and more
 * NEW daily cron task, use action hook 'soma_daily_event'
 * NEW csv export class, included in trunk but not ready for prime time
 * NEW plugin checks for minimum wordpress version, aborts otherwise...

@@ -81,6 +81,7 @@ class somaticFramework {
 		add_action( 'wp_footer', array(__CLASS__, 'wp_footer') );
 		remove_action( 'wp_head', 'wp_generator' );				// hide wp version html output?
 
+		add_action( 'wp_print_scripts', array(__CLASS__, 'wp_print_scripts') );		// only keeping this one around for localize_script() - prints on front and back end...
 		add_action( 'wp_enqueue_scripts', array(__CLASS__, 'wp_enqueue_scripts') );
 		add_action( 'admin_enqueue_scripts', array(__CLASS__, 'admin_enqueue_scripts') );
 
@@ -123,10 +124,12 @@ class somaticFramework {
 			wp_enqueue_script( 'soma-public-jquery' );
 			wp_enqueue_style( 'soma-public' );
 		}
-
 		// wp_enqueue_script('colorbox');
+	}
+	
+	// pass constants and vars to javascript to be available for jquery
+	function wp_print_scripts() {
 		global $soma_options;
-		// pass constants and vars to javascript to be available for jquery
 		global $post;
 		if ($post == null) {
 			$pid = null;
@@ -236,6 +239,7 @@ class somaticFramework {
 	}
 
 	function wp_footer() {
+		
 	}
 
 	// custom admin footer credit
