@@ -75,7 +75,7 @@ class somaTypes extends somaticFramework {
 		}
 
 		// create a nav menu item for this type
-		if ( $args['navbar'] ) {
+		if ( $args['create_nav_item'] ) {
 			// check if we've already made one... THIS IS AN EXTRA QUERY EVERY PAGE LOAD! NEED TO FIND BETTER WAY OF HANDLING THIS!!
 			$existargs = array(
 			  'name' => $slug,
