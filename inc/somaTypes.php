@@ -9,12 +9,13 @@ class somaTypes extends somaticFramework {
 		add_action( 'contextual_help', array(__CLASS__, 'custom_type_help_text'), 10, 3 );
 		add_action( 'right_now_content_table_end' , array(__CLASS__, 'custom_types_rightnow' ) );
 		add_action( 'admin_head-nav-menus.php', array( __CLASS__, 'filters_for_cpt_archives' ) );				// hacks the output of CPT nav menu items displayed in Appearance -> Menus
+		add_filter( 'hidden_meta_boxes', array( __CLASS__, 'filter_cpt_menus'), 10, 2);							// hacks the display of CPT in Appearance -> Menus (screen options hack)
 	}
 
 	//** CUSTOM POST TYPES -----------------------------------------------------------------------------------------------------//
 
 	// global storage container for custom post type data (used in functions outside init_type)
-	static $type_data = array();
+	public static $type_data = array();
 
 
 	// assembles and generates a custom post type  --  http://codex.wordpress.org/Function_Reference/register_post_type
@@ -425,7 +426,21 @@ class somaTypes extends somaticFramework {
 
 		return $posts;
 	}
-
+	
+	// shows the metabox listing the custom post type or taxonomy in Appearance->Menus
+	function filter_cpt_menus($boxes, $screen) {
+		$args = array('_builtin' => false, 'show_in_nav_menus'=> true);
+		$types = array_keys(get_post_types($args));
+		$taxes = array_keys(get_taxonomies($args));
+		$list = array_merge($types, $taxes);
+		foreach ($list as $item) {
+			$killkey = array_search("add-".$item, $boxes);
+			if ($killkey) {
+				unset($boxes[$killkey]);
+			}
+		}
+		return $boxes;
+	}
 
 }
 // INIT
