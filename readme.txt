@@ -45,7 +45,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * favicon set and display on options page
 * options page is now top-level, with subpages
 * import/export of framework options
-* fixed broken create_nav_item argument...
+* fixed menu detection with soma_init_type argument "create_nav_item"
 
 = 1.6 =
 * NEW somatic_framework_options settings container (serialized array of default options)
