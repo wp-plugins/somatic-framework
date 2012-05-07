@@ -46,6 +46,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * options page is now top-level, with subpages
 * import/export of framework options
 * fixed menu detection with soma_init_type argument "create_nav_item"
+* got around core problem of not showing CPT listings in Appearance->Menus even if "show_in_nav_menus" is true (screen options had to be set manuall - now it's done automatically via filter)
 
 = 1.6 =
 * NEW somatic_framework_options settings container (serialized array of default options)
