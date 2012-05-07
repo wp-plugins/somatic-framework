@@ -9,7 +9,7 @@ class somaTypes extends somaticFramework {
 		add_action( 'contextual_help', array(__CLASS__, 'custom_type_help_text'), 10, 3 );
 		add_action( 'right_now_content_table_end' , array(__CLASS__, 'custom_types_rightnow' ) );
 		add_action( 'admin_head-nav-menus.php', array( __CLASS__, 'filters_for_cpt_archives' ) );				// hacks the output of CPT nav menu items displayed in Appearance -> Menus
-		add_filter( 'hidden_meta_boxes', array( __CLASS__, 'filter_cpt_menus'), 10, 2);							// hacks the display of CPT in Appearance -> Menus (screen options hack)
+		add_filter( 'hidden_meta_boxes', array( __CLASS__, 'show_cpt_menus'), 10, 2);							// hacks the display of CPT in Appearance -> Menus (screen options hack)
 	}
 
 	//** CUSTOM POST TYPES -----------------------------------------------------------------------------------------------------//
@@ -82,7 +82,7 @@ class somaTypes extends somaticFramework {
 				  'name' => $slug,
 				  'post_type' => 'nav_menu_item',
 				);
-				$exists = get_posts($existargs);				// check if we've already made one... THIS IS AN EXTRA QUERY EVERY PAGE LOAD! NEED TO FIND BETTER WAY OF HANDLING THIS!!
+				$exists = get_posts($existargs);				// check if we've already made one...
 				if ( empty( $exists ) ) {				
 					$archive_url = get_post_type_archive_link($slug);
 					$menu_item_data = array(
@@ -428,7 +428,7 @@ class somaTypes extends somaticFramework {
 	}
 	
 	// shows the metabox listing the custom post type or taxonomy in Appearance->Menus
-	function filter_cpt_menus($boxes, $screen) {
+	function show_cpt_menus($boxes, $screen) {
 		$args = array('_builtin' => false, 'show_in_nav_menus'=> true);
 		$types = array_keys(get_post_types($args));
 		$taxes = array_keys(get_taxonomies($args));
