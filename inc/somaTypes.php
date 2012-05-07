@@ -76,23 +76,26 @@ class somaTypes extends somaticFramework {
 
 		// create a nav menu item for this type
 		if ( $args['create_nav_item'] ) {
-			// check if we've already made one... THIS IS AN EXTRA QUERY EVERY PAGE LOAD! NEED TO FIND BETTER WAY OF HANDLING THIS!!
-			$existargs = array(
-			  'name' => $slug,
-			  'post_type' => 'nav_menu_item',
-			);
-			$exists = get_posts($existargs);
-			if ( empty( $exists ) ) {				
-				$archive_url = get_post_type_archive_link($slug);
-				$menu_item_data = array(
-					'menu-item-object' => 'custom',
-					'menu-item-type' => 'custom',
-					'menu-item-title' => $labels['name'],
-					'menu-item-url' => $archive_url,
-					'menu-item-status' => 'publish',
+			if (is_admin()) {									// cut down on number of times we check, but it does mean won't create if we don't visit admin at least once
+				$existargs = array(
+				  'name' => $slug,
+				  'post_type' => 'nav_menu_item',
 				);
-				$menu_id = 3;
-				wp_update_nav_menu_item( $menu_id, 0, $menu_item_data );
+				$exists = get_posts($existargs);				// check if we've already made one... THIS IS AN EXTRA QUERY EVERY PAGE LOAD! NEED TO FIND BETTER WAY OF HANDLING THIS!!
+				if ( empty( $exists ) ) {				
+					$archive_url = get_post_type_archive_link($slug);
+					$menu_item_data = array(
+						'menu-item-object' => 'custom',
+						'menu-item-type' => 'custom',
+						'menu-item-title' => $labels['name'],
+						'menu-item-url' => $archive_url,
+						'menu-item-status' => 'publish',
+					);
+					$menus = wp_get_nav_menus();
+					$menu_id = $menus[0]->term_id;
+					wp_update_nav_menu_item( $menu_id, 0, $menu_item_data );
+					flush_rewrite_rules();
+				}	
 			}
 		}
 
