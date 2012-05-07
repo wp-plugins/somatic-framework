@@ -316,7 +316,7 @@ class somaticFramework {
 	// Display a Settings link on the main Plugins page, under our plugin
 	function soma_plugin_action_links( $links, $file ) {
 		if ( $file == plugin_basename( __FILE__ ) ) {
-			$soma_links = '<a href="'.get_admin_url().'options-general.php?page=soma-options-page">'.__('Settings').'</a>';
+			$soma_links = '<a href="'.get_admin_url().'admin.php?page=somatic-framework-options">'.__('Settings').'</a>';
 			// make the 'Settings' link appear first
 			array_unshift( $links, $soma_links );
 		}

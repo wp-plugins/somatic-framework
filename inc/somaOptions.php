@@ -222,7 +222,7 @@ class somaOptions extends somaticFramework  {
 	// adds menu items to wp-admin
 	function add_pages() {
 		if ( SOMA_STAFF ) {
-			add_menu_page( 'Somatic Framework Options', 'Somatic', 'update_core', 'somatic-framework-options', null, SOMA_IMG.'soma-options-menu.png', '90' );
+			add_menu_page( 'Somatic Framework Options', 'Somatic', 'update_core', 'somatic-framework-options', null, SOMA_IMG.'soma-options-menu.png', '91' );
 			add_submenu_page( 'somatic-framework-options', 'Framework Options', 'Options', 'update_core', 'somatic-framework-options', create_function( null, 'somaOptions::soma_options_page("options");' ));
 			add_submenu_page( 'somatic-framework-options', 'Declarations', 'Declarations', 'update_core', 'somatic-framework-declarations', create_function( null, 'somaOptions::soma_options_page("declarations");' ));
 			add_submenu_page( 'somatic-framework-options', 'Advanced', 'Advanced', 'update_core', 'somatic-framework-advanced', create_function( null, 'somaOptions::soma_options_page("advanced");' ));
