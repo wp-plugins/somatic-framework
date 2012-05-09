@@ -4,7 +4,7 @@
 /* clicker button */
 
 .clicker, input.clicker {
-	display: block;
+	display: inline-block;
 	margin-right: 6px;
 	margin-bottom: 6px;
 	text-transform: uppercase;

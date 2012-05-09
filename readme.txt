@@ -35,6 +35,11 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.6.2 =
+* expanded list of metaboxes to disable to include core WP ones
+* new args for soma_init_type, to specify grouping of cpt objects on the sorting page, if enabled
+* fixed css bug in clicker buttons
+
 = 1.6.1 =
 * disabling admin menus also gets rid of the +New admin bar item
 * using checked() on html forms now

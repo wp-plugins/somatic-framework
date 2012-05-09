@@ -48,20 +48,22 @@ class somaTypes extends somaticFramework {
 		);
 		// generate args
 		$default_args = array(
-			'public' => true,
-			'publicly_queryable' => true,
-			'show_ui' => true,
-			'has_archive' => $slug,
-			'hierarchical' => false,								// allows parent to be specified (not sure where...)
-			'query_var' => true,
-			'show_in_nav_menus' => true,
-			'supports' => array( 'editor', 'title', 'thumbnail' ),
-			'rewrite' => array( 'slug' => $slug, 'with_front' => false ),
-			'register_meta_box_cb' => array('somaMetaBoxes','add_boxes'),
-			'labels' => $labels,
-			'sortable' => false,											// whether to show a sorting admin menu for this type
-			'create_nav_item' => true,										// automatically generate a nav menu item for this type - NOTE: will re-create it if you manually delete the nav item!
-			'menu_icon' => $data['icons'] . $slug . '-menu-icon.png',		// use custom menu icon if defined
+			'public' => true,												#wp
+			'publicly_queryable' => true,									#wp
+			'show_ui' => true,												#wp
+			'has_archive' => $slug,											#wp
+			'hierarchical' => false,										#wp -allows parent to be specified (not sure where...)
+			'query_var' => true,											#wp
+			'show_in_nav_menus' => true,									#wp (default: value of 'public' arg)
+			'supports' => array( 'editor', 'title', 'thumbnail' ),			#wp
+			'rewrite' => array( 'slug' => $slug, 'with_front' => false ),	#wp
+			'register_meta_box_cb' => array('somaMetaBoxes','add_boxes'),	#wp
+			'labels' => $labels,											#wp
+			'sortable' => false,											#soma - whether to show a sorting admin menu for this type
+			'sort_object' => null,											#soma - what kind of object to use for determining grouping: taxonomy, author, other?
+			'sort_slug' => null,											#soma - string: slug of the taxonomy/author/object to group list items by
+			'create_nav_item' => true,										#soma - automatically generate a nav menu item for this type - NOTE: will re-create it if you manually delete the nav item!
+			'menu_icon' => $data['icons'] . $slug . '-menu-icon.png',		#soma - use custom menu icon if defined
 		);
 
 
