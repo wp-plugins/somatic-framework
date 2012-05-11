@@ -15,27 +15,39 @@ function mysite_type_data() {
 		"slug" => "resource",													// primary identifier
 		"single" => "Resource",													// used to build labels
 		"plural" => "Resources",												// used to build labels
-		"sortable" => true,														// activates a Sort Order subpage for this type
-		"sort_group_type" => 'taxonomy',										// optional: group listings on the Sort Order subpage by an object type
-		"sort_group_slug" => 'format',											// required if sort_group_type is set - which object to group by (in this case, a specific taxonomy)
 		"args" => array(														// optional argument overrides http://codex.wordpress.org/Function_Reference/register_post_type
 				'menu_position' => 5,											// where the admin menu item where sit
 				'supports' => array( 'title', 'thumbnail'),						// which features and core metaboxes to show
 				'public' => true,
-				'create_nav_item'=> true,										// automatically generate a nav menu item for this type in Appearance->Menus which you can rearrange - NOTE: will re-create the nav item if you manually delete it!
+				// non-wp args below
+				"sortable" => true,												// activates a Sort Order subpage for this type
+				"sort_group_type" => 'taxonomy',								// optional: group listings on the Sort Order subpage by an object type
+				"sort_group_slug" => 'format',									// required if sort_group_type is set - which object to group by (in this case, a specific taxonomy)		
+				"create_nav_item"=> true,										// automatically generate a nav menu item for this type in Appearance->Menus which you can rearrange - NOTE: will re-create the nav item if you manually delete it!
 			),
 		"icons" => "http://mysite.com/mytheme/img/",							// set url path to where your custom icons are located
 		"columns" => array(														// custom columns for edit.php listing
-				"cb" => "<input type=\"checkbox\" />",
+				"cb" => "<input type=\"checkbox\" />",							// entering an input checkbox for the title allows selection of all entry rows on the page
 				"thumb" => "Cover",
 				"title" => "Title",
 				"authors" => "Authors",
 				"content" => "Content Type",
 				"format" => "Formats",
 				"source" => "Source"
+
+				// DEFAULT WP COLUMN KEYS
+				// 'cb' – Post checkbox.
+				// 'date' – Date when post was last modified.
+				// 'title' – Post title and common post actions including Edit, Quick Edit, Trash, and View.
+				// 'categories' – Post categories.
+				// 'tags' – Post tags.
+				// 'comments' – Number of post comments.
+				// 'author' – Post author.
 			)
 		)
 	);
+
+
 	
 	// enables an existing (or built-in) taxonomy for our custom post type
 	register_taxonomy_for_object_type('category', 'resource');

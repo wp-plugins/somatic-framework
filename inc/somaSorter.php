@@ -6,30 +6,45 @@ class somaSorter extends somaticFramework {
 		add_action( 'wp_ajax_custom_type_sort', array( __CLASS__, 'soma_save_custom_type_order' ) );
 		add_filter( 'parse_query', array(__CLASS__,'filter_current_query' ));
 	}
-	
+
 	//** modifies the QUERY before output ------------------------------------------------------//
+	// list sortable post types by menu_order instead of date, so we can manually adjust order - note: this means the sorting by title in the edit listings won't do anything....
 	function filter_current_query($query) {
-		
-		// list sortable types by menu_order instead of date, so we can manually adjust order - note: this means the sorting by title in the edit listings won't do anything....
-		if ( isset($query->post_type) && isset(somaTypes::$type_data[$query->post_type]['sortable']) && somaTypes::$type_data[$query->post_type]['sortable']) {
-			if ( $query->is_post_type_archive && !$query->query_vars['suppress_filters']) {
-				$query->set( 'orderby', 'menu_order' );
-				$query->set( 'order', 'ASC' );
+		$obj = $query->get_queried_object();
+
+		// if this is a custom post type
+		if ( $obj->sortable ) {
+			$query->set( 'orderby', 'menu_order' );
+			$query->set( 'order', 'ASC' );
+			return $query;
+		}
+		// if this is a taxonomy or term, extract the post types (if *any* of the associated post types are set to be sortable, they'll all display in order...)
+		if ($obj->taxonomy) {
+			$tax = get_taxonomy($obj->taxonomy);
+			foreach ($tax->object_type as $cpt) {
+				$cptobj = get_post_type_object($cpt);
+				if ($cptobj->sortable) {
+					$query->set( 'orderby', 'menu_order' );
+					$query->set( 'order', 'ASC' );
+					return $query;
+				}
 			}
 		}
+
+		// nothing matched, pass along unfiltered
 		return $query;
 	}
-	
 
-	//
+
+	// generates sort order submenu page
 	function soma_sort_menus() {
 		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
 		foreach ($types as $type) {
 			// only add sort pages to hierarchical post types, which support menu-order
-			if (isset(somaTypes::$type_data[$type->query_var]['sortable']) && somaTypes::$type_data[$type->query_var]['sortable']) {
+			if ( $type->sortable ) {
 				$menupage = add_submenu_page('edit.php?post_type='.$type->name, 'Sort '.$type->labels->name, 'Sort Order', 'edit_posts', 'sort-'. $type->name, array(__CLASS__,'soma_sort_page'));
 				add_action( 'admin_print_styles-'.$menupage, array( __CLASS__, 'soma_sorter_print_styles' ) );
-				add_action( 'admin_print_scripts-'.$menupage, array( __CLASS__, 'soma_sorter_print_scripts' ) );				
+				add_action( 'admin_print_scripts-'.$menupage, array( __CLASS__, 'soma_sorter_print_scripts' ) );
 			}
 		}
 	}
@@ -51,26 +66,23 @@ class somaSorter extends somaticFramework {
 			'suppress_filters' => true,
 		);
 		// if we have grouping
-		if (isset(somaTypes::$type_data[$type]['sort_group_type']) && isset(somaTypes::$type_data[$type]['sort_group_slug'])) {
-			$sort_type = somaTypes::$type_data[$type]['sort_group_type'];
-			$sort_slug = somaTypes::$type_data[$type]['sort_group_slug'];
+		if (!is_null($type_obj->sort_group_type) && !is_null($type_obj->sort_group_slug)) {
 
 			// container for all the custom type items
 			echo '<ul id="type-sort-list">';
 
-			// tax group	
-			if ($sort_type == 'taxonomy') {
-				$terms = get_terms($sort_slug);
+			// tax group
+			if ($type_obj->sort_group_type == 'taxonomy') {
+				$terms = get_terms($type_obj->sort_group_slug);
 				foreach ($terms as $term) {
 					$query_args['tax_query'] = array(		// add taxonomy term to query args
 						array(
-							'taxonomy' => $sort_slug,
+							'taxonomy' => $type_obj->sort_group_slug,
 							'field' => 'slug',
 							'terms' => $term->slug
 						)
 					);
-					$query = new WP_Query($query_args);
-					soma_dump($query); ?>
+					$query = new WP_Query($query_args); ?>
 					<h3><?php echo $term->name; ?></h3>
 					<?php while ( $query->have_posts() ) : $query->the_post(); ?>
 						<li id="<?php the_id(); ?>" class="type-sort-list-item">
@@ -116,7 +128,7 @@ class somaSorter extends somaticFramework {
 
 	// ajax callback function
 	function soma_save_custom_type_order() {
-		
+
 		global $wpdb;
 
 		$order = explode(',', $_POST['order']);

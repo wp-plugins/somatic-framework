@@ -28,11 +28,13 @@ class somaOptions extends somaticFramework  {
 		add_action( 'admin_menu', array(__CLASS__, 'disable_admin_menus' ) );						// hide the admin sidebar menu items
 		add_action( 'admin_enqueue_scripts', array(__CLASS__, 'disable_autosave' ) );				// optional disable autosave
 		add_action( 'init', array(__CLASS__, 'disable_revisions'), 50 );							// optional disable revisions
+		add_filter( 'parse_query', array(__CLASS__,'disable_paging' ));								// optional disable auto-paging
 		add_action( 'admin_init', array(__CLASS__, 'disable_drag_metabox' ) );						// disable dragging of any metaboxes (including dashboard widgets)
 		add_action( 'do_meta_boxes', array(__CLASS__, 'disable_metaboxes'), 10, 3);					// removes metaboxes from post editor
 		add_filter( 'sanitize_option_somatic_framework_options', array(__CLASS__, 'sanitize_soma_options'), 10, 2);  // hooks into core update_option function to allow sanitizing before saving
 		add_action( 'wp_before_admin_bar_render', array(__CLASS__, 'disable_admin_bar_links' ) );	// removes admin bar items
 		add_action( 'get_header', array(__CLASS__, 'enable_threaded_comments' ));					// enables threaded comments
+
 	}
 
 	//** sets somatic framework options defaults on Activation of plugin
@@ -47,7 +49,9 @@ class somaOptions extends somaticFramework  {
 			"meta_prefix" => "_soma",										// prefix added to post_meta keys
 			"meta_serialize" => 0,											// whether to serialize somatic post_meta
 			'bottom_admin_bar' => 0,										// pin the admin bar to the bottom of the window
+			"kill_paging" => array(),										// array of post types slugs to filter wp_query to prevent automatic paging and always list all items
 			"kill_autosave" => array(),										// array of post types slugs to disable autosave
+			"kill_revisions" => array(),									// array of post types slugs to disable autosave
 			"disable_menus" => array('links', 'tools'),																													// hide admin sidebar menu items from everyone (but you could still go to the page directly)
 			"disable_dashboard" => array('quick_press','recent_drafts','recent_comments','incoming_links','plugins','primary','secondary','thesis_news_widget'),		// hide dashboard widgets from everyone
 			"disable_metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),									// hide metaboxes in post editor from everyone
@@ -508,6 +512,21 @@ class somaOptions extends somaticFramework  {
 					<!-- Checkbox Buttons -->
 					<tr valign="top">
 						<th scope="row">
+							Disable Paging for Types
+						</th>
+						<td>
+							<?php
+							$types = get_post_types(array('show_ui' => true), 'objects');
+							foreach ($types as $type) :?>
+								<label><input name="somatic_framework_options[kill_paging][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if (is_array($soma_options['kill_paging'])) { checked('1', in_array($type->name, $soma_options['kill_paging'])); } ?> /> <?php echo $type->label; ?></label><br />
+							<?php endforeach; ?>
+							<input type="submit" class="clicker" value="Save Changes" />
+						</td>
+					</tr>
+
+					<!-- Checkbox Buttons -->
+					<tr valign="top">
+						<th scope="row">
 							Disable Autosave for Types
 						</th>
 						<td>
@@ -776,6 +795,37 @@ class somaOptions extends somaticFramework  {
 			$wp_admin_bar->remove_menu('new-post');
 		if ( in_array( 'pages', $soma_options['disable_menus'] ) )
 			$wp_admin_bar->remove_menu('new-page');
+	}
+
+	//
+	function disable_paging($query) {
+		global $soma_options;
+		$obj = $query->get_queried_object();
+
+		// abort in admin
+		if ( $query->is_admin ) return $query;
+
+		// post type archives
+		if ($query->is_post_type_archive) {
+			if ( is_array( $soma_options[ 'kill_paging' ] ) && in_array( $query->query_vars['post_type'], $soma_options[ 'kill_paging' ] ) ) {
+				$query->set('nopaging', true);
+				return $query;
+			}
+		}
+
+		// taxonomy listings
+		if ($query->is_tax) {			
+			$tax = get_taxonomy($query->queried_object->taxonomy);
+			foreach ($tax->object_type as $cpt) {
+				if ( is_array( $soma_options[ 'kill_paging' ] ) && in_array( $cpt, $soma_options[ 'kill_paging' ] ) ) {
+					$query->set('nopaging', true);
+					return $query;
+				}
+			}
+		}
+
+		// pass thru
+		return $query;
 	}
 
 	//

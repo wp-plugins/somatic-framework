@@ -59,20 +59,20 @@ class somaTypes extends somaticFramework {
 			'rewrite' => array( 'slug' => $slug, 'with_front' => false ),	#wp
 			'register_meta_box_cb' => array('somaMetaBoxes','add_boxes'),	#wp
 			'labels' => $labels,											#wp
+			'menu_icon' => $data['icons'] . $slug . '-menu-icon.png',		#wp - use custom menu icon if defined
+			// non-core args (but get stored in the post type object)
 			'sortable' => false,											#soma - whether to show a sorting admin menu for this type
 			'sort_group_type' => null,										#soma - what kind of object to use for determining grouping: taxonomy, author, other? p2p would be nice here...
 			'sort_group_slug' => null,										#soma - string: slug of the taxonomy/author/object to group list items by
 			'create_nav_item' => true,										#soma - automatically generate a nav menu item for this type - NOTE: will re-create it if you manually delete the nav item!
-			'menu_icon' => $data['icons'] . $slug . '-menu-icon.png',		#soma - use custom menu icon if defined
 		);
-
 
 		// merge with incoming register cpt args
 		$args = wp_parse_args($data['args'], $default_args);
 
 		// create the post-type
 		$result = register_post_type($slug, $args);
-		
+
 		if (is_wp_error($result)) {
 			return $result;
 		}
@@ -85,7 +85,7 @@ class somaTypes extends somaticFramework {
 				  'post_type' => 'nav_menu_item',
 				);
 				$exists = get_posts($existargs);				// check if we've already made one...
-				if ( empty( $exists ) ) {				
+				if ( empty( $exists ) ) {
 					$archive_url = get_post_type_archive_link($slug);
 					$menu_item_data = array(
 						'menu-item-object' => 'custom',
@@ -98,7 +98,7 @@ class somaTypes extends somaticFramework {
 					$menu_id = $menus[0]->term_id;
 					wp_update_nav_menu_item( $menu_id, 0, $menu_item_data );
 					flush_rewrite_rules();
-				}	
+				}
 			}
 		}
 
@@ -428,7 +428,7 @@ class somaTypes extends somaticFramework {
 
 		return $posts;
 	}
-	
+
 	// shows the metabox listing the custom post type or taxonomy in Appearance->Menus
 	function show_cpt_menus($boxes, $screen) {
 		$args = array('_builtin' => false, 'show_in_nav_menus'=> true);

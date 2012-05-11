@@ -188,7 +188,7 @@ textarea {
 
 /* edit.php column styles */
 .wp-list-table .column-thumb {
-
+	max-width: 200px;
 }
 
 /* attachments metabox display */
