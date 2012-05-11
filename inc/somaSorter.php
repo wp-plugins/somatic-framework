@@ -10,6 +10,9 @@ class somaSorter extends somaticFramework {
 	//** modifies the QUERY before output ------------------------------------------------------//
 	// list sortable post types by menu_order instead of date, so we can manually adjust order - note: this means the sorting by title in the edit listings won't do anything....
 	function filter_current_query($query) {
+		// abort if suppressing
+		if ($query->query_vars['suppress_filters']) return $query;
+		
 		$obj = $query->get_queried_object();
 
 		// if this is a custom post type
@@ -95,6 +98,48 @@ class somaSorter extends somaticFramework {
 					<?php wp_reset_postdata(); ?>
 					<?php
 				}
+			}
+			
+			// p2p group
+			if ($type_obj->sort_group_type == 'p2p') {
+				if (p2p_connection_exists($type_obj->sort_group_slug )) $p2ptype = p2p_type($type_obj->sort_group_slug );
+
+				// which direction should be default??
+				$from = $p2ptype->side['from']->post_type[0];
+				$to = $p2ptype->side['to']->post_type[0];
+
+				$projects = get_posts(array('post_type' => $to, 'numberposts' => -1, 'orderby' => 'menu_order', 'order' => 'ASC'));
+				foreach ($projects as $project) {
+					$query_args = array(
+						'connected_type' => $type_obj->sort_group_slug,
+						'connected_items' => $project,
+						'nopaging' => true,
+						'suppress_filters' => true,		// not sure why we have to do this... but order gets borked otherwise..
+						'orderby' => 'menu_order',
+						'order' => 'ASC'
+					);
+					$query = new WP_Query($query_args);
+					soma_dump($query->posts);
+					if ($query->post_count == 0) continue;				// didn't find any connected, so skip
+					 ?>
+					<h3><?php echo $project->post_title; ?></h3>
+					<?php while ( $query->have_posts() ) : $query->the_post(); ?>
+						<li id="<?php the_id(); ?>" class="type-sort-list-item">
+							<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
+							<?php the_post_thumbnail(array('50,50'));?>
+							<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" class="loading-animation" style="display:none;"/>
+							<div class="clearfix"></div>
+						</li>
+					<?php endwhile; ?>
+					<?php wp_reset_postdata(); ?>
+					<?php
+				}
+				
+				// $groups = get_posts(array('post_type' => $type_obj->sort_group_slug ));
+				// foreach ($groups as $group) {
+				// 	$conn = p2p_get_connections( )
+				// 	$group
+				// }
 			}
 			echo '</ul>';
 		// no grouping, just list them all

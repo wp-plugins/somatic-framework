@@ -35,6 +35,9 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.6.3 =
+* new Sort Order grouping: p2p, give it a P2P connection type name (ex: sortable = true, sort_group_type = p2p, sort_group_slug = albums-tracks)
+
 = 1.6.2 =
 * expanded list of metaboxes to disable to include core WP ones
 * new ability to specify grouping of cpt objects on the Sort Order page, if sorting is enabled (ex: sortable = true, sort_group_type = taxonomy, sort_group_slug = genres)
