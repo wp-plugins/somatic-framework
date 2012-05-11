@@ -12,11 +12,13 @@
  * - 'single' (string): Singular label name for this custom post type (required).
  * - 'plural' (string): Plural label name for this custom post type (optional).
  * - 'args' (array( key => value )): arguments to override default custom post type registration (optional).
+ * 		- 'sortable' (bool default: false) list items by menu_order instead of date, so we can manually adjust order - also displays a Sort page for this CPT
+ * 		- 'sort_group_type' (string default: null) what kind of object to use for determining grouping: taxonomy, author, etc.
+ * 		- 'sort_group_slug' (string default: null) slug of the taxonomy/author/etc to group list items by
+ * 		- 'create_nav_item' (bool default: true) automatically generate a custom nav menu item linked the archive page for this CPT
+ * - 'icons' (string): full http:// URL to directory (including trailing slash) where icons for this custom post type are located (optional).
  * - 'columns' (array( id => Title )): define the column listings in edit.php (optional)
  * - 'help' (string): html text to display in the help menu when this custom post type is active (optional).
- * - 'sortable' (bool): list items by menu_order instead of date, so we can manually adjust order - also displays a Sort page for this CPT
- * - 'create_nav_item' (bool): automatically generate a custom nav menu item linked the archive page for this CPT
- * - 'icons' (string): full http:// URL to directory (including trailing slash) where icons for this custom post type are located (optional).
  *
  *		place 4 PNG files for each custom post type you wish to show a custom icon in that directory, following the naming scheme:
  *			[slug]-menu-icon.png  (16x16px)

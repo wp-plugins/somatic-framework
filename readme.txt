@@ -39,6 +39,10 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * expanded list of metaboxes to disable to include core WP ones
 * new ability to specify grouping of cpt objects on the Sort Order page, if sorting is enabled (ex: sortable = true, sort_group_type = taxonomy, sort_group_slug = genres)
 * fixed css bug in clicker buttons
+* fixed query parsing on sortable post types - now the query is always filtered to sort the query output by menu_order ASC (as was intended) - so now admin and front-end post listings reflect the proper order!
+* new option to disable paging (list all items instead) per post type
+* moved all custom somatic framework arguments for register_post_type within the core arguments array, so they're stored as part of the post type object and can be retrieved with get_queried_object()
+* NOTE: make sure you've updated any calls to soma_init_type, so that the "sortable", "create_nav_item", etc args are passed in the main "args" array!
 
 = 1.6.1 =
 * disabling admin menus also gets rid of the +New admin bar item
