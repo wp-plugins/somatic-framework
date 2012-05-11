@@ -15,6 +15,9 @@ function mysite_type_data() {
 		"slug" => "resource",													// primary identifier
 		"single" => "Resource",													// used to build labels
 		"plural" => "Resources",												// used to build labels
+		"sortable" => true,														// activates a Sort Order subpage for this type
+		"sort_group_type" => 'taxonomy',										// optional: group listings on the Sort Order subpage by an object type
+		"sort_group_slug" => 'format',											// required if sort_group_type is set - which object to group by (in this case, a specific taxonomy)
 		"args" => array(														// optional argument overrides http://codex.wordpress.org/Function_Reference/register_post_type
 				'menu_position' => 5,											// where the admin menu item where sit
 				'supports' => array( 'title', 'thumbnail'),						// which features and core metaboxes to show

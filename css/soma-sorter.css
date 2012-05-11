@@ -1,15 +1,13 @@
-#loading-animation {
-	display: none;
-	margin-left: 10px;
+/* @override 
+	http://markshoots.com/wp-content/plugins/somatic-framework/css/soma-sorter.css?ver=3.3.2 */
+
+#type-sort-list {
+	margin-top: 0;
 }
 
-#custom-type-list {
-	margin-top: 20px;
-}
-
-#custom-type-list li {
+#type-sort-list li {
 	padding: 10px;
-	width: 35%;
+	width: 500px;
 	background: #f0f0f0;
 	background: -webkit-gradient(linear, left top, left bottom, from(#f7f7f7), to(#e7e7e7));
 	background: -moz-linear-gradient(top,  #f7f7f7,  #e7e7e7);
@@ -20,17 +18,32 @@
 	font-size: 1.2em;
 	clear: both;
 	cursor: move;
+	position: relative;
 }
 
-#custom-type-list .wp-post-image {
+#type-sort-list li .wp-post-image {
 	float: right;
 }
 
-#custom-type-list .title {
+#type-sort-list li .loading-animation {
+	position: absolute;
+	left: 530px;
+	top: 25px;
+}
+
+#type-sort-list li .title {
 	display: block;
 	float: left;
 }
 
-#custom-type-list .clearfix {
+#type-sort-list .clearfix {
 	clear: both;
+}
+
+
+#type-sort-list h3 {
+	color: #fff;
+	font-size: 1.6em;
+	padding: 10px;
+	background-color: #21759b;
 }

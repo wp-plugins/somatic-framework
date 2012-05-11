@@ -38,20 +38,69 @@ class somaSorter extends somaticFramework {
 	function soma_sort_page() {
 		$type = $_GET['post_type'];
 		$type_obj = get_post_type_object($type);
-		$query = new WP_Query('post_type='.$type.'&posts_per_page=-1&orderby=menu_order&order=ASC&suppress_filters=true');
-	?>
+?>
 	<div class="wrap">
-		<h2><?php echo $type_obj->labels->singular_name ?> List Order<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" id="loading-animation" /></h2>
-		<ul id="custom-type-list">
-		<?php while ( $query->have_posts() ) : $query->the_post(); ?>
-			<li id="<?php the_id(); ?>" class="custom-type-list-item">
-				<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
-				<?php the_post_thumbnail(array('50,50'));?>
-				<div class="clearfix"></div>
-			</li>
-		<?php endwhile; ?>
-	</div>
-	<?php
+		<h2><?php echo $type_obj->labels->name ?> List Order</h2>
+<?php
+		// default query args
+		$query_args = array(
+			'post_type' => $type,
+			'posts_per_page' => '-1',
+			'orderby' => 'menu_order',
+			'order' => 'ASC',
+			'suppress_filters' => true,
+		);
+		// if we have grouping
+		if (isset(somaTypes::$type_data[$type]['sort_group_type']) && isset(somaTypes::$type_data[$type]['sort_group_slug'])) {
+			$sort_type = somaTypes::$type_data[$type]['sort_group_type'];
+			$sort_slug = somaTypes::$type_data[$type]['sort_group_slug'];
+
+			// container for all the custom type items
+			echo '<ul id="type-sort-list">';
+
+			// tax group	
+			if ($sort_type == 'taxonomy') {
+				$terms = get_terms($sort_slug);
+				foreach ($terms as $term) {
+					$query_args['tax_query'] = array(		// add taxonomy term to query args
+						array(
+							'taxonomy' => $sort_slug,
+							'field' => 'slug',
+							'terms' => $term->slug
+						)
+					);
+					$query = new WP_Query($query_args);
+					soma_dump($query); ?>
+					<h3><?php echo $term->name; ?></h3>
+					<?php while ( $query->have_posts() ) : $query->the_post(); ?>
+						<li id="<?php the_id(); ?>" class="type-sort-list-item">
+							<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
+							<?php the_post_thumbnail(array('50,50'));?>
+							<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" class="loading-animation" style="display:none;"/>
+							<div class="clearfix"></div>
+						</li>
+					<?php endwhile; ?>
+					<?php wp_reset_postdata(); ?>
+					<?php
+				}
+			}
+			echo '</ul>';
+		// no grouping, just list them all
+		} else {
+			$query = new WP_Query($query_args); ?>
+			<ul id="type-sort-list">
+			<?php while ( $query->have_posts() ) : $query->the_post(); ?>
+				<li id="<?php the_id(); ?>" class="type-sort-list-item">
+					<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
+					<?php the_post_thumbnail(array('50,50'));?>
+					<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" class="loading-animation" style="display:none;"/>
+					<div class="clearfix"></div>
+				</li>
+			<?php endwhile; ?>
+			<?php wp_reset_postdata(); ?>
+			</ul>
+			<?php
+		}
 	}
 
 	// admin js

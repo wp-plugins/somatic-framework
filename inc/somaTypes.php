@@ -60,8 +60,8 @@ class somaTypes extends somaticFramework {
 			'register_meta_box_cb' => array('somaMetaBoxes','add_boxes'),	#wp
 			'labels' => $labels,											#wp
 			'sortable' => false,											#soma - whether to show a sorting admin menu for this type
-			'sort_object' => null,											#soma - what kind of object to use for determining grouping: taxonomy, author, other?
-			'sort_slug' => null,											#soma - string: slug of the taxonomy/author/object to group list items by
+			'sort_group_type' => null,										#soma - what kind of object to use for determining grouping: taxonomy, author, other? p2p would be nice here...
+			'sort_group_slug' => null,										#soma - string: slug of the taxonomy/author/object to group list items by
 			'create_nav_item' => true,										#soma - automatically generate a nav menu item for this type - NOTE: will re-create it if you manually delete the nav item!
 			'menu_icon' => $data['icons'] . $slug . '-menu-icon.png',		#soma - use custom menu icon if defined
 		);

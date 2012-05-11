@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.6.1
+Version: 1.6.2
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
