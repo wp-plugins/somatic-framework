@@ -473,6 +473,9 @@ class somaSave extends somaticFramework {
 		// useful for debugging what's being saved
 		$trace['missing'] = $missing;
 		// wp_die(var_dump($trace));
+
+		// hook additional save actions
+		do_action('soma_save_asset', $pid, $post);
 	}
 	//** END SAVE METABOX DATA
 

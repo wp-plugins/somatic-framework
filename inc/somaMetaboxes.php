@@ -69,7 +69,7 @@ class somaMetaboxes extends somaticFramework {
  * types:
 	readonly
 	attachment
-	p2p-thumbs
+	p2p-objects
 	p2p-list
 	text
 	help
@@ -166,11 +166,10 @@ class somaMetaboxes extends somaticFramework {
 
 			// get connected posts by types and direction
 			if ($field['data'] == 'p2p') {
-				if ($field['type'] == 'p2p-thumbs') {
-					$meta = somaFunctions::fetch_connected_items( $post->ID, $field['p2pname'], $field['dir'], $output = 'objects');
-				}
 				if ($field['type'] == 'p2p-list') {
 					$meta = somaFunctions::fetch_connected_items( $post->ID, $field['p2pname'], $field['dir'], $output = 'html');
+				} else {
+					$meta = somaFunctions::fetch_connected_items( $post->ID, $field['p2pname'], $field['dir'], $output = 'objects');
 				}
 				// if no connections exist, skip rendering this line
 				if (!$meta) {
@@ -601,7 +600,7 @@ class somaMetaboxes extends somaticFramework {
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// displaying related posts as mini thumbs
-				case 'p2p-thumbs':
+				case 'p2p-objects':
 					if ($meta) {
 						echo somaFunctions::mini_asset_output($meta); // THIS IS NOT GENERIC ENOUGH FOR THE SOMA FRAMEWORK..... NEED A NEW MINI-POST CONTENT
 						echo '<div style="clear:left"></div><p class="howto">',$field['desc'],'</p>';

@@ -79,6 +79,7 @@ class somaFunctions extends somaticFramework {
 		return array_keys($arr) !== range(0, count($arr) - 1);
 	}
 
+	// returns URL to facebook image!
 	function fetch_facebook_pic($pid,$size = "square") {
 		// sizes: square, small, normal, large
 

@@ -1,5 +1,6 @@
 /* @override http://www.placentawise.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.5.2
-	http://www.placentawise.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.6 */
+	http://www.placentawise.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.6
+	http://clients.hypnobirthingutah.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.6 */
 
 /* clicker button */
 
@@ -57,6 +58,13 @@
 
 /* metabox fields */
 
+.metabox-holder .form-table td {
+	margin-bottom: 0px;
+	padding: 14px 10px;
+	line-height: 20px;
+	font-size: 1em;
+}
+
 .metabox-holder .form-table tr.fieldrow {
 	border-top: 1px dotted #ddd;
 }
@@ -70,12 +78,10 @@
 	width: 20%;
 	vertical-align: top;
 	font-weight: bold;
-	padding-bottom: 20px;
 }
 
 .metabox-holder .form-table .field-data {
-	min-width: 200px;
-	width: 95%;
+	width: 98%;
 	display: block;
 }
 
@@ -141,9 +147,14 @@
 	width: auto !important;
 	margin-left: 4px;
 }
-.metabox-holder .ui-datepicker-trigger {
+
+.metabox-holder .form-table img.ui-datepicker-trigger {
+	display: inline-block;
 	cursor: pointer;
+	margin: 0 3px 0 0;
+	vertical-align: middle;
 }
+
 .metabox-holder .datereset {
 	display: inline-block;
 	cursor: pointer;
@@ -174,11 +185,14 @@ label.missing {
 
 input[type='text'],
 textarea {
-
+	
 }
 
 textarea {
 	width: 100%;
+}
+#side-sortables textarea {
+	max-width: 180px;
 }
 
 /* force tinymce visual editor background color */
@@ -217,10 +231,15 @@ ul.meta-attachment-actions {
 	margin-right: 6px;
 }
 
-.ui-datepicker-trigger {
-	margin: 0 3px;
-	vertical-align: middle;
+#side-sortables .meta-checkbox-multi {
+	-moz-column-count: 1;
+	-moz-column-gap: 0px;
+	-webkit-column-count: 1;
+	-webkit-column-gap: 0px;
+	column-count: 1;
+	column-gap: 0px;
 }
+
 
 /* play button overlay */
 .trigger {
@@ -253,4 +272,12 @@ ul.meta-attachment-actions {
 div.success {
 	background-color: #dfd;
 	border-color: #006505;
+}
+
+
+
+/* remove post editor metabox columns on tiny screens */
+@media only screen and (max-width: 640px) { 
+	.inner-sidebar{float:none;clear:right;display:none;width:281px;position:relative;}
+	#post-body-content{margin-right:0px !important;}
 }

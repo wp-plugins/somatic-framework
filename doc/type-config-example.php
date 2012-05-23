@@ -18,7 +18,6 @@ function mysite_type_data() {
 		"args" => array(														// optional argument overrides http://codex.wordpress.org/Function_Reference/register_post_type
 				'menu_position' => 5,											// where the admin menu item where sit
 				'supports' => array( 'title', 'thumbnail'),						// which features and core metaboxes to show
-				'public' => true,
 				// non-wp args below
 				"sortable" => true,												// activates a Sort Order subpage for this type
 				"sort_group_type" => 'taxonomy',								// optional: group listings on the Sort Order subpage by an object type
@@ -27,7 +26,6 @@ function mysite_type_data() {
 			),
 		"icons" => "http://mysite.com/mytheme/img/",							// set url path to where your custom icons are located
 		"columns" => array(														// custom columns for edit.php listing
-				"cb" => "<input type=\"checkbox\" />",							// entering an input checkbox for the title allows selection of all entry rows on the page
 				"thumb" => "Cover",
 				"title" => "Title",
 				"authors" => "Authors",
@@ -52,26 +50,6 @@ function mysite_type_data() {
 	// enables an existing (or built-in) taxonomy for our custom post type
 	register_taxonomy_for_object_type('category', 'resource');
 	
-
-	//
-	soma_init_type( array(
-		"slug" => "author",
-		"single" => "Author",
-		"plural" => "Authors",
-		'args' => array(
-				'menu_position' => 6,
-				'supports' => array( 'editor', 'title', 'thumbnail' ),
-				'public' => true,
-			),
-		'icons' => "http://mysite.com/mytheme/img/",
-		"columns" => array(
-				"cb" => "<input type=\"checkbox\" />",
-				"thumb" => "Photo",
-				"title" => "Name",
-				"email" => "Email",
-			)
-		)
-	);
 
 	//
 	

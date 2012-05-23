@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.3.2
-Stable tag: 1.6.2
+Stable tag: 1.6.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,9 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 = 1.6.3 =
 * new Sort Order grouping: p2p, give it a P2P connection type name (ex: sortable = true, sort_group_type = p2p, sort_group_slug = albums-tracks)
+* new save action hook: soma_save_asset
+* admin css tweaks
+* metabox field type p2p-thumbs is now p2p-objects
 
 = 1.6.2 =
 * expanded list of metaboxes to disable to include core WP ones
