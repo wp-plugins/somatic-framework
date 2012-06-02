@@ -392,6 +392,8 @@ class somaFunctions extends somaticFramework {
 				$item_list[] = '<a href="' . $link . '">' . $item->post_title . '</a>';
 			}
 			return $before . join( $sep, $item_list ) . $after;
+			
+			// return p2p_list_posts( p2p_type( $p2pname )->get_connected( $post->ID ) );  // a helpful function from scribu to do the same thing ;-)
 		}
 
 		// create plain string of comma-separated names
@@ -766,10 +768,20 @@ class somaFunctions extends somaticFramework {
 		// 		$image = '<img src="'.$image.'" />';
 		// 	}
 		// }
-		// return just the requested string
-		if (!empty($specific)) {
+
+		// return just the requested URL
+		if (!is_null($specific)) {
 			if ($specific == 'filename') return $img['full']['file'];
-			return $img[$specific]['url'];
+			if (is_array($att_meta['sizes'])) {
+				if (array_key_exists($specific, $att_meta['sizes'])) {
+					$url = $media_url . $att_meta['sizes'][$specific]['file'];			// this allows for custom image sizes to be passed via $specific
+					return $url;
+				} else {
+					return null;														// couldn't find the size requested
+				}
+			} else {
+				return null;															// no sizes have been generated for this attachment
+			}
 		} else {
 			return $img;	// return array of variants
 		}

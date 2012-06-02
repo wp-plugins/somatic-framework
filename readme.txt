@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.3.2
-Stable tag: 1.6.3
+Stable tag: 1.6.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,14 @@ Otherwise, not yet ;-)
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.6.4 =
+* soma_featured_image now handles custom image size labels (from add_image_size) via the $specific argument
+* new metabox field: p2p-select - allows assigning single p2p relationship via dropdown (warning: must hide the core p2p admin box if you use these fields! there's a conflict in the save routines)
+* new metabox field: p2p-multi - allows assigning multiple p2p relationships via checkboxes
+* can now use soma_metabox_data() with core post and page types
+* updated jqueryUI timepicker to 0.9.9
+* timepicker metabox type now actually works...
 
 = 1.6.3 =
 * new Sort Order grouping: p2p, give it a P2P connection type name (ex: sortable = true, sort_group_type = p2p, sort_group_slug = albums-tracks)

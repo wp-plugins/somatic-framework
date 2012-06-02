@@ -4,6 +4,8 @@ class somaMetaboxes extends somaticFramework {
 	function __construct() {
 		add_action( 'init', array(__CLASS__,'init' ) );
 		add_action( 'post_edit_form_tag' , array(__CLASS__,'post_edit_form_tag' ) );
+		add_action( 'add_meta_boxes_post', array(__CLASS__, 'add_boxes'), 10, 1 );		// use our somatic metabox rendering for core post type
+		add_action( 'add_meta_boxes_page', array(__CLASS__, 'add_boxes'), 10, 1 );		// use our somatic metabox rendering for core page type
 	}
 
 	// needed to allow file upload inputs (input[type="file"]) within post.php
@@ -12,7 +14,7 @@ class somaMetaboxes extends somaticFramework {
 	}
 
 
-	static $data = array();				// container for other plugins and themes to store custom metabox and field data
+	static $data = array();				// container for other plugins and themes to store custom metabox and field data - SHOULD WE STORE THIS IN THE DB INSTEAD???
 
 	function init() {
 	}
@@ -39,11 +41,11 @@ class somaMetaboxes extends somaticFramework {
 				}
 			}
 		}
-		
+
 		// if no metaboxes were added, then none were declared or matched the post type
 		if (!$typehasabox) {
 			// THIS IS BAD - OUPTUTS BEFORE PAGE HEADERS
-			add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined for this custom post type! [consult meta-config-example.php]'));		
+			add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined for this custom post type! [consult meta-config-example.php]'));
 		}
 
 		// hook for insertion before any box content
@@ -71,6 +73,8 @@ class somaMetaboxes extends somaticFramework {
 	attachment
 	p2p-objects
 	p2p-list
+	p2p-select
+	p2p-multi
 	text
 	help
 	numeric
@@ -166,14 +170,34 @@ class somaMetaboxes extends somaticFramework {
 
 			// get connected posts by types and direction
 			if ($field['data'] == 'p2p') {
-				if ($field['type'] == 'p2p-list') {
-					$meta = somaFunctions::fetch_connected_items( $post->ID, $field['p2pname'], $field['dir'], $output = 'html');
-				} else {
-					$meta = somaFunctions::fetch_connected_items( $post->ID, $field['p2pname'], $field['dir'], $output = 'objects');
-				}
-				// if no connections exist, skip rendering this line
-				if (!$meta) {
-					continue;
+				switch (true) {
+					case ($field['type'] == 'p2p-list') :																					// readonly output
+						$meta = somaFunctions::fetch_connected_items( $post->ID, $field['p2pname'], $field['dir'], $output = 'html');		// list of links to related posts
+						if (!$meta) continue;																								// if no connections exist, skip rendering this line
+					break;
+					case ($field['type'] == 'p2p-select') :																					// saveable
+						$objs = somaFunctions::fetch_connected_items( $post->ID, $field['p2pname'], $field['dir'], $output = 'objects');
+						if ($objs) {
+							$obj = array_shift($objs);
+							$meta = $obj->ID;																								// single post ID
+						} else {
+							$meta = false;																									// if no connections exist, keep false value for blank selection
+						}
+					break;
+					case ($field['type'] == 'p2p-multi') :																					// saveable
+						$objs = somaFunctions::fetch_connected_items( $post->ID, $field['p2pname'], $field['dir'], $output = 'objects');
+						if ($objs) {
+							foreach ($objs as $obj) {
+								$meta[] = $obj->ID;																							// array of post ID's
+							}
+						} else {
+							$meta = false;																									// if no connections exist, keep false value for blank selection
+						}
+					break;
+					case ($field['type'] == 'p2p-objects') :																				// readonly output
+						$meta = somaFunctions::fetch_connected_items( $post->ID, $field['p2pname'], $field['dir'], $output = 'objects');	// array of post objects
+						if (!$meta) continue;																								// if no connections exist, skip rendering this line
+					break;
 				}
 			}
 			// get all attachments as objects for this post
@@ -261,6 +285,7 @@ class somaMetaboxes extends somaticFramework {
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'help':
 					echo '<p class="help">', $field['desc'], '</p>';
+					$dodesc = false;
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'numeric':
@@ -497,6 +522,7 @@ class somaMetaboxes extends somaticFramework {
 					// hidden input that actually holds the data from the jqueryUI picker -- allows us to display a human-readable version in the mirror field
 					echo '<input type="hidden" class="timepicker" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $human : $field['default'], '" >';
 					echo '<input type="text" class="timemirror', $complete ? null : $missing, '" readonly="readonly" value="', $human, '"/>';
+					echo '<div class="timereset"></div>';
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// (dropdown select inputs)
@@ -618,6 +644,50 @@ class somaMetaboxes extends somaticFramework {
 						echo '<em>(none)</em>';
 					}
 				break;
+				// ----------------------------------------------------------------------------------------------------------------------------- //
+				// select a single post relationship
+				case 'p2p-select':
+					echo '<select name="', $field['id'], '" id="', $field['id'], '"', $disable ? ' disabled="disabled"' : null, ' class="meta-select', $complete ? null : $missing, '" >';
+					if (is_array($field['options'])) {		// must check if array exists or foreach will throw error
+						// if meta is empty (never been set), and there's no default specified, display a 'none' option
+						if (!$meta && !$field['default']) {
+							echo '<option value="" selected="selected">[Select One]</option>';
+						}
+						// list values and match
+						foreach ($field['options'] as $option) {
+							// if meta matches, or if there's no meta, but there is a default string specified that matches
+							if ($meta == $option['value'] || (!$meta && $field['default'] == $option['name'])) {
+								$select = true;
+							} else {
+								$select = false;
+							}
+							echo '<option value="', $option['value'], '"', $select ? ' selected="selected"' : null, '>', $option['name'],'</option>';
+						}
+					} else {
+						// if meta isn't array, default to single behaviour
+						echo '<option value="', $option['value'], '"', $meta == $option['value'] ? ' selected="selected"' : '', '>', $option['name'],'</option>';
+					}
+					echo '</select>';
+				break;
+				// ----------------------------------------------------------------------------------------------------------------------------- //
+				// selection from list of possible post relationships
+				case 'p2p-multi':
+					echo '<ul class="meta-checkbox-multi', $complete ? null : $missing, '" >';
+					// echo '<span ', $complete ? null : $missing, '>';
+					if (is_array($field['options'])) {		// must check if array exists or foreach will throw error
+						foreach ($field['options'] as $option) {
+							if (!empty($meta) && in_array($option['value'] , $meta) ) {	// $meta isn't empty, and this option is within it
+								echo '<li><label><input type="checkbox" value="', $option['value'],'" name="', $field['id'], '[]" id="check-', $option['value'],'" checked="checked" /><strong>',$option['name'],'</strong></label></li>';
+							} else {
+								echo '<li><label><input type="checkbox" value="', $option['value'],'" name="', $field['id'], '[]" id="check-', $option['value'], '" />',$option['name'],'</label></li>';
+							}
+						}
+					} else {
+						// if meta isn't array, default to checkbox-single behaviour
+						echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', checked($meta, "on") , ' class="', $complete ? null : $missing, '" />';
+					}
+					echo '</ul>';
+					break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// external media (youtube, vimeo, soundcloud)
 				case 'external_media':

@@ -126,8 +126,8 @@ class somaSave extends somaticFramework {
 		// don't do on autosave or for new post creation or when trashing post
 		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || $post->post_status == 'auto-draft'  || $_GET['action'] == 'trash' ) return $pid;
 
-		// don't do for core post types
-		if ($post->post_type == 'post' || $post->post_type == 'page') return;
+		// don't do for core post types ** now that we're adding metaboxes to core types, forget this
+		// if ($post->post_type == 'post' || $post->post_type == 'page') return;
 
 		global $wpdb;
 		global $hook_suffix;
@@ -135,10 +135,10 @@ class somaSave extends somaticFramework {
 		$type = get_post_type($pid);
 		$type_obj = get_post_type_object($type);
 		$cap_type = $type_obj->cap->edit_posts;
-		if ($hook_suffix != 'post.php' || $type == 'post' || $type == 'page' ) { 	// only execute these functions when saving from an individual post edit page for custom types. (allows quick edit on edit.php to work)
-			return $pid;
-		}
-	
+		// if ($hook_suffix != 'post.php' || $type == 'post' || $type == 'page' ) { 	// only execute these functions when saving from an individual post edit page for custom types. (allows quick edit on edit.php to work)
+		// 	return $pid;
+		// }
+
 		// only run our custom save routines if custom metabox data has been defined
 		if (empty(somaMetaboxes::$data) || !somaMetaboxes::$data) {
 			return $pid;
@@ -197,7 +197,60 @@ class somaSave extends somaticFramework {
 					if ($field['data'] == 'user') {
 						$old = $post->post_author;
 					}
-					// retrieve and assemble $new data from current field states
+
+					if ($field['data'] == 'p2p') {
+						$p2pargs = array(
+							'direction' => 'any',
+							'fields' => 'all',
+						);
+						// only get connections for this post (otherwise we'd grab all connections within this p2p connection type!)
+						if ($field['dir'] == 'to') {
+							$p2pargs['from'] = $pid;
+						}
+						if ($field['dir'] == 'from') {
+							$p2pargs['to'] = $pid;
+						}
+						// retrieve connections
+						$conn = p2p_get_connections($field['p2pname'], $p2pargs);
+						
+						// for p2p single relationships
+						if ($field['type'] == 'p2p-select') {
+							switch (true) {
+								case (empty($conn)) :
+									$old = false;					// if no connections exist, keep false value
+								break;
+								case ($field['dir'] == 'to') :
+									$old = $conn[0]->p2p_to;		// single connected post id
+								break;
+								case ($field['dir'] == 'from') :
+									$old = $conn[0]->p2p_from;		// single connected post id
+								break;
+							}
+						}
+						// for p2p multiple relationships
+						if ($field['type'] == 'p2p-multi') {
+							switch (true) {
+								case (empty($conn)) :
+									$old = false;					// if no connections exist, keep false value
+								break;
+								case ($field['dir'] == 'to') :
+									foreach ($conn as $con) {
+										$old[] = $con->p2p_to;		// array of connected posts
+									}
+								break;
+								case ($field['dir'] == 'from') :
+									foreach ($conn as $con) {
+										$old[] = $con->p2p_from;	// array of connected posts
+									}
+								break;
+							}
+						}
+					}
+
+
+					//**
+					//** retrieve and assemble $new data from current field states
+					//**
 
 					// default $new
 					$new = $_POST[$field['id']];
@@ -278,9 +331,9 @@ class somaSave extends somaticFramework {
 					// for external media URL fields  --------------------------------------------------------------//
 					if ($field['type'] == 'external_media') {
 						$ext_media = null;																			// init container
-						
+
 						// field is newly changed
-						if (!empty($new) && $new != $old) {																			
+						if (!empty($new) && $new != $old) {
 							$ext_media = somaFunctions::fetch_external_media($new);									// parse url and ping APIs
 							if (!is_wp_error($ext_media)) {															// did the url process okay?
 								$new = $ext_media['url'];															// replace user-submitted with "cleaned" url
@@ -290,16 +343,16 @@ class somaSave extends somaticFramework {
 								wp_die($ext_media->get_error_message());											// should probably display an error notification rather than dying....
 							}
 						}
-						
+
 						// field is already populated, but/and user has chosen to copy the external title/desc into the asset, replacing the user fields NOTE: for this to work, this field should appear after the title and desc fields!
 						if (!empty($new) && $_POST['copy-ext-meta']) {
 							if (empty($ext_media)) $ext_media = somaFunctions::fetch_external_media($new);			// grab if we haven't already (since $new hasn't changed)
 							if (is_wp_error($ext_media)) wp_die($ext_media->get_error_message());					// bail if didn't work
-							
+
 							somaFunctions::asset_meta('save', $pid, 'desc', $ext_media['desc']);					// overwrite the desc
 							$wpdb->update( $wpdb->posts, array( 'post_title' => $ext_media['title'] ), array( 'ID' => $pid ));	// overwrite the post title
 						}
-						
+
 						// field is already populated, but/and user has chosen to import external source thumbnail into library and attach to post and possibly set as featured image
 						if (!empty($new) && $_POST['import-ext-image'] || $_POST['use-ext-feature']) {
 							if (empty($ext_media)) $ext_media = somaFunctions::fetch_external_media($new);			// grab if we haven't already (since $new hasn't changed)
@@ -313,7 +366,7 @@ class somaSave extends somaticFramework {
 							// upload the image from url into library, and use as featured image if checked
 							$result = somaFunctions::attach_external_image($ext_media['thumb'], $pid, $_POST['use-ext-feature'], null, array('post_title' => '[ext] '.$ext_media['title'])); // title the attachment [frame] title (of external video)
 							if (is_wp_error($result)) wp_die($result->get_error_message());
-							
+
 							// save new attachment ID to indicate that we have already imported an attachment for this field, so we can overwrite it later (if user checks import-ext-image again) instead of spawning more attachments
 							somaFunctions::asset_meta('save', $pid, $field['id']."_attached", $result);
 						}
@@ -339,7 +392,7 @@ class somaSave extends somaticFramework {
 								// upload the image from url into library, and use as featured image if checked
 								$result = somaFunctions::attach_external_image($new, $pid, $_POST['use-ext-feature'] ); // should give this a post_title? but based on what?
 								if (is_wp_error($result)) wp_die($result->get_error_message());
-								
+
 								// save new attachment ID to indicate that we have already imported an attachment for this field, so we can overwrite it later (if user checks import-ext-image again) instead of spawning more attachments
 								somaFunctions::asset_meta('save', $pid, $field['id']."_attached", $result);
 							}
@@ -439,6 +492,28 @@ class somaSave extends somaticFramework {
 								$new = stripslashes($new);									// because tinymce adds them.... even though we're using the_editor()...
 							}
 							$wpdb->update( $wpdb->posts, array( $field['id'] => $new ), array( 'ID' => $pid ));
+						}
+
+						if ($field['data'] == 'p2p') {
+							if ($field['type'] == 'p2p-select') {
+								// remove all connections first, as we're only keeping one
+								p2p_delete_connection($conn[0]->p2p_id);
+								p2p_type( $field['p2pname'] )->connect( $pid, $new, array(
+									'date' => current_time('mysql')
+								) );								
+							}
+							if ($field['type'] == 'p2p-multi') {
+								// remove all connections first?
+								foreach ($conn as $con) {
+									p2p_delete_connection($con->p2p_id);
+								}
+								// set all new connections?
+								foreach ($new as $newid) {
+									p2p_type( $field['p2pname'] )->connect( $pid, $newid, array(
+										'date' => current_time('mysql')
+									) );								
+								}
+							}
 						}
 
 						if ($field['data'] == 'comment') {

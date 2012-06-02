@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.6.3
+Version: 1.6.4
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -94,8 +94,8 @@ class somaticFramework {
 		add_action( 'parse_request', array(__CLASS__, 'parse_request' ) );
 
 		// framework scripts and styles
-		wp_register_script( 'soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
-		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.6', 'all' );
+		wp_register_script( 'soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.6.4', true);
+		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.6.4', 'all' );
 
 		wp_register_script( 'soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
 		wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.6', 'all' );
@@ -109,6 +109,8 @@ class somaticFramework {
 		// jquery UI
 		wp_register_style( 'jquery-ui-theme', SOMA_JS. 'ui/smoothness/jquery-ui-1.8.17.custom.css', false, '1.8.17');
 		wp_register_script( 'jquery-ui-datepicker', SOMA_JS.'ui/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
+		wp_register_script( 'jquery-ui-timepicker', SOMA_JS.'ui/jquery-ui-timepicker-addon.min.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
+		wp_register_style( 'jquery-ui-timepicker', SOMA_JS. 'ui/jquery-ui-timepicker-addon.css', false, '1.8.17');
 
 		// autosize textareas  (not working quite right yet...)
 		// wp_register_script( 'autosize', SOMA_JS.'jquery.autosize-min.js', array('jquery'), '1.6' );
@@ -175,9 +177,11 @@ class somaticFramework {
 		wp_enqueue_script( 'colorbox' );
 		// wp_enqueue_script( 'autosize' );
 		wp_enqueue_script( 'jquery-ui-datepicker' );
+		wp_enqueue_script( 'jquery-ui-timepicker' );
 		wp_enqueue_style( 'soma-admin' );
 		wp_enqueue_style( 'colorbox-theme' );
 		wp_enqueue_style( 'jquery-ui-theme' );
+		wp_enqueue_style( 'jquery-ui-timepicker' );
 	}
 
 	// hooking login for scripts and styles!

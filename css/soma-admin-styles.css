@@ -155,7 +155,8 @@
 	vertical-align: middle;
 }
 
-.metabox-holder .datereset {
+.metabox-holder .datereset,
+.metabox-holder .timereset {
 	display: inline-block;
 	cursor: pointer;
 	width: 16px;
