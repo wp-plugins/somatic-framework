@@ -302,6 +302,9 @@ class somaMetaboxes extends somaticFramework {
 					if (!empty($field['rows'])) {
 						$args['textarea_rows'] = intval($field['rows']);		// override system defaults for visual editor rows
 					}
+					if ($field['hide_buttons']) {
+						$args['media_buttons'] = false;							// hides the media upload buttons
+					}
 					wp_editor( $meta, $field['id'], $args );					// Note that the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction.
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
@@ -807,12 +810,14 @@ class somaMetaboxes extends somaticFramework {
 
 		// insert save changes button
 		if ($meta_box['save']) {
-			// saving the post always attempts to publish!!
 			echo '<table class="form-table"><tr><td class="field-label"></td><td class="field-data">';
-			// echo '<input type="hidden" name="post_status" id="post_status" value="publish" />';
+
+			if ($meta_box['always-publish']) {
+				echo '<input type="hidden" name="post_status" id="post_status" value="publish" />';
+			}
 
 			// outputs generic submit button with $text, $class, $id
-			submit_button( $msg, 'clicker save-changes');
+			submit_button( 'Save Changes', 'clicker save-changes', 'submit', false);
 
 			// // core save draft button
 			// echo '<input type="submit" name="save" id="save-post" value="Save Draft" class="button button-highlighted" />';

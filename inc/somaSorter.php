@@ -4,47 +4,15 @@ class somaSorter extends somaticFramework {
 	function __construct() {
 		add_action( 'admin_menu' , array( __CLASS__, 'soma_sort_menus' ) );
 		add_action( 'wp_ajax_custom_type_sort', array( __CLASS__, 'soma_save_custom_type_order' ) );
-		add_filter( 'parse_query', array(__CLASS__,'filter_current_query' ));
-	}
-
-	//** modifies the QUERY before output ------------------------------------------------------//
-	// list sortable post types by menu_order instead of date, so we can manually adjust order - note: this means the sorting by title in the edit listings won't do anything....
-	function filter_current_query($query) {
-		// abort if suppressing
-		if ($query->query_vars['suppress_filters']) return $query;
-		
-		$obj = $query->get_queried_object();
-
-		// if this is a custom post type
-		if ( $obj->sortable ) {
-			$query->set( 'orderby', 'menu_order' );
-			$query->set( 'order', 'ASC' );
-			return $query;
-		}
-		// if this is a taxonomy or term, extract the post types (if *any* of the associated post types are set to be sortable, they'll all display in order...)
-		if ($obj->taxonomy) {
-			$tax = get_taxonomy($obj->taxonomy);
-			foreach ($tax->object_type as $cpt) {
-				$cptobj = get_post_type_object($cpt);
-				if ($cptobj->sortable) {
-					$query->set( 'orderby', 'menu_order' );
-					$query->set( 'order', 'ASC' );
-					return $query;
-				}
-			}
-		}
-
-		// nothing matched, pass along unfiltered
-		return $query;
 	}
 
 
-	// generates sort order submenu page
+	// generates sort order submenu page if type has order defined manually
 	function soma_sort_menus() {
 		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
 		foreach ($types as $type) {
 			// only add sort pages to hierarchical post types, which support menu-order
-			if ( $type->sortable ) {
+			if ( $type->sort_by == 'menu_order' ) {
 				$menupage = add_submenu_page('edit.php?post_type='.$type->name, 'Sort '.$type->labels->name, 'Sort Order', 'edit_posts', 'sort-'. $type->name, array(__CLASS__,'soma_sort_page'));
 				add_action( 'admin_print_styles-'.$menupage, array( __CLASS__, 'soma_sorter_print_styles' ) );
 				add_action( 'admin_print_scripts-'.$menupage, array( __CLASS__, 'soma_sorter_print_scripts' ) );

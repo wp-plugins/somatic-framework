@@ -10,6 +10,10 @@ class somaTypes extends somaticFramework {
 		add_action( 'right_now_content_table_end' , array(__CLASS__, 'custom_types_rightnow' ) );
 		add_action( 'admin_head-nav-menus.php', array( __CLASS__, 'filters_for_cpt_archives' ) );				// hacks the output of CPT nav menu items displayed in Appearance -> Menus
 		add_filter( 'hidden_meta_boxes', array( __CLASS__, 'show_cpt_menus'), 10, 2);							// hacks the display of CPT in Appearance -> Menus (screen options hack)
+		add_filter( 'parse_query', array(__CLASS__,'filter_current_query' ));									// modifies ordering when querying CPTs
+		add_filter( 'posts_orderby', array(__CLASS__,'posts_orderby' ));										// modifies ordering when querying CPTs
+		add_filter( 'posts_join', array(__CLASS__,'posts_join' ));												// modifies ordering when querying CPTs
+		add_action( 'add_meta_boxes', array(__CLASS__,'remove_publish_box' ));									// hides the core Publish metabox if CPT argument is true
 	}
 
 	//** CUSTOM POST TYPES -----------------------------------------------------------------------------------------------------//
@@ -61,10 +65,13 @@ class somaTypes extends somaticFramework {
 			'labels' => $labels,											#wp
 			'menu_icon' => $data['icons'] . $slug . '-menu-icon.png',		#wp - use custom menu icon if defined
 			// non-core args (but get stored in the post type object)
-			'sortable' => false,											#soma - whether to show a sorting admin menu for this type
-			'sort_group_type' => null,										#soma - what kind of object to use for determining grouping: taxonomy, author, other? p2p would be nice here...
-			'sort_group_slug' => null,										#soma - string: slug of the taxonomy/author/object to group list items by
+			'sort_by' => 'date',											#soma - how to filter the query when displaying this type - date (published), title (post_title), meta_value, menu_order - which also causes the admin sorting menu to appear
+			'sort_order' => 'DESC',											#soma - which direction to sort
+			'sort_menu' => true,											#soma - (sort_by: manual) whether to show a sorting admin submenu for this type
+			'sort_group_type' => null,										#soma - (sort_by: manual) what kind of object to use for determining grouping: taxonomy, author, other? p2p would be nice here...
+			'sort_group_slug' => null,										#soma - (sort_by: manual) string: slug of the taxonomy/author/object to group list items by
 			'create_nav_item' => true,										#soma - automatically generate a nav menu item for this type - NOTE: will re-create it if you manually delete the nav item!
+			'hide_publish' => false											#soma - hide the Publish core metabox (make sure you include save buttons on in your metabox field config!)
 		);
 
 		// merge with incoming register cpt args
@@ -104,6 +111,8 @@ class somaTypes extends somaticFramework {
 
 		// store cpt data for later
 		self::$type_data[$slug] = $data;
+
+		global $post, $post_ID;
 
 		// store custom messages too
 		self::$type_data[$slug]['messages'] = array(
@@ -442,6 +451,90 @@ class somaTypes extends somaticFramework {
 			}
 		}
 		return $boxes;
+	}
+
+	// kill the core Publish metabox
+	function remove_publish_box() {
+		foreach (self::$type_data as $type => $vars) {
+			if ($vars['args']['hide_publish']) {
+				remove_meta_box( 'submitdiv', $type, 'side' );
+			}
+		}
+	}
+
+
+	//** modifies the QUERY before output ------------------------------------------------------//
+	function filter_current_query($query) {
+		global $soma_current_query;
+		$soma_current_query = $query;
+		// abort if suppressing or if ordering has been manually chosen by GET
+		if ($query->query_vars['suppress_filters'] || isset($_GET['orderby'])) return $query;
+
+		// fetch object when query is for post/archive output
+		$obj = $query->get_queried_object();
+
+		// edit listings?
+		// if ( $query->is_post_type_archive ) {
+		// 	$cptobj = get_post_type_object( $query->query_vars['post_type'] );
+		// 	soma_dump($cptobj);
+		// 	if ( !is_null( $cptobj ) && isset( $cptobj->sort_by ) ) {
+		// 		$query->set( 'orderby', $cptobj->sort_by );
+		// 		$query->set( 'order', $cptobj->sort_order );
+		// 		return $query;
+		// 	}
+		// }
+
+		// if this is a taxonomy or term, extract the post types (if *any* of the associated post types are set to be sortable, they'll all display in order...)
+
+		// not sure how I'm using this...????? now that we're using posts_orderby filters... is taxonomy still a special case?
+		if ($obj->taxonomy) {
+			$tax = get_taxonomy($obj->taxonomy);
+			foreach ($tax->object_type as $cpt) {
+				$cptobj = get_post_type_object($cpt);
+				if ( !is_null( $cptobj ) && isset( $cptobj->sort_by ) ) {
+					$query->set( 'orderby', $cptobj->sort_by );
+					$query->set( 'order', $cptobj->sort_order );
+					return $query;
+				}
+			}
+		}
+
+		// nothing matched, pass along unfiltered
+		return $query;
+	}
+	
+	// modifies SQL query orderby values BEFORE parsing - requires filter_current_query() to set the global $soma_current_query
+	// http://codex.wordpress.org/Custom_Queries
+	function posts_orderby( $orderby ) {
+		global $soma_current_query;
+		// check the current query
+		$obj = $soma_current_query->get_queried_object();
+		soma_dump($obj);
+		// got nothing, abort
+		if ( is_null( $obj ) ) return $orderby;
+		// are we querying a custom post type that has sorting arguments?
+		if ( !$obj->_builtin && isset( $obj->sort_by ) && !$obj->taxonomy ) {
+			$orderby = $obj->sort_by . " " . $obj->sort_order;					// reconstruct the ORDERBY sql string
+		}
+		soma_dump($orderby);
+		return $orderby;
+	}
+
+	// joins additional tables to SQL query BEFORE parsing - requires filter_current_query() to set the global $soma_current_query
+	// http://codex.wordpress.org/Custom_Queries
+	function posts_join( $join ) {
+		global $soma_current_query;
+		// check the current query
+		$obj = $soma_current_query->get_queried_object();
+		// got nothing, abort
+		if ( is_null( $obj ) ) return $join;
+		// are we querying a custom post type that has sorting arguments set?
+		if ( !$obj->_builtin && $obj->sort_by == "meta_value" && isset( $obj->sort_key ) ) {
+			global $wpdb, $soma_options;
+			$key = $soma_options['meta_prefix'] . "_" . $obj->sort_key;		// assemble post_meta key
+			$join .= "LEFT JOIN $wpdb->postmeta ON ({$wpdb->posts}.ID = $wpdb->postmeta.post_id AND $wpdb->postmeta.meta_key = '$key')";		// join the post_meta table so we can sort by the meta_value 
+		}
+		return $join;
 	}
 
 }

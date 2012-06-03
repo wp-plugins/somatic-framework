@@ -228,16 +228,17 @@ function soma_select_types() {
 }
 
 // retrieve list of posts, can narrow by author
-function soma_select_items( $type = null, $author_id = null ) {
+function soma_select_items( $type = null, $args = array() ) {
 	if (!$type) return null;
 	$items = array();
-	$args = array(
+	$defaults = array(
 		'suppress_filters' => false,
 		'post_type' => $type,
 		'post_status' => 'any',
-		'posts_per_page' => -1
+		'numberposts' => -1,
+		'order' => 'ASC'
 	);
-	if ($author_id != null) $args['post_author'] = $author_id;
+	$args = wp_parse_args( $args, $defaults );
 	$items = get_posts( $args );
 	if ( empty( $items ) ) {
 		return array(array('name' => '[nothing to select]', 'value' => '0'));	// no user role matches, output empty list

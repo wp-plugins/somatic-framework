@@ -6,7 +6,7 @@ class somaFunctions extends somaticFramework {
 		add_action( 'init', array(__CLASS__,'init' ));
 		add_action( 'admin_init', array(__CLASS__,'check_plugin_dependency' ));
 		add_filter( 'query_vars', array(__CLASS__,'custom_query_vars' ));
-		add_filter( 'parse_query', array(__CLASS__,'filter_current_query' ));
+		add_filter( 'parse_query', array(__CLASS__,'filter_current_query' ));			// empty at the moment
 		add_filter( 'pre_get_posts', array(__CLASS__,'pre_get_posts'));
 		add_action( 'delete_post', array(__CLASS__, 'delete_attachments_when_parents_die' ));
 		add_filter( 'gettext',  array(__CLASS__, 'modify_core_language'  ));
@@ -17,7 +17,7 @@ class somaFunctions extends somaticFramework {
 		// add_action( 'show_admin_bar', '__return_false' );
 		add_filter( 'editable_roles', array(__CLASS__, 'editable_roles'));
 		add_filter( 'map_meta_cap', array(__CLASS__, 'admin_map_meta_cap'), 10, 4);
-		remove_filter('check_comment_flood', 'check_comment_flood_db');	// deal with "posting too quickly" problem....
+		remove_filter('check_comment_flood', 'check_comment_flood_db');					// deal with "posting too quickly" problem....
 		add_filter( 'edit_posts_per_page', array(__CLASS__, 'edit_list_length'));
 		add_action( 'wp_ajax_unlink_file', array(__CLASS__, 'unlink_file'));
 		// add_action( 'admin_notices', array(__CLASS__,'soma_notices'));
@@ -609,12 +609,6 @@ class somaFunctions extends somaticFramework {
 
 	//** modifies the QUERY before output ------------------------------------------------------//
 	function filter_current_query($query) {
-		global $pagenow;
-		// sort edit lists by newest on top (default wp behavior is asc by post title)
-		if ($query->is_admin && $pagenow == 'edit.php' && !isset($_GET['orderby']) && !$query->query_vars['suppress_filters'])  {
-			$query->query_vars['orderby'] = 'date';
-			$query->query_vars['order'] = 'desc';
-		}
 		return $query;
 	}
 
@@ -695,9 +689,10 @@ class somaFunctions extends somaticFramework {
 
 			// 'sizes' key will only exist if the uploaded image was equal or larger than the site option for thumbnail size
 			if ( isset( $att_meta['sizes'] ) ) {
-				$img['icon']['file'] 	= 	$att_meta['sizes']['post-thumbnail']['file'];
-				$img['icon']['url'] 	= 	$media_url . $img['icon']['file'];
-				$img['icon']['path'] 	= 	$media_path . $img['icon']['file'];
+				// $img['icon']['file'] 	= 	$att_meta['sizes']['post-thumbnail']['file'];		// this was failing for lack of 'post-thumbnail' array
+				// $img['icon']['url'] 	= 	$media_url . $img['icon']['file'];
+				// $img['icon']['path'] 	= 	$media_path . $img['icon']['file'];
+				
 				// check if each size exists (which it won't if uploaded file was smaller than options sizes)
 				if ( isset($att_meta['sizes']['thumbnail'])) {
 					$img['thumb']['file'] 	= 	$att_meta['sizes']['thumbnail']['file'];
@@ -747,8 +742,8 @@ class somaFunctions extends somaticFramework {
 			}
 
 			$img['mime']			= 	get_post_mime_type($att_id);	// mime-type of file
-			$img['orientation']		= 	$att_meta['orientation'];
-			$img['original']		= 	$att_meta['original'];
+			$img['orientation']		= 	somaFunctions::fetch_index($att_meta, 'orientation');
+			$img['original']		= 	somaFunctions::fetch_index($att_meta, 'original');
 			$img['date']			= 	get_the_date('M j, Y',$att_id) ." - ". get_the_time('h:iA',$att_id); 	// date attachment was created
 
 		} else {
@@ -796,7 +791,7 @@ class somaFunctions extends somaticFramework {
 
 		global $soma_options;										// fetch options
 		if ( $serialize === null ) {
-			$serialize = $soma_options['meta_serialize'];			// use default var if not passed in params
+			$serialize = somaFunctions::fetch_index($soma_options, 'meta_serialize');			// use default var if not passed in params
 			if ($serialize == 1) {									// explicit true if evaluates as true
 				$serialize = true;
 			} else {
