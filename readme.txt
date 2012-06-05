@@ -40,9 +40,11 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * NOTE: for soma_debug output, php.ini must be configured with "output_buffering" set to ON (not a number like 4096), or you will see a bunch of "Cannot modify header information" warnings coming from Kint....
 * NEW: option to enable Colorbox JS on front-end
 * metabox field save button can now be set to always change post status to "publish"
+* FIX: fatal SQL error in the posts_orderby filter when order_by wasn't defined (default was set to date instead of post_date)
+* NOTE: when defining sort_by values for CPT's, do not use the WP_Query values for 'orderby' - must use actual wp_posts column names (like post_title instead of just title)
 
 = 1.6.5 =
-* NEW: soma_init_type() arguments "sort_by" (date, title, author, menu_order, meta_value) and "sort_order" (asc, desc) to override the default query filters
+* NEW: soma_init_type() arguments "sort_by" (post_date, post_title, post_author, menu_order, meta_value) and "sort_order" (asc, desc) to override the default query filters
 * REMOVED: soma_init_type() argument "sortable" is gone - replace with new "sort_by"
 * NOTE: must modify all calls to soma_init_type()!
 * moved all filtering of parse_query into somaTypes class

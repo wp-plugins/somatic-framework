@@ -65,8 +65,8 @@ class somaTypes extends somaticFramework {
 			'labels' => $labels,											#wp
 			'menu_icon' => $data['icons'] . $slug . '-menu-icon.png',		#wp - use custom menu icon if defined
 			// non-core args (but get stored in the post type object)
-			'sort_by' => 'date',											#soma - how to filter the query when displaying this type - date (published), title (post_title), meta_value, menu_order - which also causes the admin sorting menu to appear
-			'sort_order' => 'DESC',											#soma - which direction to sort
+			'sort_by' => 'post_date',										#soma - how to filter the query when displaying this type - post_date, post_title, post_author, meta_value, menu_order - which also causes the admin sorting menu to appear
+			'sort_order' => 'DESC',											#soma - which direction to sort (wp default is DESC, but when manually choosing sort order, usually want to set this to ASC)
 			'sort_menu' => true,											#soma - (sort_by: manual) whether to show a sorting admin submenu for this type
 			'sort_group_type' => null,										#soma - (sort_by: manual) what kind of object to use for determining grouping: taxonomy, author, other? p2p would be nice here...
 			'sort_group_slug' => null,										#soma - (sort_by: manual) string: slug of the taxonomy/author/object to group list items by
@@ -515,7 +515,7 @@ class somaTypes extends somaticFramework {
 		if ( !$obj->_builtin && isset( $obj->sort_by ) && !$obj->taxonomy ) {
 			$orderby = $obj->sort_by . " " . $obj->sort_order;					// reconstruct the ORDERBY sql string
 		}
-		soma_dump($orderby);
+		// soma_dump($orderby);
 		return $orderby;
 	}
 
