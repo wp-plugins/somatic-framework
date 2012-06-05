@@ -388,7 +388,7 @@ class somaOptions extends somaticFramework  {
 		// retrieve options
 		global $soma_options;
 
-		soma_dump($soma_options);		// debug
+		// soma_dump($soma_options);		// debug
 
 		if ($soma_options['reset_default_options']) {
 			echo "<div class='updated fade'><p><strong>NOTICE:</strong> Settings are set be reset to defaults next time this plugin is activated!</p></div>";
