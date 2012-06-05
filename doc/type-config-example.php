@@ -17,14 +17,14 @@ function mysite_type_data() {
 		"plural" => "Resources",												// used to build labels
 		"args" => array(														// optional argument overrides http://codex.wordpress.org/Function_Reference/register_post_type
 				'menu_position' => 5,											// where the admin menu item where sit
-				'supports' => array( 'title', 'thumbnail'),						// which features and core metaboxes to show
+				'supports' => array( 'title', 'thumbnail'),						// which features and core metaboxes to show -- Don't forget to use add_theme_support( 'post-thumbnails' ) when required!
 				// non-wp args below
 				'sort_by' => 'meta_value',										// how to filter the query when displaying this type - date (published), title (post_title), author, parent, modified, rand (random), meta_value, menu_order - which also causes the admin sorting menu to appear
 				'sort_key' => 'custommetakey',									// if "meta_value" is indicated for sort_by, must supply a post meta key (which will automatically have the site meta prefix added)
-				'sort_order' => 'ASC',											// sorting order
+				'sort_order' => 'ASC',											// sorting order (typically need to set this manually to ASC when using menu_order)
 				'hide_publish' => true											// hides the Publish core metabox (make sure you include save buttons in your metabox field config)
 				"sort_group_type" => 'taxonomy',								// optional: group listings on the Sort Order subpage by an object type
-				"sort_group_slug" => 'format',									// required if sort_group_type is set - which object to group by (in this case, a specific taxonomy)		
+				"sort_group_slug" => 'format',									// required if sort_group_type is set - which object to group by (in this case, a specific taxonomy)
 				"create_nav_item"=> true,										// automatically generate a nav menu item for this type in Appearance->Menus which you can rearrange - NOTE: will re-create the nav item if you manually delete it!
 			),
 		"icons" => "http://mysite.com/mytheme/img/",							// set url path to where your custom icons are located
@@ -49,13 +49,13 @@ function mysite_type_data() {
 	);
 
 
-	
+
 	// enables an existing (or built-in) taxonomy for our custom post type
 	register_taxonomy_for_object_type('category', 'resource');
-	
+
 
 	//
-	
+
 	soma_init_taxonomy( array(
 			"slug" => "format",												// primary identifier
 			"single" => "Format",											// used to build labels
@@ -76,7 +76,7 @@ function mysite_type_data() {
 			)
 		)
 	);
-	
+
 	soma_init_taxonomy( array(
 			"slug" => "content",
 			"single" => "Content Type",
@@ -95,7 +95,7 @@ function mysite_type_data() {
 	);
 
 
-	// establish relationships	
+	// establish relationships
 	if ( function_exists( 'p2p_register_connection_type' ) ) {
 		p2p_register_connection_type( array(
 			'id' => 'authors-works',
