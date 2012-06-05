@@ -818,7 +818,7 @@ class somaMetaboxes extends somaticFramework {
 		if ($meta_box['save']) {
 			echo '<table class="form-table"><tr><td class="field-label"></td><td class="field-data">';
 
-			if ($meta_box['always-publish']) {
+			if ($meta_box['always-publish'] || $meta_box['publish']) {
 				echo '<input type="hidden" name="post_status" id="post_status" value="publish" />';
 			}
 

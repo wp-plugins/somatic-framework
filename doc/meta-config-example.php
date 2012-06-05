@@ -31,6 +31,7 @@ function mysite_metabox_data() {
 		'priority' => 'high',												// positioning: vertical order - if all have same priority, metaboxes are rendered in order they appear in somaMetaboxes::$data array
 		'restrict' => false,												// boolean for restricting display of this metabox for non-staff (a special somaticFramework permission class)
 		'save' => true,														// boolean for displaying a "save changes" button at the end of this metabox (can have multiple on the page)
+		'always-publish' => true,											// makes the save button always change post_status to publish (instead of keeping it on whatever it was, which means new items are saved as drafts)
 		'fields' => array(													// array of individual fields within this metabox
 			array(
 				'name' => 'Actor Name',										// text displayed alongside field input
