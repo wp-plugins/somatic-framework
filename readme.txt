@@ -37,7 +37,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 = 1.6.6 =
 * FIX: removed undefined metabox errors for built-in post types
-* NOTE: for soma_debug output, php.ini must be configured with "output_buffering" set to ON, or you will see a bunch of "Cannot modify header information" warnings coming from Kint....
+* NOTE: for soma_debug output, php.ini must be configured with "output_buffering" set to ON (not a number like 4096), or you will see a bunch of "Cannot modify header information" warnings coming from Kint....
 * NEW: option to enable Colorbox JS on front-end
 * metabox field save button can now be set to always change post status to "publish"
 
