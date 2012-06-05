@@ -509,7 +509,6 @@ class somaTypes extends somaticFramework {
 		global $soma_current_query;
 		// check the current query
 		$obj = $soma_current_query->get_queried_object();
-		soma_dump($obj);
 		// got nothing, abort
 		if ( is_null( $obj ) ) return $orderby;
 		// are we querying a custom post type that has sorting arguments?

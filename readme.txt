@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.3.2
-Stable tag: 1.6.5
+Stable tag: 1.6.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,12 @@ Otherwise, not yet ;-)
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.6.6 =
+* FIX: removed undefined metabox errors for built-in post types
+* NOTE: for soma_debug output, php.ini must be configured with "output_buffering" set to ON, or you will see a bunch of "Cannot modify header information" warnings coming from Kint....
+* NEW: option to enable Colorbox JS on front-end
+* metabox field save button can now be set to always change post status to "publish"
 
 = 1.6.5 =
 * NEW: soma_init_type() arguments "sort_by" (date, title, author, menu_order, meta_value) and "sort_order" (asc, desc) to override the default query filters

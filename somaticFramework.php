@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.6.5
+Version: 1.6.6
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -126,7 +126,11 @@ class somaticFramework {
 			wp_enqueue_script( 'soma-public-jquery' );
 			wp_enqueue_style( 'soma-public' );
 		}
-		// wp_enqueue_script('colorbox');
+		global $soma_options;
+		if ($soma_options['colorbox']) {
+			wp_enqueue_script( 'colorbox' );
+			wp_enqueue_style( 'colorbox-theme' );
+		}
 	}
 
 	// pass constants and vars to javascript to be available for jquery

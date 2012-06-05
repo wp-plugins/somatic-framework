@@ -21,10 +21,14 @@ class somaMetaboxes extends somaticFramework {
 
 	// called in the custom post type registration, responsible for rendering metaboxes in those types
 	function add_boxes($post) {
+		
+		// treat core post types differently
+		$type_obj = get_post_type_object($post->post_type);
+		$builtin = $type_obj->_builtin;
 
 		if (empty(self::$data) || !self::$data) {
 			// THIS IS BAD - OUPTUTS BEFORE PAGE HEADERS
-			add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined! Make use of soma_metabox_data() [consult meta-config-example.php]'));
+			if (!$builtin) add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined! Make use of soma_metabox_data() [consult meta-config-example.php]'));
 		}
 
 		// hook for insertion before any box content
@@ -43,7 +47,7 @@ class somaMetaboxes extends somaticFramework {
 		}
 
 		// if no metaboxes were added, then none were declared or matched the post type
-		if (!$typehasabox) {
+		if (!$typehasabox && !$builtin) {
 			// THIS IS BAD - OUPTUTS BEFORE PAGE HEADERS
 			add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined for this custom post type! [consult meta-config-example.php]'));
 		}
@@ -701,7 +705,9 @@ class somaMetaboxes extends somaticFramework {
 					if (empty($existing)) {
 						$import = 'checked="checked"';														// we haven't, so check import by default
 					}
-					$thumb = get_post_thumbnail_id( $post->ID );											// grab featured image
+					if (function_exists('get_post_thumbnail_id')) {
+						$thumb = get_post_thumbnail_id( $post->ID );											// grab featured image						
+					}
 					if ( empty($thumb) ) {																	// if featured hasn't been set, check featured by default
 						$featured = 'checked="checked"';
 					}

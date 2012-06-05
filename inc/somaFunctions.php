@@ -79,8 +79,8 @@ class somaFunctions extends somaticFramework {
 		return array_keys($arr) !== range(0, count($arr) - 1);
 	}
 
-	// returns URL to facebook image!
-	function fetch_facebook_pic($pid,$size = "square") {
+	// returns URL to facebook image from facebook ID stored in post_meta
+	function fetch_facebook_pic($pid, $size = "square") {
 		// sizes: square, small, normal, large
 
 		$fid = somaFunctions::asset_meta('get', $pid, 'facebook_id');

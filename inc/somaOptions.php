@@ -46,6 +46,7 @@ class somaOptions extends somaticFramework  {
 			"favicon" => "",												// full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
 			"debug" => 0,													// debug mode output enabled (renders to debug bar if installed, ouput inline if not)
 			"p2p" => 1,														// require posts 2 posts plugin by scribu
+			"colorbox" => 0,												// enqueue Colorbox lightbox JS on front-end pages too (always active in admin)
 			"meta_prefix" => "_soma",										// prefix added to post_meta keys
 			"meta_serialize" => 0,											// whether to serialize somatic post_meta
 			'bottom_admin_bar' => 0,										// pin the admin bar to the bottom of the window
@@ -427,6 +428,7 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[bottom_admin_bar]" type="checkbox" value="1" <?php if (isset($soma_options['bottom_admin_bar'])) { checked('1', $soma_options['bottom_admin_bar']); } ?> /> Pin the Admin Bar to the bottom of the window</label><br />
 							<label><input name="somatic_framework_options[disable_drag_metabox]" type="checkbox" value="1" <?php if (isset($soma_options['disable_drag_metabox'])) { checked('1', $soma_options['disable_drag_metabox']); } ?> /> Disable dragging of metaboxes</label><br />
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if (isset($soma_options['p2p'])) { checked('1', $soma_options['p2p']); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
+							<label><input name="somatic_framework_options[colorbox]" type="checkbox" value="1" <?php if (isset($soma_options['colorbox'])) { checked('1', $soma_options['colorbox']); } ?> /> Enable Colorbox JS lightbox plugin on front-end</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 					</tr>
@@ -481,19 +483,20 @@ class somaOptions extends somaticFramework  {
 					<!-- Checkbox Buttons -->
 					<tr valign="top">
 						<th scope="row">
-							Disable Meta Boxes
+							Disable Meta Boxes <br />(All Types)
 						</th>
 						<td>
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="submitdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('submitdiv', $soma_options['disable_metaboxes'])); } ?> /> Publish</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="commentsdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('commentsdiv', $soma_options['disable_metaboxes'])); } ?> /> Comments</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="postcustom" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('postcustom', $soma_options['disable_metaboxes'])); } ?> /> Custom Fields</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="commentsdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('commentsdiv', $soma_options['disable_metaboxes'])); } ?> /> Discussion</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="trackbacksdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('trackbacksdiv', $soma_options['disable_metaboxes'])); } ?> /> Trackbacks</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="commentstatusdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('commentstatusdiv', $soma_options['disable_metaboxes'])); } ?> /> Comment Status</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="revisionsdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('revisionsdiv', $soma_options['disable_metaboxes'])); } ?> /> Revisions</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="authordiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('authordiv', $soma_options['disable_metaboxes'])); } ?> /> Author</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="postexcerpt" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('postexcerpt', $soma_options['disable_metaboxes'])); } ?> /> Post Excerpt</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 						<td>
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="postexcerpt" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('postexcerpt', $soma_options['disable_metaboxes'])); } ?> /> Post Excerpt</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="formatdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('formatdiv', $soma_options['disable_metaboxes'])); } ?> /> Post Formats</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="pageparentdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('pageparentdiv', $soma_options['disable_metaboxes'])); } ?> /> Attributes</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="postimagediv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('postimagediv', $soma_options['disable_metaboxes'])); } ?> /> Featured Image</label><br />

@@ -352,6 +352,7 @@ function soma_singular_term( $pid = null, $tax = null ) {
  * Outputs contents of variables for debugging purposes
  * Integrated with Debug Bar plugin (http://wordpress.org/extend/plugins/debug-bar/)
  * Depends on Kint class and the 'debug' option being true
+ * NOTE: php.ini must be configured with "output_buffering" set to ON, or you will see a bunch of "Cannot modify header information" warnings coming from Kint....
  *
  * @since 1.5
  * @param $data - variable to be rendered by Kint
@@ -361,7 +362,7 @@ function soma_singular_term( $pid = null, $tax = null ) {
 
 function soma_dump( $data, $inline = null ) {
 	global $soma_options;
-	if ( !$soma_options['debug'] ) return null;									// abort if debug option is off
+	if ( !$soma_options['debug'] ) return null;							// abort if debug option is off
 	if ( !class_exists('Kint') ) return null;							// abort if Kint doesn't exist
 	if ( !Kint::enabled() ) return null;								// abort if we don't have Kint to make output pretty
 	if ( $inline ) set_transient( 'debug_inline', true );				// make a note to force inline output
@@ -375,6 +376,7 @@ function soma_dump( $data, $inline = null ) {
  * Used by modified Kint class to avoid output buffer problems
  * And to store the buffer in a global variable to be fetched by the debug display functions
  * inspired by Kint Debugger https://wordpress.org/extend/plugins/kint-debugger/
+ * NOTE: php.ini must be configured with "output_buffering" set to ON, or you will see a bunch of "Cannot modify header information" warnings coming from Kint....
  *
  * @since 1.5
  * @param $buffer - incoming output buffer
