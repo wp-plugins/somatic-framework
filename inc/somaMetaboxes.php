@@ -24,11 +24,12 @@ class somaMetaboxes extends somaticFramework {
 		
 		// treat core post types differently
 		$type_obj = get_post_type_object($post->post_type);
-		$builtin = $type_obj->_builtin;
+		
+		if ($type_obj->somatic ) $warning = true; // identify this as a native CPT to differentiate between _builtin and CPT's defined by other plugins
 
 		if (empty(self::$data) || !self::$data) {
 			// THIS IS BAD - OUPTUTS BEFORE PAGE HEADERS
-			if (!$builtin) add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined! Make use of soma_metabox_data() [consult meta-config-example.php]'));
+			if ($warning) add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined! Make use of soma_metabox_data() [consult meta-config-example.php]'));
 		}
 
 		// hook for insertion before any box content
@@ -47,7 +48,7 @@ class somaMetaboxes extends somaticFramework {
 		}
 
 		// if no metaboxes were added, then none were declared or matched the post type
-		if (!$typehasabox && !$builtin) {
+		if (!$typehasabox && $warning) {
 			// THIS IS BAD - OUPTUTS BEFORE PAGE HEADERS
 			add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined for this custom post type! [consult meta-config-example.php]'));
 		}
@@ -297,7 +298,10 @@ class somaMetaboxes extends somaticFramework {
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'textarea':
-					echo '<textarea name="', $field['id'], '" id="', $field['id'], '" cols="60" rows="5" class="meta-textarea', $complete ? null : $missing, '" >', $meta ? $meta : $field['default'], '</textarea>';
+					if (empty($field['rows'])) {
+						$field['rows'] = 5;
+					}
+					echo '<textarea name="', $field['id'], '" id="', $field['id'], '" cols="60" rows="',$field['rows'],'" class="meta-textarea', $complete ? null : $missing, '" >', $meta ? $meta : $field['default'], '</textarea>';
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// custom richtext/HTML editor  http://codex.wordpress.org/Function_Reference/wp_editor

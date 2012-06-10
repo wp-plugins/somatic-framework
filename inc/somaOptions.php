@@ -17,7 +17,7 @@ class somaOptions extends somaticFramework  {
 		// add_action( 'personal_options_update', array(__CLASS__, 'save_extra_profile_fields') );	// unused
 		add_action( 'profile_update', array(__CLASS__, 'full_display_name') );						// automatically populate display name with fullname
 		add_action( 'user_register', array(__CLASS__, 'full_display_name') );						// automatically populate display name with fullname
-		add_filter( 'user_contactmethods', array(__CLASS__, 'extend_user_contactmethod'),10,1);		// mods contact fields on user profile
+		add_filter( 'user_contactmethods', array(__CLASS__, 'extend_user_contactmethod'));			// mods contact fields on user profile
 		add_action( 'admin_menu', array(__CLASS__, 'add_pages' ) );									// adds menu items to wp-admin
 		add_action( 'admin_init', array(__CLASS__, 'register_soma_options' ) );						// register settings to help with form saving and sanitizing
 		add_action( 'admin_action_flush', array(__CLASS__,'flush_rules' ) );						// dynamically generated hook created by the ID on forms POSTed from admin.php
@@ -402,15 +402,14 @@ class somaOptions extends somaticFramework  {
 
 		?>
 		<div class="wrap somatic-options">
-
+			<!-- page icon -->
 			<div id="icon-options-general" class="icon32"></div>
-			<h2>Somatic Framework</h2>
-
-			<h3 class="nav-tab-wrapper">
-				<a href="?page=somatic-framework-options" class="nav-tab <?php echo $active_tab == 'options' ? 'nav-tab-active' : ''; ?>">Options</a>
+			<!-- page title and tabbed navigation -->
+			<h2 class="nav-tab-wrapper">
+				<a href="?page=somatic-framework-options" class="nav-tab <?php echo $active_tab == 'options' ? 'nav-tab-active' : ''; ?>">Framework Options</a>
 				<a href="?page=somatic-framework-declarations" class="nav-tab <?php echo $active_tab == 'declarations' ? 'nav-tab-active' : ''; ?>">Declarations</a>
 				<a href="?page=somatic-framework-advanced" class="nav-tab <?php echo $active_tab == 'advanced' ? 'nav-tab-active' : ''; ?>">Advanced Functions</a>
-			</h3>
+			</h2>
 
 			<?php if ( $active_tab == 'options' ) :														// first tab output ?>
 
@@ -817,12 +816,14 @@ class somaOptions extends somaticFramework  {
 		}
 
 		// taxonomy listings
-		if ($query->is_tax) {			
-			$tax = get_taxonomy($query->queried_object->taxonomy);
-			foreach ($tax->object_type as $cpt) {
-				if ( is_array( $soma_options[ 'kill_paging' ] ) && in_array( $cpt, $soma_options[ 'kill_paging' ] ) ) {
-					$query->set('nopaging', true);
-					return $query;
+		if ($query->is_tax) {
+			if (!is_null($query->queried_object)) {
+				$tax = get_taxonomy($query->queried_object->taxonomy);
+				foreach ($tax->object_type as $cpt) {
+					if ( is_array( $soma_options[ 'kill_paging' ] ) && in_array( $cpt, $soma_options[ 'kill_paging' ] ) ) {
+						$query->set('nopaging', true);
+						return $query;
+					}
 				}
 			}
 		}

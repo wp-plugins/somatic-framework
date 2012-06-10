@@ -9,8 +9,8 @@ class somaFunctions extends somaticFramework {
 		add_filter( 'parse_query', array(__CLASS__,'filter_current_query' ));			// empty at the moment
 		add_filter( 'pre_get_posts', array(__CLASS__,'pre_get_posts'));
 		add_action( 'delete_post', array(__CLASS__, 'delete_attachments_when_parents_die' ));
-		add_filter( 'gettext',  array(__CLASS__, 'modify_core_language'  ));
-		add_filter( 'ngettext',  array(__CLASS__, 'modify_core_language'  ));
+		add_filter( 'gettext',  array(__CLASS__, 'modify_core_language'  ), 20, 3);
+		add_filter( 'ngettext',  array(__CLASS__, 'modify_core_language'  ), 20, 3);
 		// add_filter( 'login_redirect', array(__CLASS__, 'dashboard_redirect' ));
 		add_filter( 'add_menu_classes', array(__CLASS__, 'show_pending_number'));
 		// add_filter( 'wp_die_handler', array(__CLASS__, 'soma_wp_die_handler'),10,3);
@@ -258,7 +258,7 @@ class somaFunctions extends somaticFramework {
 
 
 	//** clone of core get_the_term_list() - modifies the URL output if inside admin to stay in admin and to link to the edit post listing screen, also - can output comma separated string instead of links
-	function fetch_the_term_list( $id = 0, $taxonomy, $before = '', $sep = '', $after = '', $output = 'html' ) {
+	function fetch_the_term_list( $id = 0, $taxonomy, $before = '', $sep = ', ', $after = '', $output = 'html' ) {
 		$terms = get_the_terms( $id, $taxonomy );
 		$type = get_post_type($id);
 		if ( is_wp_error( $terms ) )

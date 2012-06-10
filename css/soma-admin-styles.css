@@ -1,6 +1,7 @@
-/* @override http://www.placentawise.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.5.2
-	http://www.placentawise.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.6
-	http://clients.hypnobirthingutah.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.6 */
+/* @override 
+	http://sleepthiefmusic.com/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.6.4
+	http://wp.mises.net/wp-content/plugins/somatic-framework/css/soma-admin-styles.css?ver=1.6.4 */
+
 
 /* clicker button */
 
@@ -58,11 +59,30 @@
 
 /* metabox fields */
 
-.metabox-holder .form-table td {
+.metabox-holder td.field-label,
+.metabox-holder td.field-data {
 	margin-bottom: 0px;
-	padding: 14px 10px;
+	padding: 14px 0;
 	line-height: 20px;
 	font-size: 1em;
+}
+
+.metabox-holder td.field-label {
+	min-width: 50px;
+	width: 150px;
+	padding-right: 10px;
+	vertical-align: top;
+	font-weight: bold;
+}
+
+.metabox-holder td.field-data {
+	width: 100%;
+	display: block;
+}
+
+.metabox-holder td.field-data img,
+.metabox-holder td.field-data a img {
+	max-width: 100%;
 }
 
 .metabox-holder .form-table tr.fieldrow {
@@ -73,65 +93,38 @@
 	border-top: none;
 }
 
-.metabox-holder .form-table .field-label {
-	min-width: 50px;
-	width: 20%;
-	vertical-align: top;
-	font-weight: bold;
-}
-
-.metabox-holder .form-table .field-data {
-	width: 98%;
-	display: block;
-}
-
-.metabox-holder .form-table .field-data img,
-.metabox-holder .form-table .field-data a img {
-	max-width: 100%;
-	display: block;
-}
-
-
-.metabox-holder .form-table .field-data.field-option {
+.metabox-holder td.field-data.field-option {
 	margin-bottom: 0;
 	padding-bottom: 0;
 	padding-top: 0;
-	color: #acacac;
 }
 
-.metabox-holder .form-table .field-desc {
-	padding-top: 0;
-	padding-bottom: 10px;
+.metabox-holder td.field-desc {
 	color: #acacac;
 	font-style: italic;
 	line-height: 10px;
-	padding-bottom: 20px;
+	padding: 0 0 14px 0;
 }
 
-
-.metabox-holder .form-table .field-data input[type='text'],
-.metabox-holder .form-table .field-data input[type='file'] {
+.metabox-holder td.field-data input[type='text'],
+.metabox-holder td.field-data input[type='file'] {
 	width: 100%;
 }
 
-.metabox-holder .form-table .field-data input[alt='numeric'] {
+.metabox-holder td.field-data input[alt='numeric'] {
 	width: 110px;
 }
 /*	html5 media tags (mediaelement handles)*/
-.metabox-holder .form-table .field-data video {
+.metabox-holder td.field-data video {
 	display: block;
 	background: #666;
 	max-width: 100%;
 	height: auto;
 }
 
-.metabox-holder .form-table .field-data audio {	
+.metabox-holder td.field-data audio {	
 	width:100%;
 	display: block;
-}
-
-.metabox-holder .form-table .field-save {
-	width: 100%;
 }
 
 .metabox-holder p.help {
@@ -228,9 +221,6 @@ ul.meta-attachment-actions {
 	column-count: 2;
 	column-gap: 20px;
 }
-.meta-checkbox-single {
-	margin-right: 6px;
-}
 
 #side-sortables .meta-checkbox-multi {
 	-moz-column-count: 1;
@@ -239,6 +229,10 @@ ul.meta-attachment-actions {
 	-webkit-column-gap: 0px;
 	column-count: 1;
 	column-gap: 0px;
+}
+.meta-checkbox-multi label input,
+input.meta-checkbox-single {
+	margin-right: 6px;
 }
 
 

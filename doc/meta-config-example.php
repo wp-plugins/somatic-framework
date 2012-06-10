@@ -3,7 +3,10 @@
 //** it won't do you much good if you don't have the Somatic Framework installed **//
 
 
-add_action('admin_init', 'mysite_metabox_data' );								// define metabox vars only in admin
+add_action( 'admin_init', 'mysite_metabox_data' );										// define metabox vars only in admin
+add_action( 'add_meta_boxes_product', array('somaMetaboxes', 'add_boxes') );			// use our somatic metabox generator for another post type (maybe defined by another plugin)
+
+
 
 // add_action('soma_field_type_case', 'media_field_type', 10, 4);
 // add_filter('soma_field_fetch_meta', 'fetch_media_field', 10, 3);

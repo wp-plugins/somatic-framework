@@ -65,6 +65,7 @@ class somaTypes extends somaticFramework {
 			'labels' => $labels,											#wp
 			'menu_icon' => $data['icons'] . $slug . '-menu-icon.png',		#wp - use custom menu icon if defined
 			// non-core args (but get stored in the post type object)
+			'somatic' => true,												#soma - flag that this CPT was created with this framework (helps when dealing with mixed sources of CPTs)
 			'sort_by' => 'post_date',										#soma - how to filter the query when displaying this type - post_date, post_title, post_author, meta_value, menu_order - which also causes the admin sorting menu to appear
 			'sort_order' => 'DESC',											#soma - which direction to sort (wp default is DESC, but when manually choosing sort order, usually want to set this to ASC)
 			'sort_menu' => true,											#soma - (sort_by: manual) whether to show a sorting admin submenu for this type
@@ -88,8 +89,10 @@ class somaTypes extends somaticFramework {
 		if ( $args['create_nav_item'] ) {
 			if (is_admin()) {									// cut down on number of times we check, but it does mean won't create if we don't visit admin at least once
 				$existargs = array(
-				  'name' => $slug,
-				  'post_type' => 'nav_menu_item',
+					'name' => $slug,
+					'post_type' => 'nav_menu_item',
+					'showposts' => 1,
+					'post_status' => 'publish'
 				);
 				$exists = get_posts($existargs);				// check if we've already made one...
 				if ( empty( $exists ) ) {

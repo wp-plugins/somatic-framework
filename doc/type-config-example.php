@@ -98,10 +98,11 @@ function mysite_type_data() {
 	// establish relationships
 	if ( function_exists( 'p2p_register_connection_type' ) ) {
 		p2p_register_connection_type( array(
-			'id' => 'authors-works',
+			'id' => 'authors_to_works',
 			'from' => 'author',
-			'to' => array( 'resource','daily'),
+			'to' => array( 'books','articles'),
 			'sortable' => 'any',
+			'admin_column' => 'any'
 			'title' => array( 'to' => 'Authored By', 'from' => 'Works by this Author' )
 		) );
 	}
