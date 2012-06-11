@@ -50,6 +50,7 @@ class somaOptions extends somaticFramework  {
 			"meta_prefix" => "_soma",										// prefix added to post_meta keys
 			"meta_serialize" => 0,											// whether to serialize somatic post_meta
 			'bottom_admin_bar' => 0,										// pin the admin bar to the bottom of the window
+			"disable_admin_bar" => 0,										// hide the top admin bar on the front-end always
 			"kill_paging" => array(),										// array of post types slugs to filter wp_query to prevent automatic paging and always list all items
 			"kill_autosave" => array(),										// array of post types slugs to disable autosave
 			"kill_revisions" => array(),									// array of post types slugs to disable autosave
@@ -424,6 +425,7 @@ class somaOptions extends somaticFramework  {
 							General Options</th>
 						<td>
 							<label><input name="somatic_framework_options[debug]" type="checkbox" value="1" <?php if (isset($soma_options['debug'])) { checked('1', $soma_options['debug']); } ?> /> Debug Mode</label><br />
+							<label><input name="somatic_framework_options[disable_admin_bar]" type="checkbox" value="1" <?php if (isset($soma_options['disable_admin_bar'])) { checked('1', $soma_options['disable_admin_bar']); } ?> /> Hide the Admin Bar on front-end (remains in admin)</label><br />
 							<label><input name="somatic_framework_options[bottom_admin_bar]" type="checkbox" value="1" <?php if (isset($soma_options['bottom_admin_bar'])) { checked('1', $soma_options['bottom_admin_bar']); } ?> /> Pin the Admin Bar to the bottom of the window</label><br />
 							<label><input name="somatic_framework_options[disable_drag_metabox]" type="checkbox" value="1" <?php if (isset($soma_options['disable_drag_metabox'])) { checked('1', $soma_options['disable_drag_metabox']); } ?> /> Disable dragging of metaboxes</label><br />
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if (isset($soma_options['p2p'])) { checked('1', $soma_options['p2p']); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />

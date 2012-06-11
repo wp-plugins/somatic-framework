@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.6.7
+Version: 1.6.8
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -73,6 +73,7 @@ class somaticFramework {
 		add_action( 'admin_init', array(__CLASS__,'admin_init') );
 		add_action( 'admin_menu', array(__CLASS__,'admin_menu') );
 		add_action( 'admin_head', array(__CLASS__,'admin_head') );
+		add_filter( 'show_admin_bar', array(__CLASS__,'show_admin_bar') );
 		add_action( 'admin_footer', array(__CLASS__, 'admin_footer') );
 		add_filter( 'admin_footer_text', array(__CLASS__,'admin_footer_text') );
 		add_filter( 'plugin_action_links', array(__CLASS__, 'soma_plugin_action_links'), 10, 2 );
@@ -289,6 +290,15 @@ class somaticFramework {
 
 	function change_login_footer() {
 		echo "<div id=\"soma-login-footer\">Somatic Framework</div>\n";
+	}
+
+	function show_admin_bar() {
+		global $soma_options;
+		if ( $soma_options[ 'disable_admin_bar' ] ) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	// adds custom vars to query
