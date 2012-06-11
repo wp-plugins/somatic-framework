@@ -11,17 +11,12 @@ class somaOptions extends somaticFramework  {
 		add_action( 'wp', array(__CLASS__, 'soma_cron') );											// init our cron
 		add_action( 'soma_daily_event', array(__CLASS__, 'delete_autodrafts') );					// fire this every day
 		add_action( 'personal_options', array(__CLASS__, 'hide_profile_options') );					// hides some useless cruft, make profile simpler
-		// add_action( 'show_user_profile', array(__CLASS__, 'show_extra_profile_fields') );		// unused
-		// add_action( 'edit_user_profile', array(__CLASS__, 'show_extra_profile_fields') );		// unused
-		// add_action( 'edit_user_profile_update', array(__CLASS__, 'save_extra_profile_fields') );	// unused
-		// add_action( 'personal_options_update', array(__CLASS__, 'save_extra_profile_fields') );	// unused
-		add_action( 'profile_update', array(__CLASS__, 'full_display_name') );						// automatically populate display name with fullname
 		add_action( 'user_register', array(__CLASS__, 'full_display_name') );						// automatically populate display name with fullname
 		add_filter( 'user_contactmethods', array(__CLASS__, 'extend_user_contactmethod'));			// mods contact fields on user profile
 		add_action( 'admin_menu', array(__CLASS__, 'add_pages' ) );									// adds menu items to wp-admin
 		add_action( 'admin_init', array(__CLASS__, 'register_soma_options' ) );						// register settings to help with form saving and sanitizing
 		add_action( 'admin_action_flush', array(__CLASS__,'flush_rules' ) );						// dynamically generated hook created by the ID on forms POSTed from admin.php
-		// add_action( 'admin_action_purge', array(__CLASS__,'purge_all_data' ) );					// dynamically generated hook created by the ID on forms POSTed from admin.php
+
 		add_action( 'admin_action_export', array(__CLASS__,'export_settings' ) );					// dynamically generated hook created by the ID on forms POSTed from admin.php
 		add_action( 'admin_action_import', array(__CLASS__,'import_settings' ) );					// dynamically generated hook created by the ID on forms POSTed from admin.php
 		add_action( 'wp_dashboard_setup', array(__CLASS__, 'disable_dashboard_widgets'), 100);		// disable dashboard widgets
@@ -35,6 +30,12 @@ class somaOptions extends somaticFramework  {
 		add_action( 'wp_before_admin_bar_render', array(__CLASS__, 'disable_admin_bar_links' ) );	// removes admin bar items
 		add_action( 'get_header', array(__CLASS__, 'enable_threaded_comments' ));					// enables threaded comments
 
+		// add_action( 'show_user_profile', array(__CLASS__, 'show_extra_profile_fields') );		// unused
+		// add_action( 'edit_user_profile', array(__CLASS__, 'show_extra_profile_fields') );		// unused
+		// add_action( 'edit_user_profile_update', array(__CLASS__, 'save_extra_profile_fields') );	// unused
+		// add_action( 'personal_options_update', array(__CLASS__, 'save_extra_profile_fields') );	// unused
+		// add_action( 'admin_action_purge', array(__CLASS__,'purge_all_data' ) );					// dynamically generated hook created by the ID on forms POSTed from admin.php
+		// add_action( 'profile_update', array(__CLASS__, 'full_display_name') );						// automatically populate display name with fullname ** NOTE DISABLED THIS BECAUSE OF INFINITE LOOP CONFLICT WITH ANY OTHER PLUGIN THAT MODIFIES USER DATA
 	}
 
 	//** sets somatic framework options defaults on Activation of plugin
