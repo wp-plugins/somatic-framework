@@ -37,6 +37,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 = 1.6.8 =
 * removed hook that fired on user profile update, as it got stuck in a fatal infinite loop with any other plugin that tried to update a user...
+* changed SOMA_URL constant (and all others built on it) to use https:// scheme when in use
 
 = 1.6.7 =
 * fixed error in disabling paging for custom taxonomies defined elsewhere...

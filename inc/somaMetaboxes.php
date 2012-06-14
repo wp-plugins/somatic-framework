@@ -759,11 +759,6 @@ class somaMetaboxes extends somaticFramework {
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'media':
-
-					// add_action( 'admin_print_footer_scripts', create_function('', 'wp_enqueue_script( "jplayer" );') );
-					// add_action( 'admin_print_scripts', create_function('', 'wp_enqueue_script( "jplayer-inspector" );') );
-					// add_action( 'admin_print_styles', create_function('', 'wp_enqueue_style( "jplayer-style" );') );
-
 				// upload/modify media file button
 				$label = $meta ? "Modify Media File" : "Upload Media File";
 				echo "<a href=\"media-upload.php?post_id=$post->ID&amp;TB_iframe=1&amp;height=800&amp;width=640\" id=\"add_media\" class=\"thickbox clicker\" onclick=\"return false;\">$label</a>";
@@ -787,7 +782,7 @@ class somaMetaboxes extends somaticFramework {
 								$type = 'other';
 							break;
 						}
-						// output html5 tags (handled by mediaelement)
+						// output html5 tags (handled by mediaelement.js - separate plugin)
 						if ( $type == 'video') {
 							echo '<tr><td></td><td class="field-data">';
 							echo do_shortcode('[video src="'.$url.'"]');

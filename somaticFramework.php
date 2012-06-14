@@ -36,8 +36,13 @@ if (!function_exists('is_admin')) {
 
 // the server path to the plugin's directory
 define( 'SOMA_DIR', WP_PLUGIN_DIR . '/somatic-framework/' );
-// the URL path to the plugin's directory
-define( 'SOMA_URL', WP_PLUGIN_URL . '/somatic-framework/' );
+// the URL path to the plugin's directory - taking note of current scheme
+if ($_SERVER['HTTPS'] == 'on') {
+	$wp_plugin_url = str_replace( 'http://' , 'https://' , WP_PLUGIN_URL );
+} else {
+	$wp_plugin_url = WP_PLUGIN_URL;
+}
+define( 'SOMA_URL', $wp_plugin_url . '/somatic-framework/' );
 // the URL path to the plugin's image directory
 define( 'SOMA_IMG', SOMA_URL . 'images/' );
 // the server path to the plugin's includes
