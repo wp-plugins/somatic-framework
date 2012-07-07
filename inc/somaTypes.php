@@ -149,8 +149,10 @@ class somaTypes extends somaticFramework {
 	// columns retrieved from $type_data container
 	function custom_edit_columns($columns) {
 		global $post_type;
-		$first = array( "cb" => "<input type=\"checkbox\" />" );						// we always want to show the checkbox in the first column for bulk actions
-		$columns = array_merge($first, self::$type_data[$post_type]['columns']);		// combine with the user-defined columns
+		if (isset(self::$type_data[$post_type]['columns'])) {							// custom columns defined?
+			$first = array( "cb" => "<input type=\"checkbox\" />" );					// we always want to show the checkbox in the first column for bulk actions
+			$columns = array_merge($first, self::$type_data[$post_type]['columns']);	// combine with the user-defined columns
+		}
 		return $columns;
 	}
 
@@ -172,6 +174,24 @@ class somaTypes extends somaticFramework {
 				// case "artists":
 				// 	echo somaFunctions::fetch_the_term_list( $post->ID, 'artists','',', ');
 				// break;
+				
+				/* core columns
+				cb 
+					Checkbox for bulk actions.
+				title 
+					Post title.
+					Includes "edit", "quick edit", "trash" and "view" links. If $mode (set from $_REQUEST['mode']) is 'excerpt', a post excerpt is included between the title and links.
+				author 
+					Post author.
+				categories 
+					Categories the post belongs to.
+				tags 
+					Tags for the post.
+				comments 
+					Number of pending comments.
+				date 
+					The date and publish status of the post.
+				*/
 			}
 			do_action('soma_column_data', $column, $post);
 		}
@@ -505,7 +525,7 @@ class somaTypes extends somaticFramework {
 		// nothing matched, pass along unfiltered
 		return $query;
 	}
-	
+
 	// modifies SQL query orderby values BEFORE parsing - requires filter_current_query() to set the global $soma_current_query
 	// http://codex.wordpress.org/Custom_Queries
 	function posts_orderby( $orderby ) {
@@ -534,7 +554,7 @@ class somaTypes extends somaticFramework {
 		if ( !$obj->_builtin && $obj->sort_by == "meta_value" && isset( $obj->sort_key ) ) {
 			global $wpdb, $soma_options;
 			$key = $soma_options['meta_prefix'] . "_" . $obj->sort_key;		// assemble post_meta key
-			$join .= "LEFT JOIN $wpdb->postmeta ON ({$wpdb->posts}.ID = $wpdb->postmeta.post_id AND $wpdb->postmeta.meta_key = '$key')";		// join the post_meta table so we can sort by the meta_value 
+			$join .= "LEFT JOIN $wpdb->postmeta ON ({$wpdb->posts}.ID = $wpdb->postmeta.post_id AND $wpdb->postmeta.meta_key = '$key')";		// join the post_meta table so we can sort by the meta_value
 		}
 		return $join;
 	}

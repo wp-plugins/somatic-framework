@@ -2,7 +2,7 @@ jQuery(document).ready(function($) {
 	// debug
 	if ($().jquery != 'undefined') console.log("jquery version: "+$().jquery);			// jquery version
 	if ($.ui.version != 'undefined') console.log("jqueryUI version: "+$.ui.version);	// jqueryUI version
-	if (soma_vars != 'undefined') console.log(soma_vars);								// array of vars passed from admin.php
+	if (typeof soma_vars != 'undefined') console.log(soma_vars);								// array of vars passed from admin.php
 
 	// key commands for toggling the debug bar panels
 	if (soma_vars['debug_panel']) {

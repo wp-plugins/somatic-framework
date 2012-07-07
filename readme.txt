@@ -35,8 +35,17 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.6.9 = 
+* disabled privileges check in save_asset() that conflicted with paypal digital goods checkout
+* fixed bug that output junk to the login screen
+* fixed column listing error when no columns are defined in a CPT
+* changed save_asset() to not fire when quickedit is used
+* changed save_asset() to not wipe out our custom defined metadata and taxonomies when other forms/plugins call save_post
+* fixed problem where quickedit would fail to complete because of jQuery error (when custom columns were in use) - NOTE: after quickedit save updates, it won't show the custom columns - refresh the list page to see custom columns again
+
 = 1.6.8 =
 * removed hook that fired on user profile update, as it got stuck in a fatal infinite loop with any other plugin that tried to update a user...
+* changed SOMA_URL constant (and all others built on it) to use https:// scheme when in use
 
 = 1.6.7 =
 * fixed error in disabling paging for custom taxonomies defined elsewhere...

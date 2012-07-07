@@ -30,6 +30,7 @@ class somaSave extends somaticFramework {
 	}
 
 	function completion_validator($pid, $post = null) {
+		if ( somaFunctions::fetch_index($_POST, 'action') == "inline-save" ) return; //  NOTE: REMOVE THIS ONE IF GOING TO DISPLAY CUSTOM COLUMN BOXES IN QUICK EDIT
 		// don't do on autosave or for new post creation or when trashing post
 		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || $post->post_status == 'auto-draft'  || $_GET['action'] == 'trash' ) return $pid;
 		// abort if core post types
@@ -122,10 +123,12 @@ class somaSave extends somaticFramework {
 	//** Collect and save data from meta box fields -----------------------------------------------------------------------------------------------------------------------------------------------//
 	// NOTE: debugging any values within this function must be done with wp_die() not var_dump() otherwise won't show
 	function save_asset($pid, $post = null) {
-
-		// don't do on autosave or for new post creation or when trashing post
-		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || $post->post_status == 'auto-draft'  || $_GET['action'] == 'trash' ) return $pid;
-
+		// don't do on autosave or for new post creation or when trashing post or when using quick edit
+		if ( somaFunctions::fetch_index($_POST, 'action') == "inline-save" ) return; //  NOTE: REMOVE THIS ONE IF GOING TO DISPLAY CUSTOM COLUMN BOXES IN QUICK EDIT
+		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) return; 
+		if ( $post->post_status == 'auto-draft' ) return;
+		if ( somaFunctions::fetch_index($_GET,'action') == 'trash' ) return;
+		
 		// don't do for core post types ** now that we're adding metaboxes to core types, forget this
 		// if ($post->post_type == 'post' || $post->post_type == 'page') return;
 
@@ -152,7 +155,7 @@ class somaSave extends somaticFramework {
 
 		// check permissions
 		if (!current_user_can($cap_type, $pid)) {
-			wp_die('You are not allowed to edit '.$type, 'Save Error!', array('back_link' => true));
+			// wp_die('You are not allowed to edit '.$type, 'Save Error!', array('back_link' => true));		/// DISABLED - this was breaking woocommerce paypal digital goods checkout... maybe move this where it only executes when post type matches
 		}
 
 		// reset var for determining if fields are empty
@@ -169,18 +172,18 @@ class somaSave extends somaticFramework {
 				foreach ($meta_box['fields'] as $field) {
 
 					// readonly fields - skip saving completely. also skip the post_content editor, as it saves itself...
-					if ($field['type'] == 'readonly' || $field['type'] == 'posts' || $field['type'] == 'help' ) {
-						continue;
-					}
+					if ($field['type'] == 'readonly' || $field['type'] == 'posts' || $field['type'] == 'help' ) continue;
+					
+					// avoid issues with other forms/plugins calling save_post by skipping when our field is not included (otherwise all our custom data gets wiped)
+					if (!isset($_POST[$field['id']])) continue;
 
 					// retrieve existing data per type
 					if ($field['data'] == 'meta') {
 						$old = somaFunctions::asset_meta('get', $pid, $field['id']);
 					}
 					// skip saving one-time fields that already have data
-					if ($old && $field['once']) {
-						continue;
-					}
+					if ($old && $field['once']) continue;
+						
 					if ($field['data'] == 'taxonomy') {
 						$tax = wp_get_object_terms($pid, $field['id']);
 						if (!is_wp_error($tax)) { // make sure the term request didn't fail
