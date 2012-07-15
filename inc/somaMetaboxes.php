@@ -328,7 +328,7 @@ class somaMetaboxes extends somaticFramework {
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'upload': ?>
-						<input type="file" name="<?php echo $field['id']; ?>[]" id="" />
+						<input type="file" name="<?php echo $field['id']; ?>[]" />
 					</td></tr>
 					<tr>
 						<td></td>

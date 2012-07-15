@@ -88,7 +88,7 @@ class somaSorter extends somaticFramework {
 						'order' => 'ASC'
 					);
 					$query = new WP_Query($query_args);
-					soma_dump($query->posts);
+					// soma_dump($query->posts);
 					if ($query->post_count == 0) continue;				// didn't find any connected, so skip
 					 ?>
 					<h3><?php echo $project->post_title; ?></h3>

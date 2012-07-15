@@ -29,6 +29,7 @@ class somaOptions extends somaticFramework  {
 		add_filter( 'sanitize_option_somatic_framework_options', array(__CLASS__, 'sanitize_soma_options'), 10, 2);  // hooks into core update_option function to allow sanitizing before saving
 		add_action( 'wp_before_admin_bar_render', array(__CLASS__, 'disable_admin_bar_links' ) );	// removes admin bar items
 		add_action( 'get_header', array(__CLASS__, 'enable_threaded_comments' ));					// enables threaded comments
+		add_filter( 'screen_options_show_screen', array(__CLASS__, 'remove_screen_options'));		// optional disable screen options tab
 
 		// add_action( 'show_user_profile', array(__CLASS__, 'show_extra_profile_fields') );		// unused
 		// add_action( 'edit_user_profile', array(__CLASS__, 'show_extra_profile_fields') );		// unused
@@ -59,6 +60,7 @@ class somaOptions extends somaticFramework  {
 			"disable_dashboard" => array('quick_press','recent_drafts','recent_comments','incoming_links','plugins','primary','secondary','thesis_news_widget'),		// hide dashboard widgets from everyone
 			"disable_metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),									// hide metaboxes in post editor from everyone
 			"disable_drag_metabox" => 1,									// prevent users from dragging/rearranging metaboxes (even dashboard widgets)
+			"disable_screen_options" => 0,									// hide the screen options tab
 			"reset_default_options" => 0,									// will reset options to defaults next time plugin is activated
 			"plugin_db_version" => $version,
 		);
@@ -429,6 +431,7 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[disable_admin_bar]" type="checkbox" value="1" <?php if (isset($soma_options['disable_admin_bar'])) { checked('1', $soma_options['disable_admin_bar']); } ?> /> Hide the Admin Bar on front-end (remains in admin)</label><br />
 							<label><input name="somatic_framework_options[bottom_admin_bar]" type="checkbox" value="1" <?php if (isset($soma_options['bottom_admin_bar'])) { checked('1', $soma_options['bottom_admin_bar']); } ?> /> Pin the Admin Bar to the bottom of the window</label><br />
 							<label><input name="somatic_framework_options[disable_drag_metabox]" type="checkbox" value="1" <?php if (isset($soma_options['disable_drag_metabox'])) { checked('1', $soma_options['disable_drag_metabox']); } ?> /> Disable dragging of metaboxes</label><br />
+							<label><input name="somatic_framework_options[disable_screen_options]" type="checkbox" value="1" <?php if (isset($soma_options['disable_screen_options'])) { checked('1', $soma_options['disable_screen_options']); } ?> /> Disable Screen Options tab</label><br />
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if (isset($soma_options['p2p'])) { checked('1', $soma_options['p2p']); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
 							<label><input name="somatic_framework_options[colorbox]" type="checkbox" value="1" <?php if (isset($soma_options['colorbox'])) { checked('1', $soma_options['colorbox']); } ?> /> Enable Colorbox JS lightbox plugin on front-end</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
@@ -833,6 +836,12 @@ class somaOptions extends somaticFramework  {
 
 		// pass thru
 		return $query;
+	}
+	
+	//
+	function disable_screen_options() {
+		global $soma_options;
+		if ($soma_options['disable_screen_options']) return false;
 	}
 
 	//
