@@ -403,7 +403,7 @@ class somaSave extends somaticFramework {
 					}
 
 					// file uploads (creates attachments)  --------------------------------------------------------------//
-					if ($field['type'] == 'upload') {
+					if ($field['type'] == 'upload-files') {
 						if (!empty($_FILES[$field['id']])) {
 
 							self::fix_file_array($_FILES[$field['id']]); 							// reformats array to better process each item
@@ -430,6 +430,52 @@ class somaSave extends somaticFramework {
 									$attach_data = wp_generate_attachment_metadata($attach_id, $filename);
 									wp_update_attachment_metadata($attach_id, $attach_data);
 								}
+							}
+						}
+						continue; // skip everything else, we're not comparing old/new uploads...
+					}
+					
+					// image uploads (creates attachments)  --------------------------------------------------------------//
+					// uses hidden inputs for data retrieval
+					// keys passed for each image instance: file, url, mime/type
+					if ($field['type'] == 'upload-images') {
+						foreach ($_POST[$field['id']] as $incoming) {
+							if (file_exists($incoming['file'])) {
+								$attachment = array(
+									'post_mime_type' => $incoming['type'],
+									'post_title' => preg_replace('/\.[^.]+$/', '', basename($incoming['file'])),
+									'post_status' => 'inherit'
+								);
+								$attach_id = wp_insert_attachment($attachment, $incoming['file'], $pid);
+								// you must first include the image.php file
+								// for the function wp_generate_attachment_metadata() to work
+								require_once(ABSPATH . 'wp-admin/includes/image.php');
+								$attach_data = wp_generate_attachment_metadata($attach_id, $incoming['file']);
+								wp_update_attachment_metadata($attach_id, $attach_data);
+							}
+						}
+						continue; // skip everything else, we're not comparing old/new uploads...
+					}
+					
+					// image uploads (creates attachments and sets single as featured image)  --------------------------------------------------------------//
+					// uses hidden inputs for data retrieval
+					// keys passed for each image instance: file, url, mime/type
+					if ($field['type'] == 'upload-featured') {
+						foreach ($_POST[$field['id']] as $incoming) {
+							if (file_exists($incoming['file'])) {
+								$attachment = array(
+									'post_mime_type' => $incoming['type'],
+									'post_title' => preg_replace('/\.[^.]+$/', '', basename($incoming['file'])),
+									'post_status' => 'inherit'
+								);
+								$attach_id = wp_insert_attachment($attachment, $incoming['file'], $pid);
+								// you must first include the image.php file
+								// for the function wp_generate_attachment_metadata() to work
+								require_once(ABSPATH . 'wp-admin/includes/image.php');
+								$attach_data = wp_generate_attachment_metadata($attach_id, $incoming['file']);
+								wp_update_attachment_metadata($attach_id, $attach_data);
+								// set as featured image
+								set_post_thumbnail($pid, $attach_id);
 							}
 						}
 						continue; // skip everything else, we're not comparing old/new uploads...

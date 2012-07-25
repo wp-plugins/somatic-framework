@@ -75,6 +75,34 @@ function mysite_metabox_data() {
 				'data' => 'meta',
 				'desc' => 'Enter the URL of the image',
 			),
+			array(
+				'name' => 'Upload Images',
+				'id' => 'customid',											// html tag ID should be unique for each field on the edit page
+				'type' => 'upload-images',									// displays plUpload image uploader
+				'data' => 'none',											// indicates there is no saved data to be retrieved when displaying this field
+				'max' => 10,												// how many images should be allowed to be uploaded
+				'width' => 900,												// if indicated, image will be resized to max of this integer, but not cropped
+				'height' => 600,											// if indicated, image will be resized to max of this integer, but not cropped
+				'allowed' => array('jpg','png'),							// array of permitted file extensions for this instance (defaults to jpg, jpeg, gif, png)
+				'desc' => 'Photos must be 3:2 aspect ratio, in JPG or PNG format',
+			),
+			array(
+				'name' => 'Item Logo',
+				'id' => 'customid',
+				'type' => 'upload-featured',
+				'data' => 'featured',
+				'width' => 320,
+				'height' => 160,
+				'allowed' => array('png'),
+				'desc' => '',
+			),
+			array(
+				'name' => 'Attached Photos',
+				'id' => 'current-attachments',
+				'type' => 'attachment',
+				'data' => 'attachment',
+				'desc' => 'These are your current image attachments',
+			),
 		)
 	));
 

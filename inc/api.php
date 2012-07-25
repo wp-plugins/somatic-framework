@@ -447,6 +447,13 @@ function soma_set_option( $which = null, $new_value = null ) {
 	return $update;																			// true if success, false if fail
 }
 
+// checks to see if $_GET or $_POST values are set, avoids Undefined index error
+function soma_fetch_index($array = null, $index = null) {
+	if (is_null($array) || is_null($index)) return new WP_Error('missing', "Must pass an array and an index");
+	$value = somaFunctions::fetch_index($array, $index);
+	return $value;
+}
+
 // incomplete effort to consolidate notice reporting and have it output in the right place (rather than before the page headers)
 function soma_notices($type, $msg) {
 	switch ($type) {

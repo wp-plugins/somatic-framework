@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.6.9
+Version: 1.7.0
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -99,10 +99,14 @@ class somaticFramework {
 		add_filter( 'query_vars', array(__CLASS__,'query_vars' ) );
 		add_action( 'parse_request', array(__CLASS__, 'parse_request' ) );
 
-		// framework scripts and styles
-		wp_register_script( 'soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.6.4', true);
-		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.6.4', 'all' );
+		// admin scripts and styles
+		wp_register_script( 'soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.7.0', true);
+		wp_register_script( 'soma-metabox-jquery', SOMA_JS.'soma-metabox-jquery.js', array('jquery', 'jquery-ui-core'), '1.7.0', true);
+		wp_register_script( 'soma-plupload', SOMA_JS.'soma-plupload.js', array('jquery', 'jquery-ui-core'), '1.7.0', true);
+		wp_register_style( 'soma-admin-styles', SOMA_CSS.'soma-admin-styles.css', array(), '1.7.0', 'all' );
+		wp_register_style( 'soma-metabox-styles', SOMA_CSS.'soma-metabox-styles.css', array(), '1.7.0', 'all' );
 
+		// front-end scripts and styles
 		wp_register_script( 'soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
 		wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.6', 'all' );
 		wp_register_style( 'soma-login', SOMA_CSS.'soma-login-styles.css', array(), '1.6', 'all' );
@@ -167,9 +171,11 @@ class somaticFramework {
 		}
 		$params = array(
 			'SOMA_JS' => SOMA_JS,
-			'SOMA_DIR' => SOMA_IMG,
+			'SOMA_IMG' => SOMA_IMG,
 			'SOMA_URL' => SOMA_URL,
 			'SOMA_INC' => SOMA_INC,
+			'loading-spin' => admin_url('images/wpspin_light.gif'),
+			'loading-bar' => includes_url('js/thickbox/loadingAnimation.gif'),
 			'pid' => $pid,
 			'type' => $type,
 			'getsize' => 'thumb',
@@ -182,16 +188,23 @@ class somaticFramework {
 	}
 
 	// hooking admin for scripts and styles!
-	function admin_enqueue_scripts() {
+	function admin_enqueue_scripts($page) {
 		wp_enqueue_script( 'soma-admin-jquery' );
 		wp_enqueue_script( 'colorbox' );
 		// wp_enqueue_script( 'autosize' );
-		wp_enqueue_script( 'jquery-ui-datepicker' );
-		wp_enqueue_script( 'jquery-ui-timepicker' );
-		wp_enqueue_style( 'soma-admin' );
+		wp_enqueue_style( 'soma-admin-styles' );
 		wp_enqueue_style( 'colorbox-theme' );
-		wp_enqueue_style( 'jquery-ui-theme' );
-		wp_enqueue_style( 'jquery-ui-timepicker' );
+
+		// only on edit pages (custom metaboxes)
+		if ($page == 'post.php' || $page == 'post-new.php') {
+			wp_enqueue_script( 'soma-metabox-jquery' );
+			wp_enqueue_script( 'jquery-ui-datepicker' );
+			wp_enqueue_script( 'jquery-ui-timepicker' );
+			wp_enqueue_style( 'jquery-ui-theme' );
+			wp_enqueue_style( 'jquery-ui-timepicker' );
+			wp_enqueue_style( 'soma-metabox-styles' );
+		}
+
 	}
 
 	// hooking login for scripts and styles!

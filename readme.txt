@@ -3,8 +3,8 @@ Contributors: somatic
 Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
-Tested up to: 3.3.2
-Stable tag: 1.6.9
+Tested up to: 3.4.1
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Adds useful classes for getting the most out of Wordpress' advanced CMS features
 
 == Description ==
 
-This framework is a collection of classes and functions for handling advanced custom post types cases. With just a defined arrays, it can create custom post types, their labels, menus, metaboxes, save routines, and any custom taxonomies.
+This framework is a collection of classes and functions for handling advanced custom post types cases. With just a few defined arrays, it can create custom post types, taxonomies, their labels, menus, metaboxes, and save routines.
 
 NOTE: this began life as an internal development tool, and as such, does not have much (if any documentation) just yet. It's not really end-user friendly in its current state. So if you're not running a site I have built for you personally, you probably don't need it ;-)
 
@@ -20,20 +20,21 @@ NOTE: this began life as an internal development tool, and as such, does not hav
 
 Upload, activate, have a drink... but first, install and activate Scribu's excellent Posts 2 Posts plugin, which this framework requires!
 
-
 == Frequently Asked Questions ==
 
 = Do I need this plugin? =
 
 If you're using a theme or setting up a site I built for you, then very likely, yes...
 
-Otherwise, not yet ;-)
-
 = I updated my call to soma_init_taxonomy() and added new terms, but why aren't they appearing? =
 
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.7.0 =
+* NEW image uploader metabox field type. Uses WP included plUpload for drag-n-drop, queued uploads, creates attachments upon saving. Can also be used for featured images.
+* new option to disable screen options tab
 
 = 1.6.9 = 
 * disabled privileges check in save_asset() that conflicted with paypal digital goods checkout

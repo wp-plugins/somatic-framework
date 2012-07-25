@@ -29,7 +29,7 @@ class somaOptions extends somaticFramework  {
 		add_filter( 'sanitize_option_somatic_framework_options', array(__CLASS__, 'sanitize_soma_options'), 10, 2);  // hooks into core update_option function to allow sanitizing before saving
 		add_action( 'wp_before_admin_bar_render', array(__CLASS__, 'disable_admin_bar_links' ) );	// removes admin bar items
 		add_action( 'get_header', array(__CLASS__, 'enable_threaded_comments' ));					// enables threaded comments
-		add_filter( 'screen_options_show_screen', array(__CLASS__, 'remove_screen_options'));		// optional disable screen options tab
+		add_filter( 'screen_options_show_screen', array(__CLASS__, 'disable_screen_options'));		// optional disable screen options tab
 
 		// add_action( 'show_user_profile', array(__CLASS__, 'show_extra_profile_fields') );		// unused
 		// add_action( 'edit_user_profile', array(__CLASS__, 'show_extra_profile_fields') );		// unused

@@ -21,10 +21,10 @@ class somaMetaboxes extends somaticFramework {
 
 	// called in the custom post type registration, responsible for rendering metaboxes in those types
 	function add_boxes($post) {
-		
+
 		// treat core post types differently
 		$type_obj = get_post_type_object($post->post_type);
-		
+
 		if ($type_obj->somatic ) $warning = true; // identify this as a native CPT to differentiate between _builtin and CPT's defined by other plugins
 
 		if (empty(self::$data) || !self::$data) {
@@ -86,7 +86,9 @@ class somaMetaboxes extends somaticFramework {
 	textarea
 	richtext (using wp_editor())
 	html
-	upload
+	upload-files
+	upload-images
+	upload-feature
 	select
 	radio
 	checkbox-single
@@ -172,6 +174,12 @@ class somaMetaboxes extends somaticFramework {
 			if ($field['data'] == 'attachment') {
 				$meta = somaFunctions::fetch_attached_media($post->ID, $field['type']);
 			}
+			
+			// get media attachment
+			if ($field['data'] == 'featured') {
+				$meta = get_post_thumbnail_id( $post->ID );
+				if (empty($meta)) $meta = null;
+			}
 
 			// get connected posts by types and direction
 			if ($field['data'] == 'p2p') {
@@ -242,8 +250,8 @@ class somaMetaboxes extends somaticFramework {
 			// define css class injection when missing $meta
 			$missing = ' missing';
 
-			// if there's a default option, or it's not required, don't add the "missing" class
-			if ($field['default'] != '' || $field['required'] != true) {
+			// if there's a default option, or it's not required, or this is a UI element, don't add the "missing" class
+			if ($field['default'] != '' || $field['required'] != true || $field['data'] == 'none') {
 				$complete = true;
 			}
 
@@ -327,13 +335,38 @@ class somaMetaboxes extends somaticFramework {
 					wp_editor( $meta, $field['id'], $args );					// Note that the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction.
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
-				case 'upload': ?>
-						<input type="file" name="<?php echo $field['id']; ?>[]" />
+				case 'upload-files' :
+?>					<input type="file" name="<?php echo $field['id']; ?>[]" />
 					</td></tr>
 					<tr>
-						<td></td>
-						<td><a class="addinput" href="#" rel="<?php echo $field['id']; ?>">Add More Files</a>
-					<?php
+					<td></td>
+					<td><a class="addinput" href="#" rel="<?php echo $field['id']; ?>">Add More Files</a>
+<?php
+				break;
+
+				// ----------------------------------------------------------------------------------------------------------------------------- //
+				case 'upload-images':
+					$uploader = new somaUploadField($field);
+					$uploader->print_scripts();
+					$uploader->html();
+					$dodesc = false;
+				break;
+
+				// ----------------------------------------------------------------------------------------------------------------------------- //
+				case 'upload-featured':
+					if ($meta) {
+						// $url = wp_get_attachment_url($meta);
+						echo '<ul class="featured-image">';
+						echo '<li class="meta-attachment-item">';
+						echo '<a href="'.wp_get_attachment_url($meta).'" class="colorbox" rel="attachment-gallery">'. wp_get_attachment_image($meta, 'medium', false, array('title'=>'Click to Zoom', 'class' => 'pic')) . '</a>';
+						echo '<ul class="meta-attachment-actions">';
+						echo '<li><a class="delete-attachment" href="#" rel="'.$meta.'" title="Delete this file" data-nonce="'.wp_create_nonce("soma-delete-attachment").'" data-featured="true">Remove Image</a><img src="'.admin_url('images/wpspin_light.gif').'" class="kill-animation" style="display:none;" alt="" /></li>';
+						echo '</ul></li></ul>';
+					}
+					$uploader = new somaUploadField($field, true, $meta);
+					$uploader->print_scripts();
+					$uploader->html();
+					$dodesc = false;
 				break;
 
 				// ----------------------------------------------------------------------------------------------------------------------------- //
@@ -363,18 +396,15 @@ class somaMetaboxes extends somaticFramework {
 								case "application/zip" :
 									echo '<a href="'.wp_get_attachment_url($att->ID).'" target="blank"><img src="'. SOMA_IMG . 'zip-doc.png" /></a>';
 								break;
-								case "image/jpeg" :
-									echo '<a href="'.wp_get_attachment_url($att->ID).'" class="colorbox">'. wp_get_attachment_image($att->ID, 'thumbnail', false, array('title'=>'Click to Zoom'));
-								break;
-								case "image/jpg" :
-									echo '<a href="'.wp_get_attachment_url($att->ID).'" class="colorbox">'. wp_get_attachment_image($att->ID, 'thumbnail', false, array('title'=>'Click to Zoom'));
+								case ("image/jpeg" || "image/jpg" || "image/png") :
+									echo '<a href="'.wp_get_attachment_url($att->ID).'" class="colorbox" rel="attachment-gallery">'. wp_get_attachment_image($att->ID, 'thumbnail', false, array('title'=>'Click to Zoom', 'class' => 'pic')) . '</a>';
 								break;
 							}
 						echo '<br />';
 						echo '<ul class="meta-attachment-actions">';
 							$dl_url = get_option('siteurl') . "?download={$att->ID}&security=" . wp_create_nonce( "soma-download" );
 							echo "<li><a href=\"$dl_url\" title=\"Download this file\">Download File</a></li>";
-							echo '<li><a class="deletefile" href="#" rel="'.$att->ID.'" title="Delete this file">Delete File</a></li>';
+							echo '<li><a class="delete-attachment" href="#" rel="'.$att->ID.'" title="Delete this file" data-nonce="'.wp_create_nonce("soma-delete-attachment").'">Delete File</a><img src="'.admin_url('images/wpspin_light.gif').'" class="kill-animation" style="display:none;" alt="" /></li>';
 						echo '</ul>';
 						echo '</li>';
 					endforeach;
@@ -710,7 +740,7 @@ class somaMetaboxes extends somaticFramework {
 						$import = 'checked="checked"';														// we haven't, so check import by default
 					}
 					if (function_exists('get_post_thumbnail_id')) {
-						$thumb = get_post_thumbnail_id( $post->ID );											// grab featured image						
+						$thumb = get_post_thumbnail_id( $post->ID );											// grab featured image
 					}
 					if ( empty($thumb) ) {																	// if featured hasn't been set, check featured by default
 						$featured = 'checked="checked"';
@@ -803,9 +833,9 @@ class somaMetaboxes extends somaticFramework {
 			// hook to output case-specific metabox types not specified above
 			do_action('soma_field_type_case', $post, $meta, $field, $complete);
 
-			// output row for field description and close tags
+			// output td for field description and close tags
 			if ($dodesc) {
-				echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null;
+				echo $field['desc'] ? "</td></tr>\n<tr class=\"desc-row\">\n<td class=\"field-label\"></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				echo '</td></tr>';
 			}
 		}

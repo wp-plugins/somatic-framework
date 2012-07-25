@@ -19,7 +19,8 @@ class somaFunctions extends somaticFramework {
 		add_filter( 'map_meta_cap', array(__CLASS__, 'admin_map_meta_cap'), 10, 4);
 		remove_filter('check_comment_flood', 'check_comment_flood_db');					// deal with "posting too quickly" problem....
 		add_filter( 'edit_posts_per_page', array(__CLASS__, 'edit_list_length'));
-		add_action( 'wp_ajax_unlink_file', array(__CLASS__, 'unlink_file'));
+		add_action( 'wp_ajax_unlink_file', array(__CLASS__, 'ajax_unlink_file'));
+		add_action( 'wp_ajax_delete_attachment', array(__CLASS__, 'ajax_delete_attachment'));
 		// add_action( 'admin_notices', array(__CLASS__,'soma_notices'));
 	}
 
@@ -1240,13 +1241,44 @@ SQL;
 	}
 
 	// AJAX delete images on the fly.
-	function unlink_file() {
-		global $wpdb;
-		if ($_POST['data']) {
-			$att_id = $_POST['data'];
-			wp_delete_attachment($att_id, true);
+	// can't use nonce checking because the elements calling this function are dynamically created in javascript
+	function ajax_unlink_file() {
+		$file = somaFunctions::fetch_index($_POST, 'data');		// retrieve file from ajax post
+		if ($file && file_exists($file)) {						// make sure it's there
+			soma_dump($file);
+			$delete = unlink($file);							// kill it
+			if ($delete) {
+				$response = array( 'success' => true, 'msg' => 'Successfully deleted the uploaded file!' );
+			} else {
+				$response = array( 'error' => true, 'msg' => 'Could not delete the uploaded file...' );
+			}
+		} else {
+			$response = array( 'error' => true, 'msg' => 'Could not find the file to delete...' );
 		}
+		echo json_encode( $response );
+		exit;
 	}
+	
+	// AJAX delete attachments
+	function ajax_delete_attachment() {
+		$nonce = check_ajax_referer( 'soma-delete-attachment', 'nonce', false );
+		if (!$nonce) {
+			$response = array( 'error' => true, 'msg' => 'nonce verification failed...' );	
+			echo json_encode( $response );
+			exit;
+		}
+		$att_id = somaFunctions::fetch_index($_POST, 'data');
+		if ($att_id) {
+			$result = wp_delete_attachment($att_id, true);
+			$response = array( 'success' => true, 'msg' => $result );
+		} else {
+			$response = array( 'error' => true, 'msg' => 'Could not find the attachment...' );
+		}
+		echo json_encode( $response );
+		exit;
+	}
+	
+	
 
 	// grabs metadata from public vimeo API, returns array
 	function fetch_vimeo_meta( $link = null ) {

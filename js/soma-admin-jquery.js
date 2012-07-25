@@ -1,8 +1,10 @@
 jQuery(document).ready(function($) {
 	// debug
-	console.log("jquery version: "+$().jquery);	// jquery version
-	console.log("jqueryUI version: "+$.ui.version);	// jquery version
-	console.log(soma_vars);	// array of vars passed over by wp_localize_script()
+	if (soma_vars['debug'] == 'true') {
+		console.log("jquery version: "+$().jquery);	// jquery version
+		console.log("jqueryUI version: "+$.ui.version);	// jquery version
+		console.log(soma_vars);	// array of vars passed over by wp_localize_script()		
+	}
 	
 	// pull in GET Vars
 	$._GET = [];
@@ -16,145 +18,6 @@ jQuery(document).ready(function($) {
 			}
 		}
 	}
-
-	// limit characters for numeric input
-	$("input[alt=numeric]").keydown(function(event) {
-		switch (true) {
-			case( event.keyCode > 32 && event.keyCode < 47 ):
-				// pageup, pagedown, home, end, arrows, insert, delete
-			break;
-			case( event.keyCode > 47 && event.keyCode < 58 ):
-				// standard numbers
-			break;
-			case( event.keyCode > 95 && event.keyCode < 106 ):
-				// keypad numbers
-			break;
-			case ( event.keyCode == 8		// backspace
-				|| event.keyCode == 9		// tab
-				|| event.keyCode == 17		// control
-				|| event.keyCode == 109 	// dash
-				|| event.keyCode == 110 	// period
-				|| event.keyCode == 189 	// subtract
-				|| event.keyCode == 190		// decimal
-				|| event.keyCode == 186		// colon (for time)
-				):
-			break;
-			default:
-				event.preventDefault();		// stop character entry
-		}
-	});
-
-	// jquery UI datepicker for metaboxes
-	$( ".datepicker" ).each(function(){
-		$(this).datepicker({
-			dateFormat: 'yy-mm-dd',	// will store selected date in hidden input field in ISO8601 format - matches php format Y-m-d
-			// gotoCurrent: true,
-			showButtonPanel: true,
-			showOn: 'button',
-			buttonImage: soma_vars.SOMA_JS + 'ui/calendar-icon.png',
-			buttonImageOnly: true,
-			buttonText: 'Click to Select',
-			altField: $(this).next('.datemirror'),	// display human-readable date in dummy field
-			altFormat: "MM dd, yy"
-		});
-	});
-	
-	// jquery UI datepicker for metaboxes
-	$( ".timepicker" ).timepicker({
-		// timeFormat: 'hh:mm:ss',	// matches php format H:i:s
-		timeFormat: 'h:mm TT',	// matches php format H:i:s
-		ampm: true,
-		stepHour: 1,
-		stepMinute: 5,
-		hourMin: 1,
-		hourMax: 23,
-		hourGrid: 4,
-		minuteGrid: 10,
-		showOn: 'button',
-		showSecond: false,
-		buttonImage: soma_vars.SOMA_JS + '/ui/clock-icon.png',
-		buttonImageOnly: true,
-		buttonText: 'Click to Select',
-		// altField: $(this).next('.timemirror'),	// display human-readable date in dummy field
-		// altFormat: "h:mm TT"
-	});
-
-	// mirror contents of hidden time input field to #humantime field - needed as the "altField" option doesn't seem to work with timepicker extension of datepicker...
-	$( ".timepicker" ).change(function(){
-		$(this).siblings('input').val($(this).val());
-	});
-
-	// removes missing class when the user clicks on input field
-	$(":input").focus(function(){
-		if ($(this).hasClass("missing") ) {
-			$(this).removeClass("missing");
-		}
-		// for the p2p input box
-		if ($(this).parents('div').hasClass("missing") ) {
-			$(this).parents('div').removeClass("missing");
-		}
-	});
-
-	$(':checkbox, :radio').click(function () {
-	    $(this).parents('ul').removeClass("missing");
-	});
-
-	// removes missing class when the user clicks on picker button
-	$(".ui-datepicker-trigger").click(function(){
-		if ($(this).siblings('input').hasClass("missing") ) {
-			$(this).siblings('input').removeClass("missing");
-		}
-	});
-
-	// removes missing class when the user clicks on picker button
-	$(".ui-timepicker-trigger").click(function(){
-		if ($(this).siblings('input').hasClass("missing") ) {
-			$(this).siblings('input').removeClass("missing");
-		}
-	});
-
-
-	// clears value from UI datepicker (and hidden form input)
-	$(".datereset").click(function(){
-		$(this).siblings('.datepicker').datepicker( "setDate" , null );
-		$(this).siblings('.datemirror').val('(none selected)');
-	});
-
-	// clears value from UI datepicker (and hidden form input)
-	$(".timereset").click(function(){
-		$(this).siblings('.timepicker').datepicker( "setDate" , null );
-		$(this).siblings('.timemirror').val('(none selected)');
-	});
-
-
-
-	// clones additional inputs
-	$(".addinput").click(function() {
-		rowid = $(this).attr("rel");
-		$("#"+rowid+"-row input:first").clone().insertAfter("#"+rowid+"-row input:last").show();
-		return false;
-	});
-
-	// ajax file attachment killer
-	$("a.deletefile").click(function () {
-		if (confirm('Are you sure you want to delete this file?')) {
-			var parent = jQuery(this).parent(),
-				data = jQuery(this).attr("rel"),
-				_wpnonce = $("input[name='_wpnonce']").val();
-
-			$.post(
-				ajaxurl,
-				{ action: 'unlink_file', _wpnonce: _wpnonce, data: data },
-				function(response){
-					//$("#info").html(response).fadeOut(3000);
-					// alert(data.post);
-				},
-				"json"
-			);
-			parent.fadeOut("slow");
-		}
-		return false;
-	});
 
 	// colorbox activation through manual class assignment
 	$(".colorbox").colorbox({
@@ -210,7 +73,7 @@ jQuery(document).ready(function($) {
 
 
 	// key commands for toggling the debug bar panels
-	if (soma_vars['debug_panel']) {
+	if (soma_vars['debug_panel'] == 'true') {
 		$(document).keydown(function(event) {
 			switch (true) {
 				// backslash (mini-panel)
