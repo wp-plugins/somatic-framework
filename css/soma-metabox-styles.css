@@ -159,10 +159,12 @@ li.meta-attachment-item {
 	margin: 0 10px 10px 0;
 	vertical-align: top;
 	list-style-type: none;
+	display: inline-block;
 }
 .featured-image .meta-attachment-item {
 	margin-right: 0;
 	margin-bottom: 0;
+	display: block;
 }
 
 li.meta-attachment-item .pic {
