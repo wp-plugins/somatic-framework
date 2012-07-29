@@ -39,6 +39,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * NEW soma_option for setting the Login page logo
 * custom login logos should be transparent PNG of 320x70 exactly, with content aligned bottom center for best results
 * stopped hiding user profile fields
+* now using transients with soma_set_option(), allowing caching, reducing DB load when calling soma_set_option() on every page load
 
 = 1.7.1 =
 * fixed stripslashes problem with quotes in text fields
