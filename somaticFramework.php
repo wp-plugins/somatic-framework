@@ -307,6 +307,11 @@ class somaticFramework {
 	}
 
 	function change_login_footer() {
+		if (class_exists('WpePlugin_common')) {
+			echo "<div id=\"wpengine-login-footer\">";
+			echo '<img src="'.SOMA_IMG.'wpengine.png" alt="Hosted by WP Engine"/>';
+			echo "</div>\n";
+		}
 		echo "<div id=\"soma-login-footer\">Somatic Framework</div>\n";
 	}
 

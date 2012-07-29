@@ -32,6 +32,9 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.7.1 =
+* login page credit to WPEngine
+
 = 1.7.0 =
 * NEW image uploader metabox field type. Uses WP included plUpload for drag-n-drop, queued uploads, creates attachments upon saving. Can also be used for featured images.
 * new option to disable screen options tab

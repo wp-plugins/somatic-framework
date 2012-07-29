@@ -34,6 +34,11 @@ class somaTypes extends somaticFramework {
 			$plural = $data['plural'];
 		}
 
+		if ( is_array($data['args']['supports']) && empty($data['args']['supports']) ) {
+			$supports = array();	
+		} else {
+			$supports = array( 'editor', 'title', 'thumbnail' );
+		}
 
 		// generate labels
 		$labels = array(

@@ -537,7 +537,7 @@ class somaSave extends somaticFramework {
 						}
 
 						if ($field['data'] == 'core') {
-							if ($field['type'] == "richtext" || $field['type'] == "textarea") {
+							if ($field['type'] == "richtext" || $field['type'] == "textarea" || $field['type'] == "text") {
 								$new = stripslashes($new);									// because tinymce adds them.... even though we're using the_editor()...
 							}
 							$wpdb->update( $wpdb->posts, array( $field['id'] => $new ), array( 'ID' => $pid ));

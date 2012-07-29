@@ -1,3 +1,10 @@
+/* @override 
+	http://sleepthiefmusic.com/wp-content/plugins/somatic-framework/css/soma-login-styles.css?ver=1.6 */
+
+#login {
+	z-index: 100;
+}
+
 body.login { background-color: #e6e8ea;
 position: relative;
 }
@@ -55,7 +62,16 @@ body.login #backtoblog a:hover { color: #000 !important }
 	letter-spacing: 10px;
 	text-shadow: 1px 1px 0 #f6f6f6;
 	text-align: center;
-	font: bold 14px "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;	
+	font: bold 14px "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+}
+
+#wpengine-login-footer {
+	position: fixed;
+	width: 100%;
+	bottom: 80px;
+	display: block;
+	text-align: center;
+	opacity: .6;
 }
 
 

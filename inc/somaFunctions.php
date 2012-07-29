@@ -24,26 +24,6 @@ class somaFunctions extends somaticFramework {
 		// add_action( 'admin_notices', array(__CLASS__,'soma_notices'));
 	}
 
-	function console_debug($stuff, $type = null) {
-		// var_dump(func_get_args());
-		// switch ($type) {
-		// 	case "warn" :
-		// 		ChromePhp::warn($stuff);
-		// 		FB::warn($stuff);
-		// 	break;
-		// 	case "error" :
-		// 		ChromePhp::error($stuff);	
-		// 		FB::error($stuff);	
-		// 	break;
-		// 	default:
-		// 		return $stuff;
-		// 		// ChromePhp::log($stuff);
-		// 		// FB::log($stuff);
-		// 	break;
-		// }
-		// return true;
-	}
-
 	function init() {
 		// localization init needed?? no translations yet
 		// load_plugin_textdomain( 'stock-media-asset-manager', SOMA_DIR . '/lang', basename( dirname( __FILE__ ) ) . '/lang' );
