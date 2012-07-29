@@ -8,9 +8,10 @@ class somaOptions extends somaticFramework  {
 
 	function __construct() {
 		add_action( 'init', array( __CLASS__, 'soma_global_options' ), 7 );							// populate global variable with options to avoid additional DB queries - try to hook earlier than normal...
+		add_action( 'init', array(__CLASS__, 'show_admin_bar'), 9 );								// gotta get in early to execute before _wp_admin_bar_init()
 		add_action( 'wp', array(__CLASS__, 'soma_cron') );											// init our cron
 		add_action( 'soma_daily_event', array(__CLASS__, 'delete_autodrafts') );					// fire this every day
-		add_action( 'personal_options', array(__CLASS__, 'hide_profile_options') );					// hides some useless cruft, make profile simpler
+		// add_action( 'personal_options', array(__CLASS__, 'hide_profile_options') );					// hides some useless cruft, make profile simpler
 		add_action( 'user_register', array(__CLASS__, 'full_display_name') );						// automatically populate display name with fullname
 		add_filter( 'user_contactmethods', array(__CLASS__, 'extend_user_contactmethod'));			// mods contact fields on user profile
 		add_action( 'admin_menu', array(__CLASS__, 'add_pages' ) );									// adds menu items to wp-admin
@@ -29,7 +30,8 @@ class somaOptions extends somaticFramework  {
 		add_filter( 'sanitize_option_somatic_framework_options', array(__CLASS__, 'sanitize_soma_options'), 10, 2);  // hooks into core update_option function to allow sanitizing before saving
 		add_action( 'wp_before_admin_bar_render', array(__CLASS__, 'disable_admin_bar_links' ) );	// removes admin bar items
 		add_action( 'get_header', array(__CLASS__, 'enable_threaded_comments' ));					// enables threaded comments
-		add_filter( 'screen_options_show_screen', array(__CLASS__, 'disable_screen_options'));		// optional disable screen options tab
+		add_filter( 'screen_options_show_screen', array(__CLASS__, 'disable_screen_options'), 10, 2);		// optional disable screen options tab
+		add_action( "user_register", array(__CLASS__, "user_admin_bar_false_by_default"), 10, 1);	// force option off when new user created
 
 		// add_action( 'show_user_profile', array(__CLASS__, 'show_extra_profile_fields') );		// unused
 		// add_action( 'edit_user_profile', array(__CLASS__, 'show_extra_profile_fields') );		// unused
@@ -46,13 +48,14 @@ class somaOptions extends somaticFramework  {
 
 		$defaults = array(
 			"favicon" => "",												// full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
+			"login_logo" => "",												// full url path to a .png, usually set in a theme - framework will output inline CSS to display login logo, overriding default WP one
 			"debug" => 0,													// debug mode output enabled (renders to debug bar if installed, ouput inline if not)
 			"p2p" => 1,														// require posts 2 posts plugin by scribu
 			"colorbox" => 0,												// enqueue Colorbox lightbox JS on front-end pages too (always active in admin)
 			"meta_prefix" => "_soma",										// prefix added to post_meta keys
 			"meta_serialize" => 0,											// whether to serialize somatic post_meta
 			'bottom_admin_bar' => 0,										// pin the admin bar to the bottom of the window
-			"disable_admin_bar" => 0,										// hide the top admin bar on the front-end always
+			"always_show_bar" => 0,											// show the top admin bar on the front-end always, even if not logged in, but still respect user preferences
 			"kill_paging" => array(),										// array of post types slugs to filter wp_query to prevent automatic paging and always list all items
 			"kill_autosave" => array(),										// array of post types slugs to disable autosave
 			"kill_revisions" => array(),									// array of post types slugs to disable autosave
@@ -428,10 +431,10 @@ class somaOptions extends somaticFramework  {
 							General Options</th>
 						<td>
 							<label><input name="somatic_framework_options[debug]" type="checkbox" value="1" <?php if (isset($soma_options['debug'])) { checked('1', $soma_options['debug']); } ?> /> Debug Mode</label><br />
-							<label><input name="somatic_framework_options[disable_admin_bar]" type="checkbox" value="1" <?php if (isset($soma_options['disable_admin_bar'])) { checked('1', $soma_options['disable_admin_bar']); } ?> /> Hide the Admin Bar on front-end (remains in admin)</label><br />
+							<label><input name="somatic_framework_options[always_show_bar]" type="checkbox" value="1" <?php if (isset($soma_options['always_show_bar'])) { checked('1', $soma_options['always_show_bar']); } ?> /> Always show the Toolbar on front-end (even for visitors)</label><br />
 							<label><input name="somatic_framework_options[bottom_admin_bar]" type="checkbox" value="1" <?php if (isset($soma_options['bottom_admin_bar'])) { checked('1', $soma_options['bottom_admin_bar']); } ?> /> Pin the Admin Bar to the bottom of the window</label><br />
 							<label><input name="somatic_framework_options[disable_drag_metabox]" type="checkbox" value="1" <?php if (isset($soma_options['disable_drag_metabox'])) { checked('1', $soma_options['disable_drag_metabox']); } ?> /> Disable dragging of metaboxes</label><br />
-							<label><input name="somatic_framework_options[disable_screen_options]" type="checkbox" value="1" <?php if (isset($soma_options['disable_screen_options'])) { checked('1', $soma_options['disable_screen_options']); } ?> /> Disable Screen Options tab</label><br />
+							<label><input name="somatic_framework_options[disable_screen_options]" type="checkbox" value="1" <?php if (isset($soma_options['disable_screen_options'])) { checked('1', $soma_options['disable_screen_options']); } ?> /> Disable Screen Options tab (not working...)</label><br />
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if (isset($soma_options['p2p'])) { checked('1', $soma_options['p2p']); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
 							<label><input name="somatic_framework_options[colorbox]" type="checkbox" value="1" <?php if (isset($soma_options['colorbox'])) { checked('1', $soma_options['colorbox']); } ?> /> Enable Colorbox JS lightbox plugin on front-end</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
@@ -446,6 +449,16 @@ class somaOptions extends somaticFramework  {
 						<td>
 							<?php if (!empty($soma_options['favicon'])) : ?><img src="<?php echo $soma_options['favicon']; ?>" style="vertical-align:middle;margin-right:8px;"><?php echo $soma_options['favicon']; else: echo "(not set)"; endif; ?><br />
 							<input type="hidden" name="somatic_framework_options[favicon]" value="<?php echo $soma_options['favicon']; ?>">
+						</td>
+					</tr>
+					<!-- Textfield -->
+					<tr valign="top">
+						<th scope="row">
+							Login Logo
+						</th>
+						<td>
+							<?php if (!empty($soma_options['login_logo'])) : ?><?php echo $soma_options['login_logo']; else: echo "(not set)"; endif; ?><br /><img src="<?php echo $soma_options['login_logo']; ?>" style="display:block; border: 1px solid #eee;">
+							<input type="hidden" name="somatic_framework_options[login_logo]" value="<?php echo $soma_options['login_logo']; ?>">
 						</td>
 					</tr>
 
@@ -838,10 +851,17 @@ class somaOptions extends somaticFramework  {
 		return $query;
 	}
 	
-	//
-	function disable_screen_options() {
-		global $soma_options;
-		if ($soma_options['disable_screen_options']) return false;
+	// disable the screen tab without losing whatever had been set in it (like dashboard columns)
+	function disable_screen_options($display_boolean, $wp_screen_object) {
+		global $soma_options, $pagenow;
+		$blacklist = array('post.php', 'post-new.php', 'index.php', 'edit.php');						// only on certain screens
+		if ($soma_options['disable_screen_options'] && in_array($GLOBALS['pagenow'], $blacklist)) {
+			$wp_screen_object->render_screen_layout();
+			$wp_screen_object->render_per_page_options();
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	//
@@ -899,7 +919,22 @@ class somaOptions extends somaticFramework  {
 		}
 	}
 
-
+	function user_admin_bar_false_by_default($user_id) {
+	    update_user_meta( $user_id, 'show_admin_bar_front', 'false' );
+	}
+	
+	function show_admin_bar() {
+		// checking per user doesn't work because current user isn't known this early in init hook
+		// get_currentuserinfo();
+		// $useroption = get_user_meta($user_ID, 'show_admin_bar_front', true);
+		// if ( empty( $useroption ) ) $useroption = false;		
+		global $soma_options;
+		if ( !is_admin() && $soma_options[ 'always_show_bar' ] ) {
+			add_filter( 'show_admin_bar', '__return_true' );
+		} else {
+			add_filter( 'show_admin_bar', '__return_false' );
+		}
+	}
 
 }
 

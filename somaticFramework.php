@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.7.1
+Version: 1.7.2
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -78,7 +78,6 @@ class somaticFramework {
 		add_action( 'admin_init', array(__CLASS__,'admin_init') );
 		add_action( 'admin_menu', array(__CLASS__,'admin_menu') );
 		add_action( 'admin_head', array(__CLASS__,'admin_head') );
-		add_filter( 'show_admin_bar', array(__CLASS__,'show_admin_bar') );
 		add_action( 'admin_footer', array(__CLASS__, 'admin_footer') );
 		add_filter( 'admin_footer_text', array(__CLASS__,'admin_footer_text') );
 		add_filter( 'plugin_action_links', array(__CLASS__, 'soma_plugin_action_links'), 10, 2 );
@@ -93,8 +92,9 @@ class somaticFramework {
 
 		add_filter( 'login_headerurl', array(__CLASS__,'login_headerurl') );
 		add_filter( 'login_headertitle', array(__CLASS__,'login_headertitle') );
-		add_action( 'login_enqueue_scripts', array(__CLASS__,'login_enqueue_scripts'));
-		add_action( 'login_footer', array(__CLASS__,'change_login_footer'));
+		add_action( 'login_enqueue_scripts', array(__CLASS__,'login_enqueue_scripts') );
+		add_action( 'login_head', array(__CLASS__, 'login_head') );
+		add_action( 'login_footer', array(__CLASS__,'change_login_footer') );
 
 		add_filter( 'query_vars', array(__CLASS__,'query_vars' ) );
 		add_action( 'parse_request', array(__CLASS__, 'parse_request' ) );
@@ -212,7 +212,7 @@ class somaticFramework {
 		wp_enqueue_style('soma-login');		// for some reason this is being output in the footer, instead of <head>...
 		global $soma_options;
 		if (!empty($soma_options['favicon'])) {
-			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";
+			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";		// show favicon even on login page
 		}
 	}
 
@@ -297,6 +297,22 @@ class somaticFramework {
 		// get rid of any framework-generated pages?
 		// get rid of custom user roles?
 	}
+	
+	function login_head() {
+		global $soma_options;
+		if (!empty($soma_options['login_logo'])) {
+			echo '<style type="text/css">.login h1 a {
+					background-image: url('.$soma_options['login_logo'].') !important;
+					width: 320px !important;
+				    height: 70px !important;
+					background-size: 320px 70px !important;
+					background-position: bottom center !important;
+					background-repeat: no-repeat;
+				    padding-bottom: 0 !important;
+					margin-bottom: 15px;
+				}</style>';
+		}
+	}
 
 	function login_headerurl() {
 		return get_bloginfo('url');
@@ -313,15 +329,6 @@ class somaticFramework {
 			echo "</div>\n";
 		}
 		echo "<div id=\"soma-login-footer\">Somatic Framework</div>\n";
-	}
-
-	function show_admin_bar() {
-		global $soma_options;
-		if ( $soma_options[ 'disable_admin_bar' ] ) {
-			return false;
-		} else {
-			return true;
-		}
 	}
 
 	// adds custom vars to query

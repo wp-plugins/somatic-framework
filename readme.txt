@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.4.1
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,14 @@ If you're using a theme or setting up a site I built for you, then very likely, 
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.7.2 =
+* FIX default behavior to not always show the toolbar on the front end [facepalm]
+* NEW users have toolbar off by default
+* NEW option to force toolbar to show for everyone, everywhere
+* NEW soma_option for setting the Login page logo
+* custom login logos should be transparent PNG of 320x70 exactly, with content aligned bottom center for best results
+* stopped hiding user profile fields
 
 = 1.7.1 =
 * fixed stripslashes problem with quotes in text fields
