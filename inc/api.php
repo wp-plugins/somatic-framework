@@ -423,28 +423,35 @@ $defaults = array(
 // QUESTION: should all this be an action hook on init instead?
 
 function soma_set_option( $which = null, $new_value = null ) {
-	$soma_options = get_option('somatic_framework_options', null);
-	if (is_wp_error($soma_options) || is_null($soma_options)) return new WP_Error('missing', "Can't find somatic options to save into...");
+	$trans = get_transient( $which );
+	if ( $trans != false && $trans == $new_value ) {
+		soma_dump("cached option: $which");
+		return true;																			// value hasn't changed, don't bother getting/setting options
+	} else {
+		$soma_options = get_option('somatic_framework_options', null);
+		if (is_wp_error($soma_options) || is_null($soma_options)) return new WP_Error('missing', "Can't find somatic options to save into...");
+		if (is_null($which) || is_null($new_value)) return new WP_Error('missing', "Must pass an option name and a value");				// make sure we've got something to save
+		if (is_array($which)) return new WP_Error('missing', "First argument should be a string name of option (call the function once for each option to be set)");		// right now, we're only handling single options at a time - could change to passing and merging whole array later
 
-	if (is_null($which) || is_null($new_value)) return new WP_Error('missing', "Must pass an option name and a value");				// make sure we've got something to save
-	if (is_array($which)) return new WP_Error('missing', "First argument should be a string name of option (call the function once for each option to be set)");		// right now, we're only handling single options at a time - could change to passing and merging whole array later
-		
-	if ($new_value === true || $new_value == "true") $new_value = '1';						// sanitize boolean input values
-	if ($new_value === false || $new_value == "false") $new_value = '0';					// sanitize boolean input values
+		if ($new_value === true || $new_value == "true") $new_value = '1';						// sanitize boolean input values
+		if ($new_value === false || $new_value == "false") $new_value = '0';					// sanitize boolean input values
 
-	// this option must stay an array!
-	if (is_array($soma_options[$which])) {
-		if (!is_array($new_value)) return new WP_Error('missing', "Must set this option with a simple array...");
-		$old_value = $soma_options[$which];													// store old array
-		$new_value = array_merge($old_value, $new_value);									// combine them
-		$new_value = array_unique($new_value);												// remove duplicates
-		$new_value = array_values($new_value);												// flatten the array keys
-	} 
+		// this option must stay an array!
+		if (is_array($soma_options[$which])) {
+			if (!is_array($new_value)) return new WP_Error('missing', "Must set this option with a simple array...");
+			$old_value = $soma_options[$which];													// store old array
+			$new_value = array_merge($old_value, $new_value);									// combine them
+			$new_value = array_unique($new_value);												// remove duplicates
+			$new_value = array_values($new_value);												// flatten the array keys
+		} 
 
-	$soma_options[$which] = $new_value;														// mod or insert our array key's value
+		$soma_options[$which] = $new_value;														// mod or insert our array key's value
 
-	$update = update_option('somatic_framework_options', $soma_options);					// update with modified full array
-	return $update;																			// true if success, false if fail
+		$update = update_option('somatic_framework_options', $soma_options);					// update with modified full array
+		set_transient( $which, $new_value, 60*60*24 );											// cache it for 24 hours
+		soma_dump("updated option: $which -- newvalue: $new_value");
+		return $update;																			// true if success, false if fail
+	}
 }
 
 // checks to see if $_GET or $_POST values are set, avoids Undefined index error
