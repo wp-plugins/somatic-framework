@@ -1,0 +1,46 @@
+#type-sort-list {
+	margin-top: 2em;
+}
+
+#type-sort-list li {
+	padding: 10px;
+	width: 500px;
+	background: #f0f0f0;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f7f7f7), to(#e7e7e7));
+	background: -moz-linear-gradient(top,  #f7f7f7,  #e7e7e7);
+	border: 1px solid #ddd;
+	border-raidus: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	font-size: 1.2em;
+	clear: both;
+	cursor: move;
+	position: relative;
+}
+
+#type-sort-list li .wp-post-image {
+	float: right;
+}
+
+#type-sort-list li .loading-animation {
+	position: absolute;
+	left: 530px;
+	top: 25px;
+}
+
+#type-sort-list li .title {
+	display: block;
+	float: left;
+}
+
+#type-sort-list .clearfix {
+	clear: both;
+}
+
+
+#type-sort-list h3 {
+	color: #fff;
+	font-size: 1.6em;
+	padding: 10px;
+	background-color: #21759b;
+}
