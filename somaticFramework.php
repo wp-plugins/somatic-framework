@@ -304,7 +304,7 @@ class somaticFramework {
 			echo '<style type="text/css">.login h1 a {
 					background-image: url('.$soma_options['login_logo'].') !important;
 					width: 320px !important;
-				    height: 70px !important;
+				    height: 80px !important;
 					background-size: auto auto !important;
 					background-position: bottom center !important;
 					background-repeat: no-repeat;
