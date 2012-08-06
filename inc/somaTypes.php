@@ -141,8 +141,8 @@ class somaTypes extends somaticFramework {
 		);
 
 		// custom list columns
-		add_filter("manage_edit-".$slug."_columns", array(__CLASS__,"custom_edit_columns"));
-		add_action("manage_".$slug."_posts_custom_column", array(__CLASS__,'custom_column_data'));
+		add_filter("manage_".$slug."posts_columns", array(__CLASS__,"custom_list_columns"));
+		add_action("manage_".$slug."_posts_custom_column", array(__CLASS__,'custom_column_data'), 10, 2);
 		return $result;
 	}
 
@@ -152,7 +152,7 @@ class somaTypes extends somaticFramework {
 
 	// custom column items and order
 	// columns retrieved from $type_data container
-	function custom_edit_columns($columns) {
+	function custom_list_columns($columns) {
 		global $post_type;
 		if (isset(self::$type_data[$post_type]['columns'])) {							// custom columns defined?
 			$first = array( "cb" => "<input type=\"checkbox\" />" );					// we always want to show the checkbox in the first column for bulk actions
@@ -162,44 +162,41 @@ class somaTypes extends somaticFramework {
 	}
 
 	// custom column item content generation
-	function custom_column_data($column) {
+	function custom_column_data($column, $pid) {
 		global $post, $post_type;
-		// don't bother for core types
-		if( $post_type != 'posts' || $post_type != 'pages') {
-			// output each column's content
-			switch ($column) {
-				case "thumb":
-					$img = somaFunctions::fetch_featured_image($post->ID);
-					$edit = get_edit_post_link($post->ID);
-					$view = get_permalink($post->ID);
-					$output = "<a href=\"$edit\"><img src=\"{$img['thumb']['url']}\" /></a>";
-					echo $output;
-				break;
-				// EXAMPLE of listing taxonomy terms
-				// case "artists":
-				// 	echo somaFunctions::fetch_the_term_list( $post->ID, 'artists','',', ');
-				// break;
-				
-				/* core columns
-				cb 
-					Checkbox for bulk actions.
-				title 
-					Post title.
-					Includes "edit", "quick edit", "trash" and "view" links. If $mode (set from $_REQUEST['mode']) is 'excerpt', a post excerpt is included between the title and links.
-				author 
-					Post author.
-				categories 
-					Categories the post belongs to.
-				tags 
-					Tags for the post.
-				comments 
-					Number of pending comments.
-				date 
-					The date and publish status of the post.
-				*/
-			}
-			do_action('soma_column_data', $column, $post);
+		// output each column's content
+		switch ($column) {
+			case "thumb":
+				$img = somaFunctions::fetch_featured_image($pid);
+				$edit = get_edit_post_link($pid);
+				$view = get_permalink($pid);
+				$output = "<a href=\"$edit\"><img src=\"{$img['thumb']['url']}\" /></a>";
+				echo $output;
+			break;
+			// EXAMPLE of listing taxonomy terms
+			// case "artists":
+			// 	echo somaFunctions::fetch_the_term_list( $post->ID, 'artists','',', ');
+			// break;
+			
+			/* core columns
+			cb 
+				Checkbox for bulk actions.
+			title 
+				Post title.
+				Includes "edit", "quick edit", "trash" and "view" links. If $mode (set from $_REQUEST['mode']) is 'excerpt', a post excerpt is included between the title and links.
+			author 
+				Post author.
+			categories 
+				Categories the post belongs to.
+			tags 
+				Tags for the post.
+			comments 
+				Number of pending comments.
+			date 
+				The date and publish status of the post.
+			*/
 		}
+		do_action('soma_column_data', $column, $pid);
 	}
 
 	//** CUSTOM TAXONOMY AND TERMS -----------------------------------------------------------------------------------------------------------//

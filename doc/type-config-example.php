@@ -109,24 +109,24 @@ function mysite_type_data() {
 }
 
 
-function custom_column_data($column, $post) {
+function custom_column_data($column, $pid) {
 	// output each column's content
 	switch ($column) {
 		// p2p connected column output
 		case "authors":
-			echo somaFunctions::fetch_connected_items($post->ID, 'authors-works');
+			echo somaFunctions::fetch_connected_items($pid, 'authors-works');
 		break;
 		// taxonomy column output
 		case "format":
-			echo somaFunctions::fetch_the_term_list( $post->ID, 'format','',', ');
+			echo somaFunctions::fetch_the_term_list( $pid, 'format','',', ');
 		break;
 		// post_meta column output
 		case "notes":
-			echo somaFunctions::asset_meta('get', $post->ID, 'notes');
+			echo somaFunctions::asset_meta('get', $pid, 'notes');
 		break;
 		// custom column output
 		case "email":
-			$email = somaFunctions::asset_meta('get', $post->ID, 'email');
+			$email = somaFunctions::asset_meta('get', $pid, 'email');
 			echo "<a href=\"mailto:$email\">$email</a>";
 		break;
 	}

@@ -128,6 +128,9 @@ class somaMetaboxes extends somaticFramework {
 					if (is_wp_error($terms)) {
 						wp_die($terms->get_error_message());
 					}
+					
+					if ($field['type'] == 'checkbox-multi' && !isset($field['multiple'])) $field['multiple'] == true;		// default to multiple when using checkbox-multi, in case forgot to specify
+					
 					if ($field['type'] == 'readonly' && !$field['multiple']) {		// if readonly and singluar, then $meta is just the name, no object
 						$meta = $terms[0]->name;
 					}
@@ -480,7 +483,7 @@ class somaMetaboxes extends somaticFramework {
 					// echo '<span ', $complete ? null : $missing, '>';
 					if (is_array($field['options'])) {		// must check if array exists or foreach will throw error
 						foreach ($field['options'] as $option) {
-							if (!empty($meta) && in_array($option['value'] , $meta) ) {	// $meta isn't empty, and this option is within it
+							if (!empty($meta) && ( soma_fetch_index($option['value'], $meta) || $option['value'] == $meta ) ) {	// $meta isn't empty, and this option is within it
 								echo '<li><label><input type="checkbox" value="', $option['value'],'" name="', $field['id'], '[]" id="check-', $option['value'],'" checked="checked" /><strong>',$option['name'],'</strong></label></li>';
 							} else {
 								echo '<li><label><input type="checkbox" value="', $option['value'],'" name="', $field['id'], '[]" id="check-', $option['value'], '" />',$option['name'],'</label></li>';
@@ -498,7 +501,7 @@ class somaMetaboxes extends somaticFramework {
 					// list values and match
 					if (is_array($field['options'])) {		// must check if array exists or second test will throw error
 						foreach ($field['options'] as $option) {
-							if (!empty($meta) && in_array($option['value'] , $meta) ) {	// $meta isn't empty, and this option is within it
+							if (!empty($meta) && soma_fetch_index($option['value'], $meta) ) {	// $meta isn't empty, and this option is within it
 								echo '<option value="', $option['value'], '" selected="selected">', $option['name'],'</option>';
 							} else {
 								echo '<option value="', $option['value'], '">', $option['name'],'</option>';
@@ -732,7 +735,7 @@ class somaMetaboxes extends somaticFramework {
 					// echo '<span ', $complete ? null : $missing, '>';
 					if (is_array($field['options'])) {		// must check if array exists or foreach will throw error
 						foreach ($field['options'] as $option) {
-							if (!empty($meta) && in_array($option['value'] , $meta) ) {	// $meta isn't empty, and this option is within it
+							if (!empty($meta) && soma_fetch_index($option['value'] , $meta) ) {	// $meta isn't empty, and this option is within it
 								echo '<li><label><input type="checkbox" value="', $option['value'],'" name="', $field['id'], '[]" id="check-', $option['value'],'" checked="checked" /><strong>',$option['name'],'</strong></label></li>';
 							} else {
 								echo '<li><label><input type="checkbox" value="', $option['value'],'" name="', $field['id'], '[]" id="check-', $option['value'], '" />',$option['name'],'</label></li>';

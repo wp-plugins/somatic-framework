@@ -159,6 +159,7 @@ class somaFunctions extends somaticFramework {
 
 	// checks to see if $_GET or $_POST values are set, avoids Undefined index error
 	function fetch_index($array, $index) {
+		if (!is_array($array)) return null;
 		return isset($array[$index]) ? $array[$index] : null;
 	}
 
