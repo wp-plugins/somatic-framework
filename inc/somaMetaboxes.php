@@ -125,6 +125,9 @@ class somaMetaboxes extends somaticFramework {
 					$meta = null;													// clear $meta so it doesn't fill the input text box with string "array" - don't care about displaying saved data in this one case
 				} else {
 					$terms = wp_get_object_terms($post->ID, $field['id']); 			// retrieve terms
+					if (is_wp_error($terms)) {
+						wp_die($terms->get_error_message());
+					}
 					if ($field['type'] == 'readonly' && !$field['multiple']) {		// if readonly and singluar, then $meta is just the name, no object
 						$meta = $terms[0]->name;
 					}
@@ -174,7 +177,7 @@ class somaMetaboxes extends somaticFramework {
 			if ($field['data'] == 'attachment') {
 				$meta = somaFunctions::fetch_attached_media($post->ID, $field['type']);
 			}
-			
+
 			// get media attachment
 			if ($field['data'] == 'featured') {
 				$meta = get_post_thumbnail_id( $post->ID );
@@ -226,6 +229,10 @@ class somaMetaboxes extends somaticFramework {
 				if (!$meta) {
 					continue;
 				}
+			}
+
+			if ($field['type'] == 'link') {
+
 			}
 
 			// hook additional if statements to retrieve custom metadata
@@ -294,6 +301,14 @@ class somaMetaboxes extends somaticFramework {
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'text':
 					echo '<input type="text" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $meta : $field['default'], '" class="meta-text', $complete ? null : $missing, '" />';
+				break;
+				// ----------------------------------------------------------------------------------------------------------------------------- //
+				case 'link':
+					echo '<span class="sub-label">Title:</span><input type="text" name="', $field['id'], '[]" id="', $field['id'], '" value="', $meta['title'], '" class="meta-link', $complete ? null : $missing, '" /><br />';
+					echo '<span class="sub-label">URL:</span><input type="text" name="', $field['id'], '[]" id="', $field['id'], '" value="', $meta['url'], '" class="meta-link', $complete ? null : $missing, '" />';
+					if (!empty($meta['url']) && !empty($meta['title'])) {
+						echo '<br /><span class="sub-label">Preview:</span><div class="meta-link"><a href="',$meta['url'],'" target="_blank">',$meta['title'],'</a></div>';
+					}
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'help':

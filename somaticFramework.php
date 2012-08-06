@@ -104,7 +104,7 @@ class somaticFramework {
 		wp_register_script( 'soma-metabox-jquery', SOMA_JS.'soma-metabox-jquery.js', array('jquery', 'jquery-ui-core'), '1.7.0', true);
 		wp_register_script( 'soma-plupload', SOMA_JS.'soma-plupload.js', array('jquery', 'jquery-ui-core'), '1.7.0', true);
 		wp_register_style( 'soma-admin-styles', SOMA_CSS.'soma-admin-styles.css', array(), '1.7.0', 'all' );
-		wp_register_style( 'soma-metabox-styles', SOMA_CSS.'soma-metabox-styles.css', array(), '1.7.0', 'all' );
+		wp_register_style( 'soma-metabox-styles', SOMA_CSS.'soma-metabox-styles.css', array(), '1.7.3', 'all' );
 
 		// front-end scripts and styles
 		wp_register_script( 'soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);

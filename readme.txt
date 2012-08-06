@@ -32,6 +32,11 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.7.3 =
+* FIX save routines on external media and images don't die anymore if empty
+* NEW metabox field: "link"
+* metabox CSS tweaks
+
 = 1.7.2 =
 * FIX default behavior to not always show the toolbar on the front end [facepalm]
 * NEW users have toolbar off by default

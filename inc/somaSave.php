@@ -273,6 +273,20 @@ class somaSave extends somaticFramework {
 							}
 						}
 					}
+					
+					// for link inputs  --------------------------------------------------------------//
+					if ($field['type'] == 'link') {
+						$title = $_POST[$field['id']][0];
+						$url = $_POST[$field['id']][1];
+						$new = array();
+						$new['title'] = $title;
+						// if (filter_var($url, FILTER_VALIDATE_URL)) {
+							$new['url'] = $url;
+						// } else {
+						// 	$new['url'] = '( invalid URL given - make sure to include http:// )';
+						// }
+					}
+					
 					// for date inputs  --------------------------------------------------------------//
 					if ($field['type'] == 'date') {
 
@@ -338,20 +352,23 @@ class somaSave extends somaticFramework {
 						// field is newly changed
 						if (!empty($new) && $new != $old) {
 							$ext_media = somaFunctions::fetch_external_media($new);									// parse url and ping APIs
-							if (!is_wp_error($ext_media)) {															// did the url process okay?
-								$new = $ext_media['url'];															// replace user-submitted with "cleaned" url
-								somaFunctions::asset_meta('save', $pid, $field['id']."_ext", $ext_media);			// save another key with all the metadata associated with this external media url (so we don't have to call external API's everytime)
-							} else {
+							if (is_wp_error($ext_media)) {															// did the url process okay?
 								$new = null;																		// didn't work, nuke the field data
-								wp_die($ext_media->get_error_message());											// should probably display an error notification rather than dying....
+								// wp_die($ext_media->get_error_message());											// should probably display an error notification rather than dying....
+								continue;																			// skip??
 							}
+							$new = $ext_media['url'];															// replace user-submitted with "cleaned" url
+							somaFunctions::asset_meta('save', $pid, $field['id']."_ext", $ext_media);			// save another key with all the metadata associated with this external media url (so we don't have to call external API's everytime)
 						}
 
 						// field is already populated, but/and user has chosen to copy the external title/desc into the asset, replacing the user fields NOTE: for this to work, this field should appear after the title and desc fields!
 						if (!empty($new) && $_POST['copy-ext-meta']) {
 							if (empty($ext_media)) $ext_media = somaFunctions::fetch_external_media($new);			// grab if we haven't already (since $new hasn't changed)
-							if (is_wp_error($ext_media)) wp_die($ext_media->get_error_message());					// bail if didn't work
-
+							if (is_wp_error($ext_media)) {
+								$new = null;																		// didn't work, nuke the field data
+								// wp_die($ext_media->get_error_message());											// find a better way to show what happened...
+								continue;																			// skip??
+							}
 							somaFunctions::asset_meta('save', $pid, 'desc', $ext_media['desc']);					// overwrite the desc
 							$wpdb->update( $wpdb->posts, array( 'post_title' => $ext_media['title'] ), array( 'ID' => $pid ));	// overwrite the post title
 						}
@@ -359,7 +376,12 @@ class somaSave extends somaticFramework {
 						// field is already populated, but/and user has chosen to import external source thumbnail into library and attach to post and possibly set as featured image
 						if (!empty($new) && $_POST['import-ext-image'] || $_POST['use-ext-feature']) {
 							if (empty($ext_media)) $ext_media = somaFunctions::fetch_external_media($new);			// grab if we haven't already (since $new hasn't changed)
-							if (is_wp_error($ext_media)) wp_die($ext_media->get_error_message());					// bail if didn't work
+							if (is_wp_error($ext_media)) {
+								$new = null;																		// didn't work, nuke the field data
+								// wp_die($ext_media->get_error_message());											// should probably display an error notification rather than dying....
+								continue;																			// skip??
+							}
+
 
 							$existing = somaFunctions::asset_meta('get', $pid, $field['id']."_attached");			// did we already save an attachment for this field?
 							if ( !empty( $existing ) ) {
@@ -368,7 +390,11 @@ class somaSave extends somaticFramework {
 
 							// upload the image from url into library, and use as featured image if checked
 							$result = somaFunctions::attach_external_image($ext_media['thumb'], $pid, $_POST['use-ext-feature'], null, array('post_title' => '[ext] '.$ext_media['title'])); // title the attachment [frame] title (of external video)
-							if (is_wp_error($result)) wp_die($result->get_error_message());
+							if (is_wp_error($result)) {
+								$new = null;																		// didn't work, nuke the field data
+								// wp_die($ext_media->get_error_message());											// should probably display an error notification rather than dying....
+								continue;																			// skip??
+							}
 
 							// save new attachment ID to indicate that we have already imported an attachment for this field, so we can overwrite it later (if user checks import-ext-image again) instead of spawning more attachments
 							somaFunctions::asset_meta('save', $pid, $field['id']."_attached", $result);
@@ -394,7 +420,11 @@ class somaSave extends somaticFramework {
 
 								// upload the image from url into library, and use as featured image if checked
 								$result = somaFunctions::attach_external_image($new, $pid, $_POST['use-ext-feature'] ); // should give this a post_title? but based on what?
-								if (is_wp_error($result)) wp_die($result->get_error_message());
+								if (is_wp_error($result)) {
+									$new = null;																		// didn't work, nuke the field data
+									// wp_die($ext_media->get_error_message());											// should probably display an error notification rather than dying....
+									continue;																			// skip??
+								}
 
 								// save new attachment ID to indicate that we have already imported an attachment for this field, so we can overwrite it later (if user checks import-ext-image again) instead of spawning more attachments
 								somaFunctions::asset_meta('save', $pid, $field['id']."_attached", $result);
