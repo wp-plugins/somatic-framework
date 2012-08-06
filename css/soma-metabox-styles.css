@@ -213,12 +213,13 @@ input.meta-checkbox-single,
 }
 
 #normal-sortables .meta-link {
-	width: 85%;
+	width: 90%;
 	display: inline-block;
-	margin-left: 15%;
+	margin-left: 10%;
 }
 
 span.sub-label {
+	font-weight: bold;
 	position: absolute;
 	color: #aaa;
 }

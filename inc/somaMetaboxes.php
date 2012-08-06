@@ -307,8 +307,8 @@ class somaMetaboxes extends somaticFramework {
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'link':
-					echo '<span class="sub-label">Title:</span><input type="text" name="', $field['id'], '[]" id="', $field['id'], '" value="', $meta['title'], '" class="meta-link', $complete ? null : $missing, '" /><br />';
-					echo '<span class="sub-label">URL:</span><input type="text" name="', $field['id'], '[]" id="', $field['id'], '" value="', $meta['url'], '" class="meta-link', $complete ? null : $missing, '" />';
+					echo '<span class="sub-label">Title</span><input type="text" name="', $field['id'], '[]" id="', $field['id'], '" value="', $meta['title'], '" class="meta-link', $complete ? null : $missing, '" /><br />';
+					echo '<span class="sub-label">URL</span><input type="text" name="', $field['id'], '[]" id="', $field['id'], '" value="', $meta['url'], '" class="meta-link', $complete ? null : $missing, '" />';
 					if (!empty($meta['url']) && !empty($meta['title'])) {
 						echo '<br /><span class="sub-label">Preview:</span><div class="meta-link"><a href="',$meta['url'],'" target="_blank">',$meta['title'],'</a></div>';
 					}

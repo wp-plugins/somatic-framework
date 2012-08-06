@@ -349,6 +349,20 @@ function soma_singular_term( $pid = null, $tax = null, $label = "slug" ) {
 	return somaFunctions::fetch_the_singular_term( $pid, $tax, $label );
 }
 
+/*
+* Gets the excerpt of a specific post ID or object
+* @since 1.7.3
+
+* @param - $post - object/int - the ID or object of the post to get the excerpt of
+* @param - $length - int - the length of the excerpt in words
+* @param - $tags - string - the allowed HTML tags. These will not be stripped out
+* @param - $extra - string - text to append to the end of the excerpt
+*/
+function soma_get_excerpt($post = null, $length = 30, $tags = '<a><em><strong>', $extra = ' …') {
+	if ( is_null($post) ) return new WP_Error('missing', "must pass a post ID or post Object!");
+	return somaFunctions::get_excerpt( $post, $length, $tags, $extra );
+}
+
 /**
  * Outputs contents of variables for debugging purposes
  * Integrated with Debug Bar plugin (http://wordpress.org/extend/plugins/debug-bar/)

@@ -1516,6 +1516,39 @@ SQL;
 
 		return $att_id;
 	}
+	
+	/*
+	* Gets the excerpt of a specific post ID or object
+	* @since 1.7.3
+	
+	* @param - $post - object/int - the ID or object of the post to get the excerpt of
+	* @param - $length - int - the length of the excerpt in words
+	* @param - $tags - string - the allowed HTML tags. These will not be stripped out
+	* @param - $extra - string - text to append to the end of the excerpt
+	*/
+	function get_excerpt($post, $length = 30, $tags = '<a><em><strong>', $extra = '…') {
+
+		if ( is_int($post) ) {
+			$post = get_post($post);			// get the post object of the passed ID
+		} elseif ( !is_object($post) ) {
+			return false;
+		}
+
+		if (has_excerpt($post->ID)) {
+			$the_excerpt = $post->post_excerpt;
+			return apply_filters('the_content', $the_excerpt);
+		} else {
+			$the_excerpt = $post->post_content;
+		}
+
+		$the_excerpt = strip_shortcodes(strip_tags($the_excerpt), $tags);
+		$the_excerpt = preg_split('/\b/', $the_excerpt, $length * 2+1);
+		$excerpt_waste = array_pop($the_excerpt);
+		$the_excerpt = implode($the_excerpt);
+		$the_excerpt .= $extra;
+
+		return apply_filters('the_content', $the_excerpt);
+	}
 
 }
 // --> END class somaFunctions

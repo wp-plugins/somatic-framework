@@ -37,6 +37,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * NEW metabox field: "link"
 * metabox CSS tweaks
 * cleaned up some deprecated junk in manage_posts_columns calls
+* NEW api function soma_get_excerpt() for fetching existing post_excerpt or manually creating one from post_content via post ID or object
 
 = 1.7.2 =
 * FIX default behavior to not always show the toolbar on the front end [facepalm]
