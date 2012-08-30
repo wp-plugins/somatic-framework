@@ -49,8 +49,8 @@ class somaOptions extends somaticFramework  {
 		$defaults = array(
 			"favicon" => "",												// full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
 			"login_logo" => "",												// full url path to a .png, usually set in a theme - framework will output inline CSS to display login logo, overriding default WP one
-			"debug" => 0,													// debug mode output enabled (renders to debug bar if installed, ouput inline if not)
-			"p2p" => 1,														// require posts 2 posts plugin by scribu
+			"debug" => 1,													// debug mode output enabled (renders to debug bar if installed, ouput inline if not)
+			"p2p" => 0,														// require posts 2 posts plugin by scribu
 			"colorbox" => 0,												// enqueue Colorbox lightbox JS on front-end pages too (always active in admin)
 			"meta_prefix" => "_soma",										// prefix added to post_meta keys
 			"meta_serialize" => 0,											// whether to serialize somatic post_meta
@@ -62,7 +62,7 @@ class somaOptions extends somaticFramework  {
 			"disable_menus" => array('links', 'tools'),																													// hide admin sidebar menu items from everyone (but you could still go to the page directly)
 			"disable_dashboard" => array('quick_press','recent_drafts','recent_comments','incoming_links','plugins','primary','secondary','thesis_news_widget'),		// hide dashboard widgets from everyone
 			"disable_metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),									// hide metaboxes in post editor from everyone
-			"disable_drag_metabox" => 1,									// prevent users from dragging/rearranging metaboxes (even dashboard widgets)
+			"disable_drag_metabox" => 0,									// prevent users from dragging/rearranging metaboxes (even dashboard widgets)
 			"disable_screen_options" => 0,									// hide the screen options tab
 			"reset_default_options" => 0,									// will reset options to defaults next time plugin is activated
 			"plugin_db_version" => $version,

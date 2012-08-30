@@ -25,7 +25,7 @@ class somaMetaboxes extends somaticFramework {
 		// treat core post types differently
 		$type_obj = get_post_type_object($post->post_type);
 
-		if ($type_obj->somatic ) $warning = true; // identify this as a native CPT to differentiate between _builtin and CPT's defined by other plugins
+		if ($type_obj->somatic && $type_obj->blank_slate) $warning = true; // identify this as a native CPT to differentiate between _builtin and CPT's defined by other plugins, and only in the case where no core WP box support is given
 
 		if (empty(self::$data) || !self::$data) {
 			// THIS IS BAD - OUPTUTS BEFORE PAGE HEADERS

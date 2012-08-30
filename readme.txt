@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.4.1
-Stable tag: 1.7.2
+Stable tag: 1.7.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * metabox CSS tweaks
 * cleaned up some deprecated junk in manage_posts_columns calls
 * NEW api function soma_get_excerpt() for fetching existing post_excerpt or manually creating one from post_content via post ID or object
+* fixed warning with lack of metabox definitions. Now, in soma_init_type args, you can declare blank_slate = true to remove all core wp metaboxes (in effect, declaring no post_type_support for title, editor, author, etc.). This replaces the old behavior of passing an empty array to the "supports" arg, which didn't work well when parsing default args. It also means the missing metabox warning will *only* appear if the post type doesn't support any core wp boxes.
 
 = 1.7.2 =
 * FIX default behavior to not always show the toolbar on the front end [facepalm]

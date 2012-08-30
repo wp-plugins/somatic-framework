@@ -240,7 +240,8 @@ class somaFunctions extends somaticFramework {
 
 
 	//** clone of core get_the_term_list() - modifies the URL output if inside admin to stay in admin and to link to the edit post listing screen, also - can output comma separated string instead of links
-	function fetch_the_term_list( $id = 0, $taxonomy, $before = '', $sep = ', ', $after = '', $output = 'html' ) {
+	function fetch_the_term_list( $id = null, $taxonomy, $before = '', $sep = ', ', $after = '', $output = 'html' ) {
+		if (is_null($id)) return false;
 		$terms = get_the_terms( $id, $taxonomy );
 		$type = get_post_type($id);
 		if ( is_wp_error( $terms ) )
@@ -1518,7 +1519,7 @@ SQL;
 	}
 	
 	/*
-	* Gets the excerpt of a specific post ID or object
+	* Gets the excerpt of a specific post ID or object - if one doesn't exist, it will create one dynamically
 	* @since 1.7.3
 	
 	* @param - $post - object/int - the ID or object of the post to get the excerpt of
@@ -1526,7 +1527,7 @@ SQL;
 	* @param - $tags - string - the allowed HTML tags. These will not be stripped out
 	* @param - $extra - string - text to append to the end of the excerpt
 	*/
-	function get_excerpt($post, $length = 30, $tags = '<a><em><strong>', $extra = '…') {
+	function fetch_excerpt($post, $length = 30, $tags = '<a><em><strong>', $extra = '…') {
 
 		if ( is_int($post) ) {
 			$post = get_post($post);			// get the post object of the passed ID

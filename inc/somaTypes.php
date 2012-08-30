@@ -34,8 +34,9 @@ class somaTypes extends somaticFramework {
 			$plural = $data['plural'];
 		}
 
-		if ( is_array($data['args']['supports']) && empty($data['args']['supports']) ) {
-			$supports = array();	
+		if ( ( is_array($data['args']['supports']) && empty($data['args']['supports']) ) || $data['args']['blank_slate'] == true ) {
+			$supports = array();
+			$data['args']['blank_slate'] = true;
 		} else {
 			$supports = array( 'editor', 'title', 'thumbnail' );
 		}
@@ -64,7 +65,7 @@ class somaTypes extends somaticFramework {
 			'hierarchical' => false,										#wp -allows parent to be specified (not sure where...)
 			'query_var' => true,											#wp
 			'show_in_nav_menus' => true,									#wp (default: value of 'public' arg)
-			'supports' => array( 'editor', 'title', 'thumbnail' ),			#wp
+			'supports' => $supports,										#wp
 			'rewrite' => array( 'slug' => $slug, 'with_front' => false ),	#wp
 			'register_meta_box_cb' => array('somaMetaBoxes','add_boxes'),	#wp
 			'labels' => $labels,											#wp

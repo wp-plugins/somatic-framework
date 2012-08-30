@@ -3,13 +3,13 @@ jQuery(document).ready(function($) {
 	if (soma_vars['debug'] == 'true') {
 		console.log("jquery version: "+$().jquery);	// jquery version
 		console.log("jqueryUI version: "+$.ui.version);	// jquery version
-		console.log(soma_vars);	// array of vars passed over by wp_localize_script()		
+		console.log(soma_vars);	// array of vars passed over by wp_localize_script()
 	}
-	
+
 	// pull in GET Vars
 	$._GET = [];
 	var urlHalves = String(document.location).split('?');
-	if(urlHalves[1]){
+	if(urlHalves[1]) {
 		var urlVars = urlHalves[1].split('&');
 		for(var i=0; i<=(urlVars.length); i++){
 			if(urlVars[i]){

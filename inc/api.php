@@ -360,7 +360,7 @@ function soma_singular_term( $pid = null, $tax = null, $label = "slug" ) {
 */
 function soma_get_excerpt($post = null, $length = 30, $tags = '<a><em><strong>', $extra = ' …') {
 	if ( is_null($post) ) return new WP_Error('missing', "must pass a post ID or post Object!");
-	return somaFunctions::get_excerpt( $post, $length, $tags, $extra );
+	return somaFunctions::fetch_excerpt( $post, $length, $tags, $extra );
 }
 
 /**
