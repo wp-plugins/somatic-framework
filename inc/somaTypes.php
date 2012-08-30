@@ -142,7 +142,7 @@ class somaTypes extends somaticFramework {
 		);
 
 		// custom list columns
-		add_filter("manage_".$slug."posts_columns", array(__CLASS__,"custom_list_columns"));
+		add_filter("manage_edit-".$slug."_columns", array(__CLASS__,"custom_list_columns"), 10);
 		add_action("manage_".$slug."_posts_custom_column", array(__CLASS__,'custom_column_data'), 10, 2);
 		return $result;
 	}
