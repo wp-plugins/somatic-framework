@@ -23,12 +23,14 @@ body.login #loginform {
 }
 
 body.login #nav {
-    float: right;
+	position: absolute;
+	right: 0;
     padding-right: 0;
 }
 
 body.login #backtoblog {
-    float: left;
+	position: absolute;
+	left: 0;
     padding-left: 0;
     margin-left: 0;
 }
