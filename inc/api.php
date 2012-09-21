@@ -439,7 +439,7 @@ $defaults = array(
 function soma_set_option( $which = null, $new_value = null ) {
 	$trans = get_transient( $which );
 	if ( $trans != false && $trans == $new_value ) {
-		soma_dump("cached option: $which");
+		// soma_dump("cached option: $which");													// debug
 		return true;																			// value hasn't changed, don't bother getting/setting options
 	} else {
 		$soma_options = get_option('somatic_framework_options', null);
@@ -463,7 +463,7 @@ function soma_set_option( $which = null, $new_value = null ) {
 
 		$update = update_option('somatic_framework_options', $soma_options);					// update with modified full array
 		set_transient( $which, $new_value, 60*60*24 );											// cache it for 24 hours
-		soma_dump("updated option: $which -- newvalue: $new_value");
+		// soma_dump("updated option: $which -- newvalue: $new_value");							// debug
 		return $update;																			// true if success, false if fail
 	}
 }

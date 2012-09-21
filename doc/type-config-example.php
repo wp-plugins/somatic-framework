@@ -22,7 +22,7 @@ function mysite_type_data() {
 				'sort_by' => 'meta_value',										// how to filter the query when displaying this type - date (published), title (post_title), author, parent, modified, rand (random), meta_value, menu_order - which also causes the admin sorting menu to appear
 				'sort_key' => 'custommetakey',									// if "meta_value" is indicated for sort_by, must supply a post meta key (which will automatically have the site meta prefix added)
 				'sort_order' => 'ASC',											// sorting order (typically need to set this manually to ASC when using menu_order)
-				'hide_publish' => true											// hides the Publish core metabox (make sure you include save buttons in your metabox field config)
+				'hide_publish' => true,											// hides the Publish core metabox (make sure you include save buttons in your metabox field config)
 				"sort_group_type" => 'taxonomy',								// optional: group listings on the Sort Order subpage by an object type
 				"sort_group_slug" => 'format',									// required if sort_group_type is set - which object to group by (in this case, a specific taxonomy)
 				"create_nav_item"=> true,										// automatically generate a nav menu item for this type in Appearance->Menus which you can rearrange - NOTE: will re-create the nav item if you manually delete it!
@@ -102,7 +102,7 @@ function mysite_type_data() {
 			'from' => 'author',
 			'to' => array( 'books','articles'),
 			'sortable' => 'any',
-			'admin_column' => 'any'
+			'admin_column' => 'any',
 			'title' => array( 'to' => 'Authored By', 'from' => 'Works by this Author' )
 		) );
 	}

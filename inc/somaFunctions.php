@@ -14,7 +14,6 @@ class somaFunctions extends somaticFramework {
 		// add_filter( 'login_redirect', array(__CLASS__, 'dashboard_redirect' ));
 		add_filter( 'add_menu_classes', array(__CLASS__, 'show_pending_number'));
 		// add_filter( 'wp_die_handler', array(__CLASS__, 'soma_wp_die_handler'),10,3);
-		// add_action( 'show_admin_bar', '__return_false' );
 		add_filter( 'editable_roles', array(__CLASS__, 'editable_roles'));
 		add_filter( 'map_meta_cap', array(__CLASS__, 'admin_map_meta_cap'), 10, 4);
 		remove_filter('check_comment_flood', 'check_comment_flood_db');					// deal with "posting too quickly" problem....
