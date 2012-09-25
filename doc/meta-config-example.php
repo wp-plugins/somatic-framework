@@ -123,7 +123,7 @@ function mysite_metabox_data() {
     * @return $meta OBJECT
 	*/
 	function fetch_media_field($meta, $post, $field) {
-		// get attached media object for this post (only returns one)
+		// get attached media objects
 		if ($field['data'] == 'media') {
 			$meta = somaFunctions::fetch_attached_media($post->ID, $field['type']);
 		}

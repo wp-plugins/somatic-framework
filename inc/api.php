@@ -302,6 +302,23 @@ function soma_featured_image( $pid = null, $size = null ) {
 	return somaFunctions::fetch_featured_image( $pid, $size );
 }
 
+/**
+ * Retrieves an array of all attachments as post objects
+ *
+ * @since 1.7.4
+ * @param $pid - (string/integer) post ID to get the featured image of (required)
+ * @param $mime - (string) [audio/mpeg, video/mp4, image/jpeg, application/pdf, application/zip] (optional) - filters for only that media type
+ * @param $exclude - (bool) exclude featured image when retrieving (optional)
+ * @return array - tons of data
+ */
+
+function soma_attachments($pid = null, $mime = null, $exclude = false) {
+	if (!$pid) {
+		return new WP_Error('missing', "Must pass a post ID argument!");
+	}
+	return somaFunctions::fetch_attached_media($pid, $mime, $exclude);
+}
+
 
 /**
  * Parses a given URL from Youtube or Vimeo, detects the site, extracts the video ID and returns all the metadata returned by the public APIs

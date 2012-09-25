@@ -46,7 +46,7 @@ class somaFunctions extends somaticFramework {
 	function edit_list_length() {
 		return 40;
 	}
-	
+
 	// checks if something is truly empty (not set) or null, and not simply set to a valid but negative value, like false or - 0 (0 as an integer) - 0.0 (0 as a float) - "0" (0 as a string)
 	// NOTE: THIS DOESN'T AVOID THE PHP NOTICE ERROR IF SOMETHING DOESN'T EXIST (not set)
 	function is_blank( $value ) {
@@ -377,7 +377,7 @@ class somaFunctions extends somaticFramework {
 				$item_list[] = '<a href="' . $link . '">' . $item->post_title . '</a>';
 			}
 			return $before . join( $sep, $item_list ) . $after;
-			
+
 			// return p2p_list_posts( p2p_type( $p2pname )->get_connected( $post->ID ) );  // a helpful function from scribu to do the same thing ;-)
 		}
 
@@ -677,7 +677,7 @@ class somaFunctions extends somaticFramework {
 				// $img['icon']['file'] 	= 	$att_meta['sizes']['post-thumbnail']['file'];		// this was failing for lack of 'post-thumbnail' array
 				// $img['icon']['url'] 	= 	$media_url . $img['icon']['file'];
 				// $img['icon']['path'] 	= 	$media_path . $img['icon']['file'];
-				
+
 				// check if each size exists (which it won't if uploaded file was smaller than options sizes)
 				if ( isset($att_meta['sizes']['thumbnail'])) {
 					$img['thumb']['file'] 	= 	$att_meta['sizes']['thumbnail']['file'];
@@ -753,11 +753,10 @@ class somaFunctions extends somaticFramework {
 		if (!is_null($specific)) {
 			if ($specific == 'filename') return $img['full']['file'];
 			if (is_array($att_meta['sizes'])) {
-				if (array_key_exists($specific, $att_meta['sizes'])) {
-					$url = $media_url . $att_meta['sizes'][$specific]['file'];			// this allows for custom image sizes to be passed via $specific
-					return $url;
+				if (array_key_exists($specific, $img)) {
+					return $img[$specific]['url'];			// this allows for custom image sizes to be passed via $specific
 				} else {
-					return null;														// couldn't find the size requested
+					return $img['full']['url'];			// couldn't find the size requested, so just give original file
 				}
 			} else {
 				return null;															// no sizes have been generated for this attachment
@@ -853,28 +852,21 @@ class somaFunctions extends somaticFramework {
 	}
 
 
-	// returns object of first attached media -- should probably expand this to accomodate multiple attachments...
-	public function fetch_attached_media($pid, $type = null) {
+	// returns all attachments
+	public function fetch_attached_media($pid, $mime = null, $exclude_featured = false) {
 		$args = array(
 			'post_parent' => $pid,
 			'post_type' => 'attachment',
 			'numberposts' => -1,
 			'post_status' => 'any',
 		);
-		if (!empty($type)) :
-			// only return requested type (helpful when images may already be attached)
-			switch ($type) {
-				case 'audio' :
-					$args['post_mime_type'] = 'audio/mpeg';
-				break;
-				case 'video' :
-					$args['post_mime_type'] = 'video/mp4';
-				break;
-				default:
-					//
-				break;
-			}
-		endif;
+		if ($exclude_featured == true) {
+			$args['exclude'] = get_post_thumbnail_id($pid);
+		}
+		if (!is_null($mime)) {
+			// only return requested media type (audio/mpeg, video/mp4, image/jpeg, application/pdf, application/zip)
+			$args['post_mime_type'] = $mime;
+		}
 		// fetch children (results in array of objects, even if only one exists)
 		$kids = get_posts($args);
 		// check if empty
@@ -898,7 +890,7 @@ class somaFunctions extends somaticFramework {
 	function check_plugin_dependency() {
 		// require scribu's p2p plugin
 		global $soma_options;
-		
+
 		if ( $soma_options['p2p'] && !function_exists('p2p_register_connection_type') ) {
 			add_action( 'admin_notices', create_function('', "
 				echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>PLUGIN REQUIRED: \"Posts 2 Posts\" - please <a href=\"http://scribu.net/wordpress/posts-to-posts\" target=\"_blank\">download</a> and/or activate!</p></div>';
@@ -1239,12 +1231,12 @@ SQL;
 		echo json_encode( $response );
 		exit;
 	}
-	
+
 	// AJAX delete attachments
 	function ajax_delete_attachment() {
 		$nonce = check_ajax_referer( 'soma-delete-attachment', 'nonce', false );
 		if (!$nonce) {
-			$response = array( 'error' => true, 'msg' => 'nonce verification failed...' );	
+			$response = array( 'error' => true, 'msg' => 'nonce verification failed...' );
 			echo json_encode( $response );
 			exit;
 		}
@@ -1258,8 +1250,8 @@ SQL;
 		echo json_encode( $response );
 		exit;
 	}
-	
-	
+
+
 
 	// grabs metadata from public vimeo API, returns array
 	function fetch_vimeo_meta( $link = null ) {
@@ -1374,7 +1366,7 @@ SQL;
 					$media['direct']	= $meta['stream_url']."?client_id=006b3d9b3bbd5bd6cc7d27ab05d9a11b";
 					$media['iframe']	= "http://w.soundcloud.com/player/?url=".$meta['uri']."?auto_play=true&show_artwork=false&show_comments=false&color=000000&show_playcount=false&sharing=false&show_user=false&liking=false";				// http://developers.soundcloud.com/docs/oembed   --  https://github.com/soundcloud/Widget-JS-API/wiki/widget-options
 					$media['embed']		= '<iframe width="100%" height="166" scrolling="no" frameborder="no" src="'.$media['iframe'].'"></iframe>';
-					$media['format']	= $meta['original_format'];					
+					$media['format']	= $meta['original_format'];
 					$media['api']		= $meta;													// mp3 in this case
 				} else {
 					return new WP_Error('missing', "Can't extract ID from soundcloud URL...");
@@ -1516,11 +1508,11 @@ SQL;
 
 		return $att_id;
 	}
-	
+
 	/*
 	* Gets the excerpt of a specific post ID or object - if one doesn't exist, it will create one dynamically
 	* @since 1.7.3
-	
+
 	* @param - $post - object/int - the ID or object of the post to get the excerpt of
 	* @param - $length - int - the length of the excerpt in words
 	* @param - $tags - string - the allowed HTML tags. These will not be stripped out

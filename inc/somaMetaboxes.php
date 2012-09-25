@@ -75,7 +75,7 @@ class somaMetaboxes extends somaticFramework {
 	desc
  * types:
 	readonly
-	attachment
+	gallery (of attachments)
 	p2p-objects
 	p2p-list
 	p2p-select
@@ -176,12 +176,18 @@ class somaMetaboxes extends somaticFramework {
 				}
 			}
 
-			// get media attachment
+			// get all media attachments (minus featured image)
 			if ($field['data'] == 'attachment') {
-				$meta = somaFunctions::fetch_attached_media($post->ID, $field['type']);
+				$mime = soma_fetch_index($field, 'mime-type');
+				$meta = somaFunctions::fetch_attached_media($post->ID, $mime, true);
+			}
+			
+			// don't show attachment gallery field at all if there aren't any yet
+			if ($field['type'] == 'gallery' && $meta == null) {
+				continue;
 			}
 
-			// get media attachment
+			// get featured image
 			if ($field['data'] == 'featured') {
 				$meta = get_post_thumbnail_id( $post->ID );
 				if (empty($meta)) $meta = null;
@@ -217,20 +223,6 @@ class somaMetaboxes extends somaticFramework {
 						$meta = somaFunctions::fetch_connected_items( $post->ID, $field['p2pname'], $field['dir'], $output = 'objects');	// array of post objects
 						if (!$meta) continue;																								// if no connections exist, skip rendering this line
 					break;
-				}
-			}
-			// get all attachments as objects for this post
-			if ($field['type'] == 'attachment') {
-				$args = array(
-				     'post_type' => 'attachment',
-				     'numberposts' => -1,
-				     'post_status' => null,
-				     'post_parent' => $post->ID,
-				     );
-				$meta = get_posts($args);
-				// don't render field at all if there's no attachments
-				if (!$meta) {
-					continue;
 				}
 			}
 
@@ -376,7 +368,7 @@ class somaMetaboxes extends somaticFramework {
 						// $url = wp_get_attachment_url($meta);
 						echo '<ul class="featured-image">';
 						echo '<li class="meta-attachment-item">';
-						echo '<a href="'.wp_get_attachment_url($meta).'" class="colorbox" rel="attachment-gallery">'. wp_get_attachment_image($meta, 'medium', false, array('title'=>'Click to Zoom', 'class' => 'pic')) . '</a>';
+						echo '<a href="'.wp_get_attachment_url($meta).'" class="colorbox">'. wp_get_attachment_image($meta, 'medium', false, array('title'=>'Click to Zoom', 'class' => 'pic')) . '</a>';
 						echo '<ul class="meta-attachment-actions">';
 						echo '<li><a class="delete-attachment" href="#" rel="'.$meta.'" title="Delete this file" data-nonce="'.wp_create_nonce("soma-delete-attachment").'" data-featured="true">Remove Image</a><img src="'.admin_url('images/wpspin_light.gif').'" class="kill-animation" style="display:none;" alt="" /></li>';
 						echo '</ul></li></ul>';
@@ -388,7 +380,7 @@ class somaMetaboxes extends somaticFramework {
 				break;
 
 				// ----------------------------------------------------------------------------------------------------------------------------- //
-				case 'attachment':
+				case 'gallery':
 					echo '<ul class="meta-attachment-gallery">';
 					foreach ($meta as $att) :
 						echo '<li class="meta-attachment-item">';

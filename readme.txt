@@ -32,6 +32,15 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.7.4 =
+* NEW api soma_attachments(), wrapper for get_posts() returns array of attached post objects
+* somaFunctions::fetch_attached_media() now takes mime-type argument and an optional argument to exclude the featured image
+* metabox field type "attachment" is now "gallery" (still with data of "attachment")
+* metabox "gallery" field type now excludes the featured image automatically, allowing fully independent featured image and gallery attachment uploaders
+* metabox field argument for data of "attachment" can also include "mime-type" for filtering retrieved attachments by media type
+* NOTE: any old metabox fields dealing with attachments should probably be revisited...
+* FIX soma_featured_image() was failing certain specific requests, now returns original full file URL if the requested size is not available (eg: original pic was smaller than site's "large" setting)
+
 = 1.7.3 =
 * FIX save routines on external media and images don't die anymore if empty
 * NEW metabox field: "link"
@@ -48,6 +57,8 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * custom login logos should be transparent PNG of 320x70 exactly, with content aligned bottom center for best results
 * stopped hiding user profile fields
 * now using transients with soma_set_option(), allowing caching, reducing DB load when calling soma_set_option() on every page load
+* option to force admin bar only applies to logged in users
+* $_GET and $_POST are now passed to JS via soma_vars
 
 = 1.7.1 =
 * fixed stripslashes problem with quotes in text fields

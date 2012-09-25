@@ -31,48 +31,48 @@ jQuery(document).ready(function($) {
 		});
 	}
 	
-	// colorbox activation through manual class assignment
-	$(".colorbox").colorbox({
-		// inline: function(){
-		//     return $(this).attr('inline');
-		// },
-		iframe: function(){
-		    return $(this).attr('iframe');
-		},
-		width: function(){
-			if ($(this).attr('width') !== undefined) {
-				return $(this).attr('width');
-			}
-		},
-		height: function(){
-			if ($(this).attr('height') !== undefined) {
-				return $(this).attr('height');
-			}
-		},
-		maxWidth: function(){
-			if ($(this).attr('maxWidth') !== undefined) {
-				return $(this).attr('maxWidth');
-			}
-		},
-		maxHeight: function(){
-			if ($(this).attr('maxHeight') !== undefined) {
-				return $(this).attr('maxHeight');
-			}
-		},
-		innerWidth: function(){
-			if ($(this).attr('innerWidth') !== undefined) {
-				return $(this).attr('innerWidth');
-			}
-		},
-		innerHeight: function(){
-			if ($(this).attr('innerHeight') !== undefined) {
-				return $(this).attr('innerHeight');
-			}
-		},
-		scalePhotos: true,
-		scrolling: false,
-		fastIframe: false
-	});
+	// // colorbox activation through manual class assignment
+	// $(".colorbox").colorbox({
+	// 	// inline: function(){
+	// 	//     return $(this).attr('inline');
+	// 	// },
+	// 	iframe: function(){
+	// 	    return $(this).attr('iframe');
+	// 	},
+	// 	width: function(){
+	// 		if ($(this).attr('width') !== undefined) {
+	// 			return $(this).attr('width');
+	// 		}
+	// 	},
+	// 	height: function(){
+	// 		if ($(this).attr('height') !== undefined) {
+	// 			return $(this).attr('height');
+	// 		}
+	// 	},
+	// 	maxWidth: function(){
+	// 		if ($(this).attr('maxWidth') !== undefined) {
+	// 			return $(this).attr('maxWidth');
+	// 		}
+	// 	},
+	// 	maxHeight: function(){
+	// 		if ($(this).attr('maxHeight') !== undefined) {
+	// 			return $(this).attr('maxHeight');
+	// 		}
+	// 	},
+	// 	innerWidth: function(){
+	// 		if ($(this).attr('innerWidth') !== undefined) {
+	// 			return $(this).attr('innerWidth');
+	// 		}
+	// 	},
+	// 	innerHeight: function(){
+	// 		if ($(this).attr('innerHeight') !== undefined) {
+	// 			return $(this).attr('innerHeight');
+	// 		}
+	// 	},
+	// 	scalePhotos: true,
+	// 	scrolling: false,
+	// 	fastIframe: false
+	// });
 
 	// end
 });

@@ -114,7 +114,7 @@ class somaticFramework {
 
 		// jquery plugin lightbox functionality
 		wp_register_style( 'colorbox-theme', SOMA_JS.'colorbox/colorbox.css', array(), '1.3.19', 'screen' );
-		wp_register_script( 'colorbox', SOMA_JS.'colorbox/jquery.colorbox-min.js', array('jquery'), '1.3.19' );
+		wp_register_script( 'colorbox', SOMA_JS.'colorbox/jquery.colorbox-min.js', array('jquery'), '1.3.20.1' );
 
 		// jquery UI
 		wp_register_style( 'jquery-ui-theme', SOMA_JS. 'ui/smoothness/jquery-ui-1.8.17.custom.css', false, '1.8.17');
@@ -183,6 +183,8 @@ class somaticFramework {
 			'debug' => $debug,
 			'debug_panel' => $debug_panel,
 			'ajaxurl' => admin_url('admin-ajax.php'),	 						// need to define because ajaxurl isn't defined on front-end, only admin
+			'$_POST' => json_encode($_POST),
+			'$_GET' => json_encode($_GET)
 		);
 		wp_localize_script( 'jquery', 'soma_vars', $params); 	// will place in footer because of jquery registered in footer
 	}

@@ -6,19 +6,6 @@ jQuery(document).ready(function($) {
 		console.log(soma_vars);	// array of vars passed over by wp_localize_script()
 	}
 
-	// pull in GET Vars
-	$._GET = [];
-	var urlHalves = String(document.location).split('?');
-	if(urlHalves[1]) {
-		var urlVars = urlHalves[1].split('&');
-		for(var i=0; i<=(urlVars.length); i++){
-			if(urlVars[i]){
-				var urlVarPair = urlVars[i].split('=');
-				$._GET[urlVarPair[0]] = urlVarPair[1];
-			}
-		}
-	}
-
 	// colorbox activation through manual class assignment
 	$(".colorbox").colorbox({
 		// inline: function(){

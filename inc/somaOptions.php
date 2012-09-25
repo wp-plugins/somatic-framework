@@ -850,7 +850,7 @@ class somaOptions extends somaticFramework  {
 		// pass thru
 		return $query;
 	}
-	
+
 	// disable the screen tab without losing whatever had been set in it (like dashboard columns)
 	function disable_screen_options($display_boolean, $wp_screen_object) {
 		global $soma_options, $pagenow;
@@ -922,14 +922,15 @@ class somaOptions extends somaticFramework  {
 	function user_admin_bar_false_by_default($user_id) {
 	    update_user_meta( $user_id, 'show_admin_bar_front', 'false' );
 	}
-	
+
 	function show_admin_bar() {
 		// checking per user doesn't work because current user isn't known this early in init hook
 		// get_currentuserinfo();
 		// $useroption = get_user_meta($user_ID, 'show_admin_bar_front', true);
-		// if ( empty( $useroption ) ) $useroption = false;		
+		// if ( empty( $useroption ) ) $useroption = false;
 		global $soma_options;
-		if ( !is_admin() && $soma_options[ 'always_show_bar' ] ) {
+		
+		if ( !is_admin() && $soma_options[ 'always_show_bar' ] && is_user_logged_in() ) {
 			add_filter( 'show_admin_bar', '__return_true' );
 		} else {
 			add_filter( 'show_admin_bar', '__return_false' );
