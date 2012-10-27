@@ -89,7 +89,6 @@ class somaMetaboxes extends somaticFramework {
 	richtext (using wp_editor())
 	html
 	upload-files (upload-images) [uses plupload]
-	upload-featured
 	select
 	radio
 	checkbox-single
@@ -349,16 +348,9 @@ class somaMetaboxes extends somaticFramework {
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'upload-files' :
 				case 'upload-images' :
-					$uploader = new somaUploadField($field);
-					$uploader->print_scripts();
-					$uploader->html();
-					$dodesc = false;
-				break;
-
-				// ----------------------------------------------------------------------------------------------------------------------------- //
-				case 'upload-featured':
-					if ($meta) {
-						// $url = wp_get_attachment_url($meta);
+					$ft = false;
+					if ($field['data'] == 'featured') $ft = true;
+					if ( $ft && $meta ) {										// if this is a featured image uploader, but we already have one, show it (in this case, $meta simply contains the ID of the featured attachment)
 						echo '<ul class="featured-image">';
 						echo '<li class="meta-attachment-item">';
 						echo '<a href="'.wp_get_attachment_url($meta).'" class="colorbox">'. wp_get_attachment_image($meta, 'medium', false, array('title'=>'Click to Zoom', 'class' => 'pic')) . '</a>';
@@ -366,7 +358,7 @@ class somaMetaboxes extends somaticFramework {
 						echo '<li><a class="delete-attachment" href="#" rel="'.$meta.'" title="Delete this file" data-nonce="'.wp_create_nonce("soma-delete-attachment").'" data-featured="true">Remove Image</a><img src="'.admin_url('images/wpspin_light.gif').'" class="kill-animation" style="display:none;" alt="" /></li>';
 						echo '</ul></li></ul>';
 					}
-					$uploader = new somaUploadField($field, true, $meta);
+					$uploader = new somaUploadField($field, $ft, $meta);
 					$uploader->print_scripts();
 					$uploader->html();
 					$dodesc = false;
