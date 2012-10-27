@@ -295,19 +295,24 @@ class somaTypes extends somaticFramework {
 	// images should be named "slug-add-icon.png" and be 32x32px and placed in directory defined as "icons" in init_type()
 	function custom_type_icons() {
 		global $pagenow, $post_type;
-		if ( !isset( self::$type_data[$post_type] ) ) return null;    // abort if custom post type hasn't been defined for whatever type we're viewing
-		if ( !isset( self::$type_data[$post_type]['icons'] ) ) return null;  // abort if custom icons path hasn't been provided
+		if (!$post_type) $post_type = somaFunctions::fetch_index($_GET, 'post_type');
+
+		if ( !somaFunctions::fetch_index(self::$type_data, $post_type ) ) return null;    // abort if custom post type hasn't been defined for whatever type we're viewing
+		if ( !somaFunctions::fetch_index(self::$type_data[$post_type], 'icons' ) ) return null;  // abort if custom icons path hasn't been provided
 
 		$url = self::$type_data[$post_type]['icons'] . $post_type;
+		$sortpage = "sort-" . $post_type;
 
-		if ( $pagenow == 'post-new.php' ) {
-			echo '<style>#wpbody-content .icon32 { background: transparent url("'. $url .'-add-icon.png") no-repeat; !important }</style>';
-		}
-		if ( $pagenow == 'post.php' ) {
-			echo '<style>#wpbody-content .icon32 { background: transparent url("'. $url .'-edit-icon.png") no-repeat; !important }</style>';
-		}
-		if ( $pagenow == 'edit.php' ) {
-			echo '<style>#wpbody-content .icon32 { background: transparent url("'. $url .'-list-icon.png") no-repeat; !important }</style>';
+		switch (true) {
+			case ( $pagenow == 'post-new.php' ) :
+				echo '<style>#wpbody-content .icon32 { background: transparent url("'. $url .'-add-icon.png") no-repeat; !important }</style>';
+			break;
+			case ( $pagenow == 'post.php' || somaFunctions::fetch_index($_GET, 'page' ) == $sortpage ) :
+				echo '<style>#wpbody-content .icon32 { background: transparent url("'. $url .'-edit-icon.png") no-repeat; !important }</style>';
+			break;
+			case ( $pagenow == 'edit.php' ) :
+				echo '<style>#wpbody-content .icon32 { background: transparent url("'. $url .'-list-icon.png") no-repeat; !important }</style>';
+			break;
 		}
 	}
 

@@ -27,7 +27,7 @@ class somaSorter extends somaticFramework {
 ?>
 	<div class="wrap">
 		<div id="icon-edit" class="icon32"></div>
-		<h2><?php echo $type_obj->labels->name ?> List Order</h2>
+		<h2><?php echo $type_obj->labels->singular_name ?> Sort Order</h2>
 <?php
 		// default query args
 		$query_args = array(
@@ -56,19 +56,11 @@ class somaSorter extends somaticFramework {
 					);
 					$query = new WP_Query($query_args); ?>
 					<h3><?php echo $term->name; ?></h3>
-					<?php while ( $query->have_posts() ) : $query->the_post(); ?>
-						<li id="<?php the_id(); ?>" class="type-sort-list-item">
-							<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
-							<?php the_post_thumbnail(array('50,50'));?>
-							<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" class="loading-animation" style="display:none;"/>
-							<div class="clearfix"></div>
-						</li>
-					<?php endwhile; ?>
-					<?php wp_reset_postdata(); ?>
+					<?php self::soma_sort_item($query); ?>
 					<?php
 				}
 			}
-			
+
 			// p2p group
 			if ($type_obj->sort_group_type == 'p2p') {
 				if (p2p_connection_exists($type_obj->sort_group_slug )) $p2ptype = p2p_type($type_obj->sort_group_slug );
@@ -77,11 +69,11 @@ class somaSorter extends somaticFramework {
 				$from = $p2ptype->side['from']->post_type[0];
 				$to = $p2ptype->side['to']->post_type[0];
 
-				$projects = get_posts(array('post_type' => $to, 'numberposts' => -1, 'orderby' => 'menu_order', 'order' => 'ASC'));
-				foreach ($projects as $project) {
+				$conns = get_posts(array('post_type' => $to, 'numberposts' => -1, 'orderby' => 'menu_order', 'order' => 'ASC'));
+				foreach ($conns as $conn) {
 					$query_args = array(
 						'connected_type' => $type_obj->sort_group_slug,
-						'connected_items' => $project,
+						'connected_items' => $conn,
 						'nopaging' => true,
 						'suppress_filters' => true,		// not sure why we have to do this... but order gets borked otherwise..
 						'orderby' => 'menu_order',
@@ -91,19 +83,11 @@ class somaSorter extends somaticFramework {
 					// soma_dump($query->posts);
 					if ($query->post_count == 0) continue;				// didn't find any connected, so skip
 					 ?>
-					<h3><?php echo $project->post_title; ?></h3>
-					<?php while ( $query->have_posts() ) : $query->the_post(); ?>
-						<li id="<?php the_id(); ?>" class="type-sort-list-item">
-							<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
-							<?php the_post_thumbnail(array('50,50'));?>
-							<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" class="loading-animation" style="display:none;"/>
-							<div class="clearfix"></div>
-						</li>
-					<?php endwhile; ?>
-					<?php wp_reset_postdata(); ?>
+					<h3><?php echo $conn->post_title; ?></h3>
+					<?php self::soma_sort_item($query); ?>
 					<?php
 				}
-				
+
 				// $groups = get_posts(array('post_type' => $type_obj->sort_group_slug ));
 				// foreach ($groups as $group) {
 				// 	$conn = p2p_get_connections( )
@@ -115,29 +99,40 @@ class somaSorter extends somaticFramework {
 		} else {
 			$query = new WP_Query($query_args); ?>
 			<ul id="type-sort-list">
-			<?php while ( $query->have_posts() ) : $query->the_post(); ?>
-				<li id="<?php the_id(); ?>" class="type-sort-list-item">
-					<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
-					<?php the_post_thumbnail(array('50,50'));?>
-					<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" class="loading-animation" style="display:none;"/>
-					<div class="clearfix"></div>
-				</li>
-			<?php endwhile; ?>
-			<?php wp_reset_postdata(); ?>
+				<?php self::soma_sort_item($query); ?>
 			</ul>
 			<?php
 		}
 	}
 
+	// outputs items for sorting lists
+	function soma_sort_item($query) { ?>
+		<?php while ( $query->have_posts() ) : $query->the_post(); ?>
+			<li id="<?php the_id(); ?>" class="type-sort-list-item">
+					<?php if (has_post_thumbnail($post->ID)) {
+						$loadingclass = "loading-animation thumb";		// give room if a thumbnail is being shown
+					} else {
+						$loadingclass = "loading-animation";
+					}?>
+				<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
+				<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" class="<?php echo $loadingclass; ?>" style="display:none;"/>
+				<?php echo the_post_thumbnail(array('50,50')) . "\n";?>
+				<div class="clearfix"></div>
+			</li>
+		<?php endwhile; ?>
+		<?php wp_reset_postdata(); ?>
+<?php
+	}
+
 	// admin js
 	function soma_sorter_print_scripts() {
 		wp_enqueue_script('jquery-ui-sortable');
-		wp_enqueue_script('soma-sorter-js', SOMA_JS . 'soma-sorter.js');
+		wp_enqueue_script('soma-sorter-js');
 	}
 
 	// admin css
 	function soma_sorter_print_styles() {
-		wp_enqueue_style('soma-sorter', SOMA_CSS . 'soma-sorter.css');
+		wp_enqueue_style('soma-sorter');
 	}
 
 	// ajax callback function
