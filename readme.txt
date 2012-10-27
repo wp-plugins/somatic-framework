@@ -41,6 +41,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * metabox field argument for data of "attachment" can also include "mime-type" for filtering retrieved attachments by media type
 * NOTE: metabox field "upload-images" has been folded into "upload-files", which has abandoned the old html file selector input model, and now uses the hot new plUpload system.
 * NEW: metabox field "upload-files" can now handle audio as well as images!
+* old field type for featured image plUpload boxes, "upload-featured", is now deprecated: use "upload-files", with 'data' arg set to "featured"
 * FIX: multiple plUpload boxes on the same page now behave!
 * NOTE: any old metabox fields dealing with attachments should probably be revisited...
 * FIX: soma_featured_image() was failing certain specific requests, now returns original full file URL if the requested size is not available (eg: original pic was smaller than site's "large" setting)
@@ -54,6 +55,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * thumbnail columns now automatically adjust width according to thumbnail options
 * FIX: media uploader metabox field type works again
 * improvements to the styling and behavior of the sorting pages
+* improvements to the somaUploadField class
 
 
 = 1.7.3 =

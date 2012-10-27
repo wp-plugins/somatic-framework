@@ -1,24 +1,31 @@
 <?php
 
+/**
+ * Uses plUpload to accept files via drag and drop, shows a progress indicator for each one, and displays a row of thumbnails as a result
+ * incoming files are resized (if width and height have been specified), and passed thru wp_handle_upload, which results in file/url/mimetype data, and the resulting file is placed in the uploads directory
+ * these files are merely pending (not attachments yet), and can be removed from the pending list before saving the post, in which case the files are deleted from the uploads directory
+ * hidden form inputs are created to store the file/url/mimetype of each pending image, and are destroyed if remove button is clicked
+ * NOTE: if you leave the page before saving the post or deleting all pending images, the files will remain as orphans in the upload directory!
+ * upon saving the post, the hidden inputs are parsed in save_asset() and inserted as attachments, with various sizes generated
+ *
+ * Inspired by code at http://www.krishnakantsharma.com/2012/01/image-uploads-on-wordpress-admin-screens-using-jquery-and-new-plupload/
+ *
+ * @since 1.7
+ * @param $field - (array) metabox config data for a single field
+ * @param $is_featured - (bool) is this an uploader for featured image selection? (optional)
+ * @param $have_featured - (bool) does the post already have a featured image assigned? (optional)
+ */
+
 class somaUploadField extends somaticFramework {
 
-	// Inspired by code at http://www.krishnakantsharma.com/2012/01/image-uploads-on-wordpress-admin-screens-using-jquery-and-new-plupload/
-	/*
-	Explanation:
-	- Uses plUpload to accept files via drag and drop, shows a progress indicator for each one, and displays a row of thumbnails as a result
-	- incoming files are resized (if width and height have been specified), and passed thru wp_handle_upload, which results in file/url/mimetype data, and the resulting file is placed in the uploads directory
-	- these files are merely pending (not attachments yet), and can be removed from the pending list before saving the post, in which case the files are deleted from the uploads directory
-	- hidden form inputs are created to store the file/url/mimetype of each pending image, and are destroyed if remove button is clicked
-	- NOTE: if you leave the page before saving the post or deleting all pending images, the files will remain as orphans in the upload directory!
-	- upon saving the post, the hidden inputs are parsed in save_asset() and inserted as attachments, with various sizes generated
-	*/
-
-	function __construct($field = null, $featured = false, $attid = null) {
+	function __construct($field = null, $is_featured = false, $have_featured = false) {
 		if (is_null($field)) return new WP_Error("missing","Must pass a field array...");
 
 		$this->field = $field;
-		$this->featured = $featured;
-		if (!is_null($attid)) {
+		$this->is_featured = $is_featured;
+
+		// already have a featured image, hide the uploader till it's gone
+		if ($is_featured && $have_featured) {
 			$this->hidden = true;
 		}
 
@@ -35,7 +42,7 @@ class somaUploadField extends somaticFramework {
 		} else {
 			$this->max = 20;							// default
 		}
-		if ($this->featured) {
+		if ($this->is_featured) {
 			$this->max = 1;								// force only one file if featured
 		}
 
@@ -89,7 +96,7 @@ class somaUploadField extends somaticFramework {
 
 
     /**
-     * Get field HTML
+     * Output field HTML
      *
      * @param string $html
      * @param mixed  $meta
@@ -103,7 +110,7 @@ class somaUploadField extends somaticFramework {
 		// <input type="hidden" name="fieldID[0][url]" value="http://example.com/uploads/myimage.jpg" class="storage-url" />
 		// <input type="hidden" name="fieldID[0][type]" value="image/jpeg" class="storage-type" />
 
-		if ($this->featured) {
+		if ($this->is_featured) {
 			$pendinglabel = "Pending ".$this->field['name'];
 			$help = "Or drag and drop a file here";
 		} else {
@@ -121,7 +128,7 @@ class somaUploadField extends somaticFramework {
 		<?php echo $this->field['desc'] ? "</td>\n<td=\"field-label\"></td>\n<td class=\"field-desc\">". $this->field['desc'] : null, '</td></tr>';
 		 ?>
 		<tr id="<?php echo $this->field['id']; ?>_pending-thumbs" class="hidden"><td class="field-label"><?php echo $pendinglabel; ?></td><td class="field-data">
-			<div class="plupload-thumbs<? echo $this->featured ? " plupload-featured" : null; ?>" id="<?php echo $this->field['id']; ?>_plupload-thumbs"></div>
+			<div class="plupload-thumbs<? echo $this->is_featured ? " plupload-featured" : null; ?>" id="<?php echo $this->field['id']; ?>_plupload-thumbs"></div>
 			<div class="clear"></div>
 		</td></tr>
 		<?php
