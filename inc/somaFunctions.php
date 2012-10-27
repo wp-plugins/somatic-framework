@@ -718,14 +718,14 @@ class somaFunctions extends somaticFramework {
 			$img['id'] = false;
 			$sizes = get_intermediate_image_sizes();
 			foreach ($sizes as $size) {
-				$img[$size]['url'] = SOMA_IMG . 'image-placeholder.png';
+				$img[$size]['url'] = SOMA_IMG . 'placeholder-image.png';
 			}
 			$img['thumbnail']['width'] = SOMA_THUMB_WIDTH;
 			$img['thumbnail']['height'] = SOMA_THUMB_HEIGHT;
 			$img['full']['name'] = 'MISSING IMAGE';
-			$img['full']['url'] = SOMA_IMG . 'image-placeholder.png';
-			$img['file']['path'] = SOMA_DIR . 'images/image-placeholder.png';
-			$img['file']['file'] = 'image-placeholder.png';
+			$img['full']['url'] = SOMA_IMG . 'placeholder-image.png';
+			$img['file']['path'] = SOMA_DIR . 'images/placeholder-image.png';
+			$img['file']['file'] = 'placeholder-image.png';
 		}
 
 		// return just the requested URL
