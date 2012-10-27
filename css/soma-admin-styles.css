@@ -1,0 +1,90 @@
+/* clicker button */
+
+.clicker, input.clicker {
+	display: inline-block;
+	margin-right: 6px;
+	margin-bottom: 6px;
+	text-transform: uppercase;
+	border-top: 1px solid #96d1f8;
+	border-bottom: none;
+	background: #65a9d7;
+	background: -webkit-gradient(linear, left top, left bottom, from(#3e779d), to(#65a9d7));
+	background: -moz-linear-gradient(top, #3e779d, #65a9d7);
+	padding: 6px 12px;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	-webkit-box-shadow: rgba(40,80,80,1) 0 1px 2px;
+	-moz-box-shadow: rgba(40,80,80,1) 0 1px 0;
+	box-shadow: rgba(40,80,80,1) 0 1px 0;
+	text-shadow: rgba(0,0,0,.4) 0 1px 0;
+	color: white;
+	font-size: 11px !important;
+	line-height: 14px !important;
+	font-family: 'Lucida Grande', Helvetica, Arial, Sans-Serif;
+	font-weight: bold;
+	text-decoration: none;
+	vertical-align: middle;
+}
+
+.clicker.neutral {
+	background: #aaa;
+	border-top: 1px solid #ccc;
+	-webkit-box-shadow: rgba(50,50,50,1) 0 1px 2px;
+	-moz-box-shadow: rgba(80,120,120,1) 0 1px 0;
+	box-shadow: rgba(80,120,120,1) 0 1px 0;
+}
+
+.clicker:hover, input.clicker:hover {
+	border-top-color: #28597a;
+	background: #28597a;
+	color: #ccc;
+	cursor: pointer;
+}
+
+.clicker.neutral:hover {
+	border-top-color: #777;
+	background: #555;
+}
+
+.clicker:active, input.clicker:active {
+	border-top-color: #1b435e;
+	background: #1b435e;
+}
+
+
+/* edit.php column styles */
+.wp-list-table .column-thumb {
+	padding: 6px;
+/*	note: width is set dynamically depending on thumbnail size*/
+}
+.wp-list-table .column-thumb img {
+	display: block;
+	border: 1px solid #ddd;
+	background: #eee;
+}
+
+
+/* settings page tweaks */
+.somatic-options .form-table th {
+	padding-left: 0;
+	color: #666;
+	font-weight: bold;
+}
+.somatic-options .form-table tr {
+	border-bottom: 1px dotted #cdcdcd;
+	display: block;
+	padding: .5em 0 .5em 0;
+}
+.somatic-options .form-table tr:last-child {
+	border-bottom: none;
+}
+.somatic-options .form-table .clicker {
+	margin-top: 1em;
+}
+
+/* admin notice box mod */
+div.success {
+	background-color: #dfd;
+	border-color: #006505;
+}
