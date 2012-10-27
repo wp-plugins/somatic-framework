@@ -1,11 +1,11 @@
 jQuery.fn.exists = function() {
     return jQuery(this).length > 0;
-}
+};
 
 // separate debug function fallback to alert in IE
 function trace(s) {
 	if (soma_vars['debug'] == 'false') return;		// abort if not in debug mode
-	try { console.log(s) } catch (e) { /* nothing... alert(s) */ }
+	try { console.log(s); } catch (e) { /* nothing... alert(s) */ }
 }
 
 // php mirror functions
@@ -14,7 +14,7 @@ function basename(path) {
 }
 
 function dirname(path) {
-	return path.replace(/\\/g,'/').replace(/\/[^\/]*$/, '');;
+	return path.replace(/\\/g,'/').replace(/\/[^\/]*$/, '');
 }
 
 var pendingcount = 0;
@@ -26,9 +26,9 @@ jQuery(document).ready(function($) {
 
 		$(".plupload-container").each(function() {
 			var $this = $(this);
-			pconfig = JSON.parse(JSON.stringify(base_plupload_config));				// retrieve passed params
-			var fieldID = pconfig["multipart_params"]["fieldID"];					// identify instance
-			trace(pconfig);
+			var fieldID = $this.data('fieldid');									// identify instance
+			var thisconfig = window[fieldID+"_plupload_config"];					// dynamically link to variable passed by wp_localize_script
+			pconfig = JSON.parse(JSON.stringify(thisconfig));						// retrieve passed params
 
 			// init uploader
 			var uploader = new plupload.Uploader(pconfig);
@@ -41,10 +41,10 @@ jQuery(document).ready(function($) {
 				trace( "Proposed total: " + (files.length + pendingcount) );
 				// check if the amount of new files added plus any already pending will exceed the max
 				if ( ( files.length + pendingcount ) > uploader.settings.max_file_count ) {
-			        alert('Select no more than '+ uploader.settings.max_file_count +' files per upload!');
+					alert('Select no more than '+uploader.settings.max_file_count+' files per upload!');
 					up.splice();													// clears upload queue
-			        return false;													// die
-			    }
+					return false;													// die
+				}
 
 				trace('Going to add ' + files.length + ' files...');
 				// spawn progress for each file
@@ -76,7 +76,7 @@ jQuery(document).ready(function($) {
 			var index = 0;
 			// a file was uploaded
 			uploader.bind('FileUploaded', function(up, file, result) {
-				var data = $.parseJSON(result.response); 							// wp_handle_upload returns url, file, type
+				var data = $.parseJSON(result.response);							// wp_handle_upload returns url, file, type
 				if ( data == '0' ) {
 					trace('there was a problem with the ajax callback...');
 					return;															// abort if callback fails
@@ -92,19 +92,19 @@ jQuery(document).ready(function($) {
 					'type': 'hidden',
 					'name': fieldID+'['+index+'][file]',
 					'value': data.file,
-					'class': 'storage-file',
+					'class': 'storage-file'
 				}).appendTo('#post');
 				$('<input>').attr({
 					'type': 'hidden',
 					'name': fieldID+'['+index+'][url]',
 					'value': data.url,
-					'class': 'storage-url',
+					'class': 'storage-url'
 				}).appendTo('#post');
 				$('<input>').attr({
 					'type': 'hidden',
 					'name': fieldID+'['+index+'][type]',
 					'value': data.type,
-					'class': 'storage-type',
+					'class': 'storage-type'
 				}).appendTo('#post');
 
 
@@ -122,7 +122,7 @@ jQuery(document).ready(function($) {
 
 			uploader.bind('UploadComplete', function(up, files) {
 				trace('Completed files: ' + uploader.files.length);
-				up.splice(); 														// reset the queue
+				up.splice();														// reset the queue
 				if ( pendingcount >= uploader.settings.max_file_count ) {
 					trace('Maxed!');
 					$("#" + fieldID + '-row' ).fadeOut('fast');		// hide the uploader UI to prevent further uploads
@@ -130,7 +130,7 @@ jQuery(document).ready(function($) {
 			});
 
 			uploader.bind('Error', function(up, args) {
-			    trace(args.code + ': ' + args.message);
+				trace(args.code + ': ' + args.message);
 			});
 
         });
@@ -143,21 +143,34 @@ function plu_add_thumbs(fieldID, index, max) {
 	var $ = jQuery;
 	var uploadContainer = $("#" + fieldID + "_plupload-upload-ui");					// div container for relevant plupload instance
 	var thumbsContainer = $("#" + fieldID + "_plupload-thumbs");					// div container for generated thumbs
-	var url = $('input[name="'+ fieldID +'['+ index +'][url]"]');
-	url = url[0].value;
-	var newthumb = $('<div class="thumb" id="' + fieldID + '_thumb' + index + '"><a href="'+url+'" class="colorbox" rel="pending-gallery" title="'+basename(url)+'"><img src="' + url + '" alt="" /></a><div class="thumbinfo"><a class="kill" data-field="' + fieldID +'" data-index="' + index + '" href="#">Remove File</a><img src="'+soma_vars['loading-spin']+'" class="kill-animation" style="display:none;" alt="" /></div><div class="clear"></div></div>');
+	var url = $('input[name="'+ fieldID +'['+ index +'][url]"]').val();
+	var type = $('input[name="'+ fieldID +'['+ index +'][type]"]').val();
+	switch (type) {
+		case "audio/mpeg" :
+			var newthumb = $('<div class="thumb audio" id="' + fieldID + '_thumb' + index + '"><div class="icon"></div>'+basename(url)+'<br/><div class="pendinginfo"><a class="kill" data-field="' + fieldID +'" data-index="' + index + '" href="#">Remove File</a><img src="'+soma_vars['loading-spin']+'" class="kill-animation" style="display:none;" alt="" /></div><div class="clear"></div></div>');
+		break;
+		case "video/mp4" :
+			var newthumb = $('<div class="thumb video" id="' + fieldID + '_thumb' + index + '"><div class="icon"></div>'+basename(url)+'<br/><div class="pendinginfo"><a class="kill" data-field="' + fieldID +'" data-index="' + index + '" href="#">Remove File</a><img src="'+soma_vars['loading-spin']+'" class="kill-animation" style="display:none;" alt="" /></div><div class="clear"></div></div>');
+		break;
+		case "image/jpeg" :
+			var newthumb = $('<div class="thumb image" id="' + fieldID + '_thumb' + index + '"><a href="'+url+'" class="colorbox" rel="pending-gallery" title="'+basename(url)+'"><img src="' + url + '" alt="" /></a><div class="thumbinfo"><a class="kill" data-field="' + fieldID +'" data-index="' + index + '" href="#">Remove File</a><img src="'+soma_vars['loading-spin']+'" class="kill-animation" style="display:none;" alt="" /></div><div class="clear"></div></div>');
+		break;
+		default:
+			var newthumb = $('<div class="thumb">Can\'t tell what kind of file this is!</div>');
+	}
+
 	thumbsContainer.append(newthumb);
 
 	// init colorbox on new dom elements
 	$('.thumb > .colorbox').colorbox({
 		scalePhotos: true,
-		scrolling: false,
+		scrolling: false
 	});
 
 	newthumb.find('a.kill').on("click", function(event) {							// has to be here because doesn't exist in DOM until now
 		var fieldID = $(this).attr("data-field");
 		var index = $(this).attr("data-index");
-		var file = $('input[name="'+ fieldID +'['+ index +'][file]"]');				// retrieve from hidden input storage
+		var file = $('input[name="'+ fieldID +'['+ index +'][file]"]').val();				// retrieve from hidden input storage
 
 		// ajax callback to execute php unlink on the file
 		$(this).next('.kill-animation').show();										// show a loading icon while waiting...
@@ -169,7 +182,7 @@ function plu_add_thumbs(fieldID, index, max) {
 			dataType: 'json',
 			data:{
 				action: 'unlink_file',
-				data: file[0].value,
+				data: file
 			},
 			beforeSend: function(jqXHR, settings) {									// optionally process data before submitting the form via AJAX
 			},
@@ -219,4 +232,3 @@ function plu_add_thumbs(fieldID, index, max) {
 	// 	thumbsContainer.disableSelection();
 	// }
 }
-

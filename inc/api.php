@@ -285,17 +285,35 @@ function soma_asset_meta( $action = null, $pid = null, $key = null, $value = nul
 }
 
 /**
- * Retrieves featured image of a post and returns array of intermediate sizes, paths, urls
+ * Retrieves data for the featured image of a post, or an attachment itself and returns array of intermediate sizes, paths, urls, metadata, etc
  * or if missing, returns image data for a "missing" placeholder
  *
  * @since 1.3
- * @param $pid - (string/integer) post ID to get the featured image of (required)
- * @param $size - (string) [icon,thumb,medium,large,full] (optional)
+ * @param $pid - (string/integer) post ID - if the post has a featured image, that image will be returned. if this post ID is an attachment itself, its own data will be returned.
+ * @param $size - (string) [thumbnail,medium,large,full] (optional)
  * @return array - tons of data
  * @return string - just the url of the specified $size
  */
 
 function soma_featured_image( $pid = null, $size = null ) {
+	if (!$pid) {
+		return new WP_Error('missing', "Must pass a post ID argument!");
+	}
+	return somaFunctions::fetch_featured_image( $pid, $size );
+}
+
+
+/**
+ * Retrieves data for the featured image of a post, or an attachment itself and returns array of intermediate sizes, paths, urls, metadata, etc
+ * or if missing, returns image data for a "missing" placeholder
+ *
+ * @since 1.7.4
+ * @param $pid - (string/integer) post ID - if the post has a featured image, that image will be returned. if this post ID is an attachment itself, its own data will be returned.
+ * @param $size - (string) [thumbnail,medium,large,full] (optional)
+ * @return array - tons of data
+ * @return string - just the url of the specified $size
+ */
+function soma_fetch_image( $pid = null, $size = null ) {
 	if (!$pid) {
 		return new WP_Error('missing', "Must pass a post ID argument!");
 	}
@@ -474,7 +492,7 @@ function soma_set_option( $which = null, $new_value = null ) {
 			$new_value = array_merge($old_value, $new_value);									// combine them
 			$new_value = array_unique($new_value);												// remove duplicates
 			$new_value = array_values($new_value);												// flatten the array keys
-		} 
+		}
 
 		$soma_options[$which] = $new_value;														// mod or insert our array key's value
 

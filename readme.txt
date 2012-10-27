@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.4.1
-Stable tag: 1.7.3
+Stable tag: 1.7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,12 +34,26 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 = 1.7.4 =
 * NEW api soma_attachments(), wrapper for get_posts() returns array of attached post objects
+* NEW api soma_fetch_image(), basically just renamed soma_featured_image() [still around for backwards compatibility] - reflects its ability to retrieve image data for any attachment, not just featured images
 * somaFunctions::fetch_attached_media() now takes mime-type argument and an optional argument to exclude the featured image
-* metabox field type "attachment" is now "gallery" (still with data of "attachment")
+* metabox field type "attachment" is now "gallery" (still with data of "attachment"). Shows all attached images or audio or video (via mediaelement)
 * metabox "gallery" field type now excludes the featured image automatically, allowing fully independent featured image and gallery attachment uploaders
 * metabox field argument for data of "attachment" can also include "mime-type" for filtering retrieved attachments by media type
+* NOTE: metabox field "upload-images" has been folded into "upload-files", which has abandoned the old html file selector input model, and now uses the hot new plUpload system.
+* NEW: metabox field "upload-files" can now handle audio as well as images!
+* FIX: multiple plUpload boxes on the same page now behave!
 * NOTE: any old metabox fields dealing with attachments should probably be revisited...
-* FIX soma_featured_image() was failing certain specific requests, now returns original full file URL if the requested size is not available (eg: original pic was smaller than site's "large" setting)
+* FIX: soma_featured_image() was failing certain specific requests, now returns original full file URL if the requested size is not available (eg: original pic was smaller than site's "large" setting)
+* FIX: soma_featured_image() now includes custom image sizes when available
+* NEW: soma_featured_image() now returns title, description, caption, and alt text
+* NOTE: this means the key for the thumbnail image is now "thumbnail" (as returned by wp), and not "thumb", as it had been hardcoded before. Your old calls to soma_featured_image() for thumbs are likely broken now
+* NOTE: the missing image placeholder is now one single size image, so make sure you manually indicate the width and height in your image tags (or else they'll all display at 512px)
+* options to hide new Thesis 2.0 metaboxes
+* cleaned up all undefined index warnings
+* FIX: custom post type update messages were not being produced properly...
+* thumbnail columns now automatically adjust width according to thumbnail options
+* FIX: media uploader metabox field type works again
+
 
 = 1.7.3 =
 * FIX save routines on external media and images don't die anymore if empty
@@ -69,7 +83,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * NEW image uploader metabox field type. Uses WP included plUpload for drag-n-drop, queued uploads, creates attachments upon saving. Can also be used for featured images.
 * new option to disable screen options tab
 
-= 1.6.9 = 
+= 1.6.9 =
 * disabled privileges check in save_asset() that conflicted with paypal digital goods checkout
 * fixed bug that output junk to the login screen
 * fixed column listing error when no columns are defined in a CPT
@@ -189,7 +203,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * fixed colorbox trigger play icon to be more reliable
 * mediaelement.js replaces jPlayer when displaying media attachments in admin metaboxes (though at the moment requires wp plugin http://wordpress.org/extend/plugins/media-element-html5-video-and-audio-player/)
 
-= 1.4 = 
+= 1.4 =
 * NEW metabox field type: external_media - Text field that accepts vimeo or youtube URLs, and fetches that video's metadata via each site's public API. Also saves that response in post_meta for quicker retrieval.
 * NEW metabox field type: external_image - Text field that accepts image URL, and can import the image as an attachment, also setting imported image as Featured Image
 * NEW API function: soma_external_media() - parses URL from either youtube or vimeo, returns an array with basic metadata, including ID, title, thumbnails - optionally imports source image to local library and sets the post_thumbnail!. NOTE: desired video must not be private, password-protected, or have embedding disabled by the owner!
@@ -287,12 +301,15 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * First release
 * added somaTypes class, handling generation of custom post types, taxonomies, and terms
 
-= 0.1 = 
+= 0.1 =
 * Code documentation is crude, with comments everywhere. Will standardize docs soon...
 * includes somaFunctions, somaMetaboxes, somaSave, and somaSorter classes
 
 
 == Upgrade Notice ==
+
+= 1.7.4 =
+Any metaboxes dealing with attachments should be revisited...
 
 = 1.1.1 =
 Nasty bugs squashed!

@@ -19,13 +19,14 @@ function mysite_type_data() {
 				'menu_position' => 5,											// where the admin menu item where sit
 				'supports' => array( 'title', 'thumbnail'),						// which features and core metaboxes to show -- Don't forget to use add_theme_support( 'post-thumbnails' ) when required!
 				// non-wp args below
-				'sort_by' => 'meta_value',										// how to filter the query when displaying this type - date (published), title (post_title), author, parent, modified, rand (random), meta_value, menu_order - which also causes the admin sorting menu to appear
+				'sort_by' => 'meta_value',										// how to filter the query when displaying this type - post_date (published), title (post_title), author, parent, modified, rand (random), meta_value, menu_order - which also causes the admin sorting menu to appear
 				'sort_key' => 'custommetakey',									// if "meta_value" is indicated for sort_by, must supply a post meta key (which will automatically have the site meta prefix added)
 				'sort_order' => 'ASC',											// sorting order (typically need to set this manually to ASC when using menu_order)
 				'hide_publish' => true,											// hides the Publish core metabox (make sure you include save buttons in your metabox field config)
 				"sort_group_type" => 'taxonomy',								// optional: group listings on the Sort Order subpage by an object type
 				"sort_group_slug" => 'format',									// required if sort_group_type is set - which object to group by (in this case, a specific taxonomy)
 				"create_nav_item"=> true,										// automatically generate a nav menu item for this type in Appearance->Menus which you can rearrange - NOTE: will re-create the nav item if you manually delete it!
+				"blank_slate" => true,											// disables all default metaboxes, so you'll have to declare custom ones. leave out the "supports" arg with this one, and use "hide_publish" if you want the edit page to be totally blank
 			),
 		"icons" => "http://mysite.com/mytheme/img/",							// set url path to where your custom icons are located
 		"columns" => array(														// custom columns for edit.php listing

@@ -39,8 +39,10 @@ class somaMetaboxes extends somaticFramework {
 
 		// Generate meta box for each array
 		foreach ( self::$data as $meta_box ) {
-			if ( in_array($post->post_type, $meta_box['types'] ) ) {									// check if current metabox is indicated for the current post type
-				if ( !$meta_box['restrict'] || $meta_box['restrict'] && SOMA_STAFF ) {					// don't show certain boxes for non-staff
+			if ( in_array($post->post_type, $meta_box['types'] ) ) {										// check if current metabox is indicated for the current post type
+				if ( somaFunctions::fetch_index($meta_box, 'restrict') && SOMA_STAFF == false ) {					// don't show certain boxes for non-staff
+					continue;
+				} else {
 					add_meta_box($meta_box['id'], $meta_box['title'], array(__CLASS__,'soma_metabox_generator'), $post->post_type, $meta_box['context'], $meta_box['priority'], array('box'=>$meta_box));
 					$typehasabox = true;			// set marker
 				}
@@ -86,9 +88,8 @@ class somaMetaboxes extends somaticFramework {
 	textarea
 	richtext (using wp_editor())
 	html
-	upload-files
-	upload-images
-	upload-feature
+	upload-files (upload-images) [uses plupload]
+	upload-featured
 	select
 	radio
 	checkbox-single
@@ -99,7 +100,7 @@ class somaMetaboxes extends somaticFramework {
 	time
 	timepicker
 	weight
-	media
+	media (uses old thickbox dialog media manager)
 	external_media (video)
 	external_image
 	embed
@@ -128,9 +129,9 @@ class somaMetaboxes extends somaticFramework {
 					if (is_wp_error($terms)) {
 						wp_die($terms->get_error_message());
 					}
-					
+
 					if ($field['type'] == 'checkbox-multi' && !isset($field['multiple'])) $field['multiple'] == true;		// default to multiple when using checkbox-multi, in case forgot to specify
-					
+
 					if ($field['type'] == 'readonly' && !$field['multiple']) {		// if readonly and singluar, then $meta is just the name, no object
 						$meta = $terms[0]->name;
 					}
@@ -181,7 +182,7 @@ class somaMetaboxes extends somaticFramework {
 				$mime = soma_fetch_index($field, 'mime-type');
 				$meta = somaFunctions::fetch_attached_media($post->ID, $mime, true);
 			}
-			
+
 			// don't show attachment gallery field at all if there aren't any yet
 			if ($field['type'] == 'gallery' && $meta == null) {
 				continue;
@@ -344,18 +345,10 @@ class somaMetaboxes extends somaticFramework {
 					$args['media_buttons'] = false;								// hide media upload buttons
 					wp_editor( $meta, $field['id'], $args );					// Note that the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction.
 				break;
-				// ----------------------------------------------------------------------------------------------------------------------------- //
-				case 'upload-files' :
-?>					<input type="file" name="<?php echo $field['id']; ?>[]" />
-					</td></tr>
-					<tr>
-					<td></td>
-					<td><a class="addinput" href="#" rel="<?php echo $field['id']; ?>">Add More Files</a>
-<?php
-				break;
 
 				// ----------------------------------------------------------------------------------------------------------------------------- //
-				case 'upload-images':
+				case 'upload-files' :
+				case 'upload-images' :
 					$uploader = new somaUploadField($field);
 					$uploader->print_scripts();
 					$uploader->html();
@@ -381,6 +374,7 @@ class somaMetaboxes extends somaticFramework {
 
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'gallery':
+					// really need to incorporate dragdrop sorting here.... also ability to edit title/caption
 					echo '<ul class="meta-attachment-gallery">';
 					foreach ($meta as $att) :
 						echo '<li class="meta-attachment-item">';
@@ -406,8 +400,22 @@ class somaMetaboxes extends somaticFramework {
 								case "application/zip" :
 									echo '<a href="'.wp_get_attachment_url($att->ID).'" target="blank"><img src="'. SOMA_IMG . 'zip-doc.png" /></a>';
 								break;
-								case ("image/jpeg" || "image/jpg" || "image/png") :
+								case "image/jpeg" :
+								case "image/jpg" :
+								case "image/png" :
 									echo '<a href="'.wp_get_attachment_url($att->ID).'" class="colorbox" rel="attachment-gallery">'. wp_get_attachment_image($att->ID, 'thumbnail', false, array('title'=>'Click to Zoom', 'class' => 'pic')) . '</a>';
+								break;
+								case 'audio/mpeg':
+									echo "<div class='audioplayer'>";
+									echo "<input type='text' value='{$att->post_title}' /><br />";
+									echo do_shortcode('[audio src="'.wp_get_attachment_url($att->ID).'"]');		// output html5 tags (handled by mediaelement.js - separate plugin)
+									echo "</div>";
+								break;
+								case 'video/mp4':
+									echo "<div class='videoplayer'>";
+									echo "<input type='text' value='{$att->post_title}' /><br />";
+									echo do_shortcode('[video src="'.wp_get_attachment_url($att->ID).'"]');		// output html5 tags (handled by mediaelement.js - separate plugin)
+									echo "</div>";
 								break;
 							}
 						echo '<br />';
@@ -799,6 +807,11 @@ class somaMetaboxes extends somaticFramework {
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'media':
+
+				// must enqueue these core wp scripts for thickbox uploader to appear
+				wp_enqueue_script('media-upload');
+				wp_enqueue_script('thickbox');
+				wp_enqueue_style('thickbox');
 				// upload/modify media file button
 				$label = $meta ? "Modify Media File" : "Upload Media File";
 				echo "<a href=\"media-upload.php?post_id=$post->ID&amp;TB_iframe=1&amp;height=800&amp;width=640\" id=\"add_media\" class=\"thickbox clicker\" onclick=\"return false;\">$label</a>";

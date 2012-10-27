@@ -7,38 +7,38 @@
 class somaOptions extends somaticFramework  {
 
 	function __construct() {
-		add_action( 'init', array( __CLASS__, 'soma_global_options' ), 7 );							// populate global variable with options to avoid additional DB queries - try to hook earlier than normal...
-		add_action( 'init', array(__CLASS__, 'show_admin_bar'), 9 );								// gotta get in early to execute before _wp_admin_bar_init()
-		add_action( 'wp', array(__CLASS__, 'soma_cron') );											// init our cron
-		add_action( 'soma_daily_event', array(__CLASS__, 'delete_autodrafts') );					// fire this every day
-		// add_action( 'personal_options', array(__CLASS__, 'hide_profile_options') );					// hides some useless cruft, make profile simpler
-		add_action( 'user_register', array(__CLASS__, 'full_display_name') );						// automatically populate display name with fullname
-		add_filter( 'user_contactmethods', array(__CLASS__, 'extend_user_contactmethod'));			// mods contact fields on user profile
-		add_action( 'admin_menu', array(__CLASS__, 'add_pages' ) );									// adds menu items to wp-admin
-		add_action( 'admin_init', array(__CLASS__, 'register_soma_options' ) );						// register settings to help with form saving and sanitizing
-		add_action( 'admin_action_flush', array(__CLASS__,'flush_rules' ) );						// dynamically generated hook created by the ID on forms POSTed from admin.php
+		add_action( 'init', array( __CLASS__, 'soma_global_options' ), 7 );       // populate global variable with options to avoid additional DB queries - try to hook earlier than normal...
+		// add_action( 'init', array( __CLASS__, 'show_admin_bar' ), 9 );        // gotta get in early to execute before _wp_admin_bar_init()
+		add_action( 'wp', array( __CLASS__, 'soma_cron' ) );           // init our cron
+		add_action( 'soma_daily_event', array( __CLASS__, 'delete_autodrafts' ) );     // fire this every day
+		// add_action( 'personal_options', array(__CLASS__, 'hide_profile_options') );     // hides some useless cruft, make profile simpler
+		add_action( 'user_register', array( __CLASS__, 'full_display_name' ) );      // automatically populate display name with fullname
+		add_filter( 'user_contactmethods', array( __CLASS__, 'extend_user_contactmethod' ) );   // mods contact fields on user profile
+		add_action( 'admin_menu', array( __CLASS__, 'add_pages' ) );         // adds menu items to wp-admin
+		add_action( 'admin_init', array( __CLASS__, 'register_soma_options' ) );      // register settings to help with form saving and sanitizing
+		add_action( 'admin_action_flush', array( __CLASS__, 'flush_rules' ) );      // dynamically generated hook created by the ID on forms POSTed from admin.php
 
-		add_action( 'admin_action_export', array(__CLASS__,'export_settings' ) );					// dynamically generated hook created by the ID on forms POSTed from admin.php
-		add_action( 'admin_action_import', array(__CLASS__,'import_settings' ) );					// dynamically generated hook created by the ID on forms POSTed from admin.php
-		add_action( 'wp_dashboard_setup', array(__CLASS__, 'disable_dashboard_widgets'), 100);		// disable dashboard widgets
-		add_action( 'admin_menu', array(__CLASS__, 'disable_admin_menus' ) );						// hide the admin sidebar menu items
-		add_action( 'admin_enqueue_scripts', array(__CLASS__, 'disable_autosave' ) );				// optional disable autosave
-		add_action( 'init', array(__CLASS__, 'disable_revisions'), 50 );							// optional disable revisions
-		add_filter( 'parse_query', array(__CLASS__,'disable_paging' ));								// optional disable auto-paging
-		add_action( 'admin_init', array(__CLASS__, 'disable_drag_metabox' ) );						// disable dragging of any metaboxes (including dashboard widgets)
-		add_action( 'do_meta_boxes', array(__CLASS__, 'disable_metaboxes'), 10, 3);					// removes metaboxes from post editor
-		add_filter( 'sanitize_option_somatic_framework_options', array(__CLASS__, 'sanitize_soma_options'), 10, 2);  // hooks into core update_option function to allow sanitizing before saving
-		add_action( 'wp_before_admin_bar_render', array(__CLASS__, 'disable_admin_bar_links' ) );	// removes admin bar items
-		add_action( 'get_header', array(__CLASS__, 'enable_threaded_comments' ));					// enables threaded comments
-		add_filter( 'screen_options_show_screen', array(__CLASS__, 'disable_screen_options'), 10, 2);		// optional disable screen options tab
-		add_action( "user_register", array(__CLASS__, "user_admin_bar_false_by_default"), 10, 1);	// force option off when new user created
+		add_action( 'admin_action_export', array( __CLASS__, 'export_settings' ) );     // dynamically generated hook created by the ID on forms POSTed from admin.php
+		add_action( 'admin_action_import', array( __CLASS__, 'import_settings' ) );     // dynamically generated hook created by the ID on forms POSTed from admin.php
+		add_action( 'wp_dashboard_setup', array( __CLASS__, 'disable_dashboard_widgets' ), 100 );  // disable dashboard widgets
+		add_action( 'admin_menu', array( __CLASS__, 'disable_admin_menus' ) );      // hide the admin sidebar menu items
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'disable_autosave' ) );    // optional disable autosave
+		add_action( 'init', array( __CLASS__, 'disable_revisions' ), 50 );       // optional disable revisions
+		add_filter( 'parse_query', array( __CLASS__, 'disable_paging' ) );        // optional disable auto-paging
+		add_action( 'admin_init', array( __CLASS__, 'disable_drag_metabox' ) );      // disable dragging of any metaboxes (including dashboard widgets)
+		add_action( 'do_meta_boxes', array( __CLASS__, 'disable_metaboxes' ), 10, 3 );     // removes metaboxes from post editor
+		add_filter( 'sanitize_option_somatic_framework_options', array( __CLASS__, 'sanitize_soma_options' ), 10, 2 );  // hooks into core update_option function to allow sanitizing before saving
+		add_action( 'wp_before_admin_bar_render', array( __CLASS__, 'disable_admin_bar_links' ) ); // removes admin bar items
+		add_action( 'get_header', array( __CLASS__, 'enable_threaded_comments' ) );     // enables threaded comments
+		// add_filter( 'screen_options_show_screen', array( __CLASS__, 'disable_screen_options' ), 10, 2 );  // optional disable screen options tab NOT WORKING
+		add_action( "user_register", array( __CLASS__, "user_admin_bar_false_by_default" ), 10, 1 ); // force option off when new user created
 
-		// add_action( 'show_user_profile', array(__CLASS__, 'show_extra_profile_fields') );		// unused
-		// add_action( 'edit_user_profile', array(__CLASS__, 'show_extra_profile_fields') );		// unused
-		// add_action( 'edit_user_profile_update', array(__CLASS__, 'save_extra_profile_fields') );	// unused
-		// add_action( 'personal_options_update', array(__CLASS__, 'save_extra_profile_fields') );	// unused
-		// add_action( 'admin_action_purge', array(__CLASS__,'purge_all_data' ) );					// dynamically generated hook created by the ID on forms POSTed from admin.php
-		// add_action( 'profile_update', array(__CLASS__, 'full_display_name') );						// automatically populate display name with fullname ** NOTE DISABLED THIS BECAUSE OF INFINITE LOOP CONFLICT WITH ANY OTHER PLUGIN THAT MODIFIES USER DATA
+		// add_action( 'show_user_profile', array(__CLASS__, 'show_extra_profile_fields') );  // unused
+		// add_action( 'edit_user_profile', array(__CLASS__, 'show_extra_profile_fields') );  // unused
+		// add_action( 'edit_user_profile_update', array(__CLASS__, 'save_extra_profile_fields') ); // unused
+		// add_action( 'personal_options_update', array(__CLASS__, 'save_extra_profile_fields') ); // unused
+		// add_action( 'admin_action_purge', array(__CLASS__,'purge_all_data' ) );     // dynamically generated hook created by the ID on forms POSTed from admin.php
+		// add_action( 'profile_update', array(__CLASS__, 'full_display_name') );      // automatically populate display name with fullname ** NOTE DISABLED THIS BECAUSE OF INFINITE LOOP CONFLICT WITH ANY OTHER PLUGIN THAT MODIFIES USER DATA
 	}
 
 	//** sets somatic framework options defaults on Activation of plugin
@@ -47,28 +47,28 @@ class somaOptions extends somaticFramework  {
 		$version = somaticFramework::get_plugin_version();
 
 		$defaults = array(
-			"favicon" => "",												// full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
-			"login_logo" => "",												// full url path to a .png, usually set in a theme - framework will output inline CSS to display login logo, overriding default WP one
-			"debug" => 1,													// debug mode output enabled (renders to debug bar if installed, ouput inline if not)
-			"p2p" => 0,														// require posts 2 posts plugin by scribu
-			"colorbox" => 0,												// enqueue Colorbox lightbox JS on front-end pages too (always active in admin)
-			"meta_prefix" => "_soma",										// prefix added to post_meta keys
-			"meta_serialize" => 0,											// whether to serialize somatic post_meta
-			'bottom_admin_bar' => 0,										// pin the admin bar to the bottom of the window
-			"always_show_bar" => 0,											// show the top admin bar on the front-end always, even if not logged in, but still respect user preferences
-			"kill_paging" => array(),										// array of post types slugs to filter wp_query to prevent automatic paging and always list all items
-			"kill_autosave" => array(),										// array of post types slugs to disable autosave
-			"kill_revisions" => array(),									// array of post types slugs to disable autosave
-			"disable_menus" => array('links', 'tools'),																													// hide admin sidebar menu items from everyone (but you could still go to the page directly)
-			"disable_dashboard" => array('quick_press','recent_drafts','recent_comments','incoming_links','plugins','primary','secondary','thesis_news_widget'),		// hide dashboard widgets from everyone
-			"disable_metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),									// hide metaboxes in post editor from everyone
-			"disable_drag_metabox" => 0,									// prevent users from dragging/rearranging metaboxes (even dashboard widgets)
-			"disable_screen_options" => 0,									// hide the screen options tab
-			"reset_default_options" => 0,									// will reset options to defaults next time plugin is activated
+			"favicon" => "",            // full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
+			"login_logo" => "",            // full url path to a .png, usually set in a theme - framework will output inline CSS to display login logo, overriding default WP one
+			"debug" => 1,             // debug mode output enabled (renders to debug bar if installed, ouput inline if not)
+			"p2p" => 0,              // require posts 2 posts plugin by scribu
+			"colorbox" => 0,            // enqueue Colorbox lightbox JS on front-end pages too (always active in admin)
+			"meta_prefix" => "_soma",          // prefix added to post_meta keys
+			"meta_serialize" => 0,           // whether to serialize somatic post_meta
+			// 'bottom_admin_bar' => 0,          // pin the admin bar to the bottom of the window
+			// "always_show_bar" => 0,           // show the top admin bar on the front-end always, even if not logged in, but still respect user preferences
+			"kill_paging" => array(),          // array of post types slugs to filter wp_query to prevent automatic paging and always list all items
+			"kill_autosave" => array(),          // array of post types slugs to disable autosave
+			"kill_revisions" => array(),         // array of post types slugs to disable autosave
+			"disable_menus" => array( 'links', 'tools' ),                             // hide admin sidebar menu items from everyone (but you could still go to the page directly)
+			"disable_dashboard" => array( 'quick_press', 'recent_drafts', 'recent_comments', 'incoming_links', 'plugins', 'primary', 'secondary', 'thesis_news_widget' ),  // hide dashboard widgets from everyone
+			"disable_metaboxes" => array( 'thesis_seo_meta', 'thesis_image_meta', 'thesis_multimedia_meta', 'thesis_javascript_meta' ),         // hide metaboxes in post editor from everyone
+			"disable_drag_metabox" => 0,         // prevent users from dragging/rearranging metaboxes (even dashboard widgets)
+			// "disable_screen_options" => 0,         // hide the screen options tab
+			"reset_default_options" => 0,         // will reset options to defaults next time plugin is activated
 			"plugin_db_version" => $version,
 		);
 
-	/* core WP metabox slugs for disabling:
+		/* core WP metabox slugs for disabling:
 	   * submitdiv – The “Publish” box that allows you to set several things.
 	   * commentsdiv – Displays comments made on the post.
 	   * trackbacksdiv – Displays an input box for sending trackbacks.
@@ -86,54 +86,54 @@ class somaOptions extends somaticFramework  {
 	   * {$taxonomy}div – Allows you to set terms for a hierarchical taxonomy (use the taxonomy name).
 	*/
 
-		$current = get_option('somatic_framework_options', null);								// fetch current options if they exist
+		$current = get_option( 'somatic_framework_options', null );        // fetch current options if they exist
 
-	    if ( ( is_null( $current ) ) || ( $current['reset_default_options'] == '1' ) ) {		// options don't exist yet OR user has requested reset
-			update_option('somatic_framework_options', $defaults);								// write defaults
-			$current = get_option('somatic_framework_options');								// populate $current again
+		if ( ( is_null( $current ) ) || ( $current['reset_default_options'] == '1' ) ) {  // options don't exist yet OR user has requested reset
+			update_option( 'somatic_framework_options', $defaults );        // write defaults
+			$current = get_option( 'somatic_framework_options' );        // populate $current again
 		}
 
 		// convert old options
 		$old_serialize = get_option( 'soma_meta_serialize', null );
 		if ( !is_null( $old_serialize ) ) {
 			$current['meta_serialize'] = $old_serialize;
-			update_option('somatic_framework_options', $current);
+			update_option( 'somatic_framework_options', $current );
 			delete_option( 'soma_meta_serialize' );
 		}
 		// convert old options
 		$old_prefix = get_option( 'soma_meta_prefix', null );
 		if ( !is_null( $old_prefix ) ) {
 			$current['meta_prefix'] = $old_prefix;
-			update_option('somatic_framework_options', $current);
+			update_option( 'somatic_framework_options', $current );
 			delete_option( 'soma_meta_prefix' );
 		}
 		// convert old options
 		$old_debug = get_option( 'soma_debug', null );
 		if ( !is_null( $old_debug ) ) {
 			$current['debug'] = $old_debug;
-			update_option('somatic_framework_options', $current);
+			update_option( 'somatic_framework_options', $current );
 			delete_option( 'soma_debug' );
 		}
 
-		return $current;					// output settings array
+		return $current;     // output settings array
 	}
 
 	// Delete options table entries ONLY when plugin deactivated AND deleted
 	function delete_soma_options() {
-		delete_option('somatic_framework_options');
+		delete_option( 'somatic_framework_options' );
 	}
 
 	// init container for help text and options
 	function register_soma_options() {
 		// register_setting( 'soma_help', 'soma_help_text', array(__CLASS__, 'soma_help_validate' ) );
-		register_setting( 'somatic_framework_plugin_options', 'somatic_framework_options', array(__CLASS__, 'soma_options_validate' ) );
+		register_setting( 'somatic_framework_plugin_options', 'somatic_framework_options', array( __CLASS__, 'soma_options_validate' ) );
 	}
 
 	// stash options in global var -- NOTE: since this is hooked to 'init', it won't be ready in time for usage by functions.php or other initial file loads - will have to just use get_option()
 	function soma_global_options() {
 		global $soma_options;
-		$soma_options = get_option('somatic_framework_options', null);
-		if (is_null($soma_options)) {
+		$soma_options = get_option( 'somatic_framework_options', null );
+		if ( is_null( $soma_options ) ) {
 			$soma_options = self::init_soma_options();
 		}
 	}
@@ -141,7 +141,7 @@ class somaOptions extends somaticFramework  {
 	// schedule if event doesn't already exists
 	function soma_cron() {
 		if ( !wp_next_scheduled( 'soma_daily_event' ) ) {
-			wp_schedule_event(time(), 'daily', 'soma_daily_event');
+			wp_schedule_event( time(), 'daily', 'soma_daily_event' );
 		}
 	}
 
@@ -152,9 +152,9 @@ class somaOptions extends somaticFramework  {
 			'post_status' => 'auto-draft',
 			'numberposts' => -1,
 		);
-		$autodrafts = get_posts($pargs);
-		foreach ($autodrafts as $draft) {
-			wp_delete_post($draft->ID, true);
+		$autodrafts = get_posts( $pargs );
+		foreach ( $autodrafts as $draft ) {
+			wp_delete_post( $draft->ID, true );
 		}
 		// sql query to delete revisions and their associated meta
 		// DELETE a,b,c FROM wp_posts a WHERE a.post_type = 'revision' LEFT JOIN wp_term_relationships b ON (a.ID = b.object_id) LEFT JOIN wp_postmeta c ON (a.ID = c.post_id);
@@ -178,8 +178,8 @@ class somaOptions extends somaticFramework  {
 		// update_option('medium_size_h', 300);
 		// update_option('large_size_w', 800);
 		// update_option('large_size_h', 800);
-		// update_option('uploads_use_yearmonth_folders', 0);				// always hated this
-		// update_option('blog_public', 1);								// let google in
+		// update_option('uploads_use_yearmonth_folders', 0);    // always hated this
+		// update_option('blog_public', 1);        // let google in
 		// update_option('comment_registration', 1);
 		// update_option('default_role','author');
 		// update_option('comment_moderation', 0);
@@ -189,16 +189,16 @@ class somaOptions extends somaticFramework  {
 		// update_option('thread_comments', 1);
 		// update_option('require_name_email', 0);
 		// update_option('comments_notify', 1);
-		// update_option('enable_xmlrpc', 1);								// do we want to do this?
-		// update_option('permalink_structure', '/%postname%/');			// default to pretty permalinks
+		// update_option('enable_xmlrpc', 1);        // do we want to do this?
+		// update_option('permalink_structure', '/%postname%/');   // default to pretty permalinks
 
 		// $core_settings = array(
-		// 	'comments_notify' => 1,
-		// 	'enable_xmlrpc' => 1,
-		// 	'permalink_structure' => '/%postname%/'
+		//  'comments_notify' => 1,
+		//  'enable_xmlrpc' => 1,
+		//  'permalink_structure' => '/%postname%/'
 		// );
 		// foreach ( $core_settings as $k => $v ) {
-		// 	update_option( $k, $v );
+		//  update_option( $k, $v );
 		// }
 
 		// delete dummy post, page and comment - DANGEROUS if this plugin is installed after someone is actually using those pages...
@@ -215,9 +215,9 @@ class somaOptions extends somaticFramework  {
 	function setup_capabilities() {
 
 		// new manager role (expanding on core editor role)
-		$editor = get_role('editor');
+		$editor = get_role( 'editor' );
 		$editor_caps = $editor->capabilities;
-		if ($editor_caps == null) $editor_caps = array();	// don't want to barf on array_merge later...
+		if ( $editor_caps == null ) $editor_caps = array(); // don't want to barf on array_merge later...
 		$manager_caps = array(
 			'edit_letters' => true,
 			'edit_others_letters' => true,
@@ -235,11 +235,11 @@ class somaOptions extends somaticFramework  {
 			'upload_files' => true,
 			'read' => true,
 		);
-		$caps = array_merge($editor_caps, $manager_caps);
-		$manager = add_role('manager', 'Manager', $caps);
-		if (null == $manager) {		// already exists, replace?? every time?
-			remove_role('manager');
-			$manager = add_role('manager', 'Manager', $caps);
+		$caps = array_merge( $editor_caps, $manager_caps );
+		$manager = add_role( 'manager', 'Manager', $caps );
+		if ( null == $manager ) {  // already exists, replace?? every time?
+			remove_role( 'manager' );
+			$manager = add_role( 'manager', 'Manager', $caps );
 		}
 
 		// get rid of unused core roles
@@ -252,54 +252,54 @@ class somaOptions extends somaticFramework  {
 	// adds menu items to wp-admin
 	function add_pages() {
 		add_menu_page( 'Somatic Framework Options', 'Somatic', 'update_core', 'somatic-framework-options', null, SOMA_IMG.'soma-options-menu.png', '91' );
-		add_submenu_page( 'somatic-framework-options', 'Framework Options', 'Options', 'update_core', 'somatic-framework-options', create_function( null, 'somaOptions::soma_options_page("options");' ));
-		add_submenu_page( 'somatic-framework-options', 'Declarations', 'Declarations', 'update_core', 'somatic-framework-declarations', create_function( null, 'somaOptions::soma_options_page("declarations");' ));
-		add_submenu_page( 'somatic-framework-options', 'Advanced', 'Advanced', 'update_core', 'somatic-framework-advanced', create_function( null, 'somaOptions::soma_options_page("advanced");' ));
+		add_submenu_page( 'somatic-framework-options', 'Framework Options', 'Options', 'update_core', 'somatic-framework-options', create_function( null, 'somaOptions::soma_options_page("options");' ) );
+		add_submenu_page( 'somatic-framework-options', 'Declarations', 'Declarations', 'update_core', 'somatic-framework-declarations', create_function( null, 'somaOptions::soma_options_page("declarations");' ) );
+		add_submenu_page( 'somatic-framework-options', 'Advanced', 'Advanced', 'update_core', 'somatic-framework-advanced', create_function( null, 'somaOptions::soma_options_page("advanced");' ) );
 		// add_submenu_page('options-general.php', 'Help Text', 'Help Text', 'update_core', 'soma-help-editor', array(__CLASS__,'soma_help_page'), SOMA_IMG.'soma-downloads-menu.png');
 	}
 
 	// downloads a txt file with serialized array
 	function export_settings() {
-		check_admin_referer('soma-export', 'security' ); #wp
-		header("Cache-Control: public, must-revalidate");
-		header("Pragma: hack");
-		header("Content-Type: text/plain");
-		header('Content-Disposition: attachment; filename="somatic-framework-options-' . date("Ymd") . '.dat"');
+		check_admin_referer( 'soma-export', 'security' ); //wp
+		header( "Cache-Control: public, must-revalidate" );
+		header( "Pragma: hack" );
+		header( "Content-Type: text/plain" );
+		header( 'Content-Disposition: attachment; filename="somatic-framework-options-' . date( "Ymd" ) . '.dat"' );
 
 		global $soma_options;
 
-		echo serialize($soma_options);
+		echo serialize( $soma_options );
 		exit();
 	}
 
 	// processes uploaded file and overwrites settings
 	// NOTE - as this was called by "admin_action_***" hook, have to make sure conditional logic always results in a redirect, or else will just direct to an empty admin.php page!
 	function import_settings() {
-		if (!empty($_FILES) && check_admin_referer('soma-import', 'security' )) {
-			if ($_FILES['file']['error'] > 0) {
-				$result = add_query_arg('result','error-file', $_SERVER['HTTP_REFERER']);
+		if ( !empty( $_FILES ) && check_admin_referer( 'soma-import', 'security' ) ) {
+			if ( $_FILES['file']['error'] > 0 ) {
+				$result = add_query_arg( 'result', 'error-file', $_SERVER['HTTP_REFERER'] );
 				wp_redirect( $result );
 				exit;
 			}
-			elseif (strpos($_FILES['file']['name'], 'somatic-framework-options') === false) {
-				$result = add_query_arg('result','wrong-file', $_SERVER['HTTP_REFERER']);
+			elseif ( strpos( $_FILES['file']['name'], 'somatic-framework-options' ) === false ) {
+				$result = add_query_arg( 'result', 'wrong-file', $_SERVER['HTTP_REFERER'] );
 				wp_redirect( $result );
 				exit;
 			} else {
-				$raw_options = file_get_contents($_FILES['file']['tmp_name']);
-				$new_options = unserialize($raw_options);
+				$raw_options = file_get_contents( $_FILES['file']['tmp_name'] );
+				$new_options = unserialize( $raw_options );
 
 				if ( is_array( $new_options ) && version_compare( somaticFramework::get_plugin_version(), $new_options['plugin_db_version'], '<=' ) ) {
-					$update = update_option('somatic_framework_options', $new_options);
-					if ($update) {
-						$result = add_query_arg('result','upload-success', $_SERVER['HTTP_REFERER']);
+					$update = update_option( 'somatic_framework_options', $new_options );
+					if ( $update ) {
+						$result = add_query_arg( 'result', 'upload-success', $_SERVER['HTTP_REFERER'] );
 						wp_redirect( $result );
 					} else {
-						$result = add_query_arg('result','upload-fail', $_SERVER['HTTP_REFERER']);
+						$result = add_query_arg( 'result', 'upload-fail', $_SERVER['HTTP_REFERER'] );
 						wp_redirect( $result );
 					}
 				} else {
-					$result = add_query_arg('result','upload-fail', $_SERVER['HTTP_REFERER']);
+					$result = add_query_arg( 'result', 'upload-fail', $_SERVER['HTTP_REFERER'] );
 					wp_redirect( $result );
 				}
 				exit;
@@ -313,17 +313,17 @@ class somaOptions extends somaticFramework  {
 
 		flush_rewrite_rules();
 
-		$result = add_query_arg('result','flush-success', $_SERVER['HTTP_REFERER']);	//
-		wp_redirect( $result );		// send us back to plugin page
+		$result = add_query_arg( 'result', 'flush-success', $_SERVER['HTTP_REFERER'] ); //
+		wp_redirect( $result );  // send us back to plugin page
 		exit();
 	}
 
 
 	// help page contents
 	function soma_help_page() {
-		if (somaFunctions::fetch_index($_REQUEST, 'settings-updated') ) {
+		if ( somaFunctions::fetch_index( $_REQUEST, 'settings-updated' ) ) {
 			echo "<div id='notice_post' class='updated fade'><p>Text Saved...</p></div>";
-		}		?>
+		}  ?>
 		<div class="wrap">
 			<div id="icon-soma-editor" class="icon32"><br/></div>
 			<h2>Help Text Editor</h2>
@@ -337,18 +337,18 @@ class somaOptions extends somaticFramework  {
 					<li><input type="submit" class="clicker" value="Save Text" /></li>
 				<?php
 
-				$types = get_post_types( array( '_builtin' => false  ), 'objects' );
-				$helptext = get_option('soma_help_text');
-				foreach ($types as $type) {
-					echo "<h4>$type->label</h4>";
-					foreach (somaMetaboxes::$data as $box) {
-						if (in_array($type->rewrite['slug'], $box['types'])) {
-							echo "<li><em>{$box['title']}</em></li>\n";
-							echo "<li><textarea name=\"soma_help_text[{$box['id']}]\" id=\"soma_help_text[{$box['id']}]\" rows=\"4\">{$helptext[$box['id']]}</textarea></li>";
-						}
-					}
+		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
+		$helptext = get_option( 'soma_help_text' );
+		foreach ( $types as $type ) {
+			echo "<h4>$type->label</h4>";
+			foreach ( somaMetaboxes::$data as $box ) {
+				if ( in_array( $type->rewrite['slug'], $box['types'] ) ) {
+					echo "<li><em>{$box['title']}</em></li>\n";
+					echo "<li><textarea name=\"soma_help_text[{$box['id']}]\" id=\"soma_help_text[{$box['id']}]\" rows=\"4\">{$helptext[$box['id']]}</textarea></li>";
 				}
-				?>
+			}
+		}
+?>
 					<li><input type="submit" class="clicker" value="Save Text" /></li>
 				</ul>
 			</form>
@@ -357,57 +357,57 @@ class somaOptions extends somaticFramework  {
 		<?php
 	}
 
-	function soma_help_validate($input) {
+	function soma_help_validate( $input ) {
 		// strip html
-		array_walk($input, create_function('&$v,$k', '$v = wp_filter_nohtml_kses($v);'));
+		array_walk( $input, create_function( '&$v,$k', '$v = wp_filter_nohtml_kses($v);' ) );
 		return $input;
 	}
 
 	// options page contents
 	function soma_options_page( $active_tab = null ) {
 
-		if (is_null($active_tab)) $active_tab = 'options';
-		if (isset( $_GET[ 'tab' ])) $active_tab = $_GET[ 'tab' ];
+		if ( is_null( $active_tab ) ) $active_tab = 'options';
+		if ( isset( $_GET[ 'tab' ] ) ) $active_tab = $_GET[ 'tab' ];
 
 		// previous submit result messages
-		if (somaFunctions::fetch_index($_GET, 'result') == 'purge-success') {
+		if ( somaFunctions::fetch_index( $_GET, 'result' ) == 'purge-success' ) {
 			echo "<div class='updated fade'><p>All data successfully purged!</p></div>";
 		}
-		if (somaFunctions::fetch_index($_GET, 'result') == 'export-success') {
+		if ( somaFunctions::fetch_index( $_GET, 'result' ) == 'export-success' ) {
 			echo "<div class='updated fade'><p>All data successfully exported!</p></div>";
 		}
-		if (somaFunctions::fetch_index($_GET, 'result') == 'flush-success') {
+		if ( somaFunctions::fetch_index( $_GET, 'result' ) == 'flush-success' ) {
 			echo "<div class='updated fade'><p>Rewrite rules successfully flushed!</p></div>";
 		}
-		if (somaFunctions::fetch_index($_GET, 'result') == 'upload-success') {
+		if ( somaFunctions::fetch_index( $_GET, 'result' ) == 'upload-success' ) {
 			echo "<div class='updated fade'><p>Options successfully imported!</p></div>";
 		}
-		if (somaFunctions::fetch_index($_GET, 'result') == 'upload-fail') {
+		if ( somaFunctions::fetch_index( $_GET, 'result' ) == 'upload-fail' ) {
 			echo "<div class='updated fade'><p>Something went wrong with the upload...</p></div>";
 		}
-		if (somaFunctions::fetch_index($_GET, 'result') == 'wrong-file') {
+		if ( somaFunctions::fetch_index( $_GET, 'result' ) == 'wrong-file' ) {
 			echo "<div class='updated fade'><p>That is not a valid options file...</p></div>";
 		}
-		if (somaFunctions::fetch_index($_GET, 'result') == 'error-file') {
+		if ( somaFunctions::fetch_index( $_GET, 'result' ) == 'error-file' ) {
 			echo "<div class='updated fade'><p>Something went wrong in the upload... try again.</p></div>";
 		}
 
 		// retrieve options
 		global $soma_options;
 
-		// soma_dump($soma_options);		// debug
+		// soma_dump($soma_options);  // debug
 
-		if ($soma_options['reset_default_options']) {
+		if ( $soma_options['reset_default_options'] ) {
 			echo "<div class='updated fade'><p><strong>NOTICE:</strong> Settings are set be reset to defaults next time this plugin is activated!</p></div>";
 		}
 
 		echo "<style>#wpbody-content .icon32 { background: transparent url(\"".SOMA_IMG."soma-options.png\") no-repeat; !important }</style>";
 
 		// retrieve custom post types
-		$custom_types = get_post_types(array("_builtin" => false));
-		$custom_taxes = get_taxonomies(array("_builtin" => false));
+		$custom_types = get_post_types( array( "_builtin" => false ) );
+		$custom_taxes = get_taxonomies( array( "_builtin" => false ) );
 
-		?>
+?>
 		<div class="wrap somatic-options">
 			<!-- page icon -->
 			<div id="icon-options-general" class="icon32"></div>
@@ -418,7 +418,7 @@ class somaOptions extends somaticFramework  {
 				<a href="?page=somatic-framework-advanced" class="nav-tab <?php echo $active_tab == 'advanced' ? 'nav-tab-active' : ''; ?>">Advanced Functions</a>
 			</h2>
 
-			<?php if ( $active_tab == 'options' ) :														// first tab output ?>
+			<?php if ( $active_tab == 'options' ) :              // first tab output ?>
 
 			<!-- soma options -->
 			<form action="options.php" method="post">
@@ -430,13 +430,10 @@ class somaOptions extends somaticFramework  {
 						<th scope="row">
 							General Options</th>
 						<td>
-							<label><input name="somatic_framework_options[debug]" type="checkbox" value="1" <?php if (isset($soma_options['debug'])) { checked('1', $soma_options['debug']); } ?> /> Debug Mode</label><br />
-							<label><input name="somatic_framework_options[always_show_bar]" type="checkbox" value="1" <?php if (isset($soma_options['always_show_bar'])) { checked('1', $soma_options['always_show_bar']); } ?> /> Always show the Toolbar on front-end (even for visitors)</label><br />
-							<label><input name="somatic_framework_options[bottom_admin_bar]" type="checkbox" value="1" <?php if (isset($soma_options['bottom_admin_bar'])) { checked('1', $soma_options['bottom_admin_bar']); } ?> /> Pin the Admin Bar to the bottom of the window</label><br />
-							<label><input name="somatic_framework_options[disable_drag_metabox]" type="checkbox" value="1" <?php if (isset($soma_options['disable_drag_metabox'])) { checked('1', $soma_options['disable_drag_metabox']); } ?> /> Disable dragging of metaboxes</label><br />
-							<label><input name="somatic_framework_options[disable_screen_options]" type="checkbox" value="1" <?php if (isset($soma_options['disable_screen_options'])) { checked('1', $soma_options['disable_screen_options']); } ?> /> Disable Screen Options tab (not working...)</label><br />
-							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if (isset($soma_options['p2p'])) { checked('1', $soma_options['p2p']); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
-							<label><input name="somatic_framework_options[colorbox]" type="checkbox" value="1" <?php if (isset($soma_options['colorbox'])) { checked('1', $soma_options['colorbox']); } ?> /> Enable Colorbox JS lightbox plugin on front-end</label><br />
+							<label><input name="somatic_framework_options[debug]" type="checkbox" value="1" <?php if ( isset( $soma_options['debug'] ) ) { checked( '1', $soma_options['debug'] ); } ?> /> Debug Mode</label><br />
+							<label><input name="somatic_framework_options[disable_drag_metabox]" type="checkbox" value="1" <?php if ( isset( $soma_options['disable_drag_metabox'] ) ) { checked( '1', $soma_options['disable_drag_metabox'] ); } ?> /> Disable dragging of metaboxes</label><br />
+							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if ( isset( $soma_options['p2p'] ) ) { checked( '1', $soma_options['p2p'] ); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
+							<label><input name="somatic_framework_options[colorbox]" type="checkbox" value="1" <?php if ( isset( $soma_options['colorbox'] ) ) { checked( '1', $soma_options['colorbox'] ); } ?> /> Enable Colorbox JS lightbox plugin on front-end</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 					</tr>
@@ -447,7 +444,7 @@ class somaOptions extends somaticFramework  {
 							Favicon
 						</th>
 						<td>
-							<?php if (!empty($soma_options['favicon'])) : ?><img src="<?php echo $soma_options['favicon']; ?>" style="vertical-align:middle;margin-right:8px;"><?php echo $soma_options['favicon']; else: echo "(not set)"; endif; ?><br />
+							<?php if ( !empty( $soma_options['favicon'] ) ) : ?><img src="<?php echo $soma_options['favicon']; ?>" style="vertical-align:middle;margin-right:8px;"><?php echo $soma_options['favicon']; else: echo "(not set)"; endif; ?><br />
 							<input type="hidden" name="somatic_framework_options[favicon]" value="<?php echo $soma_options['favicon']; ?>">
 						</td>
 					</tr>
@@ -457,7 +454,7 @@ class somaOptions extends somaticFramework  {
 							Login Logo
 						</th>
 						<td>
-							<?php if (!empty($soma_options['login_logo'])) : ?><?php echo $soma_options['login_logo']; else: echo "(not set)"; endif; ?><br /><img src="<?php echo $soma_options['login_logo']; ?>" style="display:block; border: 1px solid #eee;">
+							<?php if ( !empty( $soma_options['login_logo'] ) ) : ?><?php echo $soma_options['login_logo']; else: echo "(not set)"; endif; ?><br /><img src="<?php echo $soma_options['login_logo']; ?>" style="display:block; border: 1px solid #eee;">
 							<input type="hidden" name="somatic_framework_options[login_logo]" value="<?php echo $soma_options['login_logo']; ?>">
 						</td>
 					</tr>
@@ -468,12 +465,12 @@ class somaOptions extends somaticFramework  {
 							Disable Admin Menus
 						</th>
 						<td>
-							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="posts" <?php if (is_array($soma_options['disable_menus'])) { checked('1', in_array('posts', $soma_options['disable_menus'])); } ?> /> Posts</label><br />
-							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="pages" <?php if (is_array($soma_options['disable_menus'])) { checked('1', in_array('pages', $soma_options['disable_menus'])); } ?> /> Pages</label><br />
-							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="links" <?php if (is_array($soma_options['disable_menus'])) { checked('1', in_array('links', $soma_options['disable_menus'])); } ?> /> Links</label><br />
-							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="comments" <?php if (is_array($soma_options['disable_menus'])) { checked('1', in_array('comments', $soma_options['disable_menus'])); } ?> /> Comments</label><br />
-							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="media" <?php if (is_array($soma_options['disable_menus'])) { checked('1', in_array('media', $soma_options['disable_menus'])); } ?> /> Media</label><br />
-							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="tools" <?php if (is_array($soma_options['disable_menus'])) { checked('1', in_array('tools', $soma_options['disable_menus'])); } ?> /> Tools</label><br />
+							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="posts" <?php if ( is_array( $soma_options['disable_menus'] ) ) { checked( '1', in_array( 'posts', $soma_options['disable_menus'] ) ); } ?> /> Posts</label><br />
+							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="pages" <?php if ( is_array( $soma_options['disable_menus'] ) ) { checked( '1', in_array( 'pages', $soma_options['disable_menus'] ) ); } ?> /> Pages</label><br />
+							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="links" <?php if ( is_array( $soma_options['disable_menus'] ) ) { checked( '1', in_array( 'links', $soma_options['disable_menus'] ) ); } ?> /> Links</label><br />
+							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="comments" <?php if ( is_array( $soma_options['disable_menus'] ) ) { checked( '1', in_array( 'comments', $soma_options['disable_menus'] ) ); } ?> /> Comments</label><br />
+							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="media" <?php if ( is_array( $soma_options['disable_menus'] ) ) { checked( '1', in_array( 'media', $soma_options['disable_menus'] ) ); } ?> /> Media</label><br />
+							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="tools" <?php if ( is_array( $soma_options['disable_menus'] ) ) { checked( '1', in_array( 'tools', $soma_options['disable_menus'] ) ); } ?> /> Tools</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 					</tr>
@@ -484,17 +481,17 @@ class somaOptions extends somaticFramework  {
 							Disable Dashboard Widgets
 						</th>
 						<td>
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="quick_press" <?php if (is_array($soma_options['disable_dashboard'])) { checked('1', in_array('quick_press', $soma_options['disable_dashboard'])); } ?> /> Quick Press </label><br />
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="recent_drafts" <?php if (is_array($soma_options['disable_dashboard'])) { checked('1', in_array('recent_drafts', $soma_options['disable_dashboard'])); } ?> /> Recent Drafts </label><br />
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="recent_comments" <?php if (is_array($soma_options['disable_dashboard'])) { checked('1', in_array('recent_comments', $soma_options['disable_dashboard'])); } ?> /> Recent Comments </label><br />
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="incoming_links" <?php if (is_array($soma_options['disable_dashboard'])) { checked('1', in_array('incoming_links', $soma_options['disable_dashboard'])); } ?> /> Incoming Links </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="quick_press" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'quick_press', $soma_options['disable_dashboard'] ) ); } ?> /> Quick Press </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="recent_drafts" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'recent_drafts', $soma_options['disable_dashboard'] ) ); } ?> /> Recent Drafts </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="recent_comments" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'recent_comments', $soma_options['disable_dashboard'] ) ); } ?> /> Recent Comments </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="incoming_links" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'incoming_links', $soma_options['disable_dashboard'] ) ); } ?> /> Incoming Links </label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 						<td>
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="plugins" <?php if (is_array($soma_options['disable_dashboard'])) { checked('1', in_array('plugins', $soma_options['disable_dashboard'])); } ?> /> Plugins </label><br />
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="primary" <?php if (is_array($soma_options['disable_dashboard'])) { checked('1', in_array('primary', $soma_options['disable_dashboard'])); } ?> /> Wordpress Blog </label><br />
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="secondary" <?php if (is_array($soma_options['disable_dashboard'])) { checked('1', in_array('secondary', $soma_options['disable_dashboard'])); } ?> /> Other Wordpress News </label><br />
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="thesis_news_widget" <?php if (is_array($soma_options['disable_dashboard'])) { checked('1', in_array('thesis_news_widget', $soma_options['disable_dashboard'])); } ?> /> Thesis News </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="plugins" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'plugins', $soma_options['disable_dashboard'] ) ); } ?> /> Plugins </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="primary" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'primary', $soma_options['disable_dashboard'] ) ); } ?> /> Wordpress Blog </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="secondary" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'secondary', $soma_options['disable_dashboard'] ) ); } ?> /> Other Wordpress News </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="thesis_news_widget" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'thesis_news_widget', $soma_options['disable_dashboard'] ) ); } ?> /> Thesis News </label><br />
 						</td>
 					</tr>
 
@@ -504,29 +501,40 @@ class somaOptions extends somaticFramework  {
 							Disable Meta Boxes <br />(All Types)
 						</th>
 						<td>
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="submitdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('submitdiv', $soma_options['disable_metaboxes'])); } ?> /> Publish</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="postcustom" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('postcustom', $soma_options['disable_metaboxes'])); } ?> /> Custom Fields</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="commentsdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('commentsdiv', $soma_options['disable_metaboxes'])); } ?> /> Discussion</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="trackbacksdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('trackbacksdiv', $soma_options['disable_metaboxes'])); } ?> /> Trackbacks</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="commentstatusdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('commentstatusdiv', $soma_options['disable_metaboxes'])); } ?> /> Comment Status</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="revisionsdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('revisionsdiv', $soma_options['disable_metaboxes'])); } ?> /> Revisions</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="authordiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('authordiv', $soma_options['disable_metaboxes'])); } ?> /> Author</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="submitdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'submitdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Publish</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="postcustom" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'postcustom', $soma_options['disable_metaboxes'] ) ); } ?> /> Custom Fields</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="commentsdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'commentsdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Discussion</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="trackbacksdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'trackbacksdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Trackbacks</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="commentstatusdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'commentstatusdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Comment Status</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="revisionsdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'revisionsdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Revisions</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="authordiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'authordiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Author</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 						<td>
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="postexcerpt" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('postexcerpt', $soma_options['disable_metaboxes'])); } ?> /> Post Excerpt</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="formatdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('formatdiv', $soma_options['disable_metaboxes'])); } ?> /> Post Formats</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="pageparentdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('pageparentdiv', $soma_options['disable_metaboxes'])); } ?> /> Attributes</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="postimagediv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('postimagediv', $soma_options['disable_metaboxes'])); } ?> /> Featured Image</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="slugdiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('slugdiv', $soma_options['disable_metaboxes'])); } ?> /> Slug</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="tagsdiv-post_tag" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('tagsdiv-post_tag', $soma_options['disable_metaboxes'])); } ?> /> Post Tags</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="categorydiv" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('categorydiv', $soma_options['disable_metaboxes'])); } ?> /> Post Categories</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="postexcerpt" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'postexcerpt', $soma_options['disable_metaboxes'] ) ); } ?> /> Post Excerpt</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="formatdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'formatdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Post Formats</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="pageparentdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'pageparentdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Attributes</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="postimagediv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'postimagediv', $soma_options['disable_metaboxes'] ) ); } ?> /> Featured Image</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="slugdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'slugdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Slug</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="tagsdiv-post_tag" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'tagsdiv-post_tag', $soma_options['disable_metaboxes'] ) ); } ?> /> Post Tags</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="categorydiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'categorydiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Post Categories</label><br />
 						<td>
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_seo_meta" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('thesis_seo_meta', $soma_options['disable_metaboxes'])); } ?> /> Thesis SEO</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_image_meta" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('thesis_image_meta', $soma_options['disable_metaboxes'])); } ?> /> Thesis Image</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_multimedia_meta" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('thesis_multimedia_meta', $soma_options['disable_metaboxes'])); } ?> /> Thesis Multimedia</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_javascript_meta" <?php if (is_array($soma_options['disable_metaboxes'])) { checked('1', in_array('thesis_javascript_meta', $soma_options['disable_metaboxes'])); } ?> /> Thesis Javascript</label><br />
-
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_seo_meta" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_seo_meta', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis SEO</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_image_meta" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_image_meta', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis Image</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_multimedia_meta" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_multimedia_meta', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis Multimedia</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_javascript_meta" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_javascript_meta', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis Javascript</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_title_tag" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_title_tag', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Custom Title</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_meta_description" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_meta_description', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Meta Description</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_meta_keywords" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_meta_keywords', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Meta Keywords</label><br />
+						</td>
+						<td>
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_meta_robots" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_meta_robots', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Meta Robots</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_canonical_link" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_canonical_link', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Canonical URL</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_html_body" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_html_body', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Body Class</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_post_content" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_post_content', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Readmore Text</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_post_image" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_post_image', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Post Image</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_post_thumbnail" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_post_thumbnail', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Post Thumbnail</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_redirect" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_redirect', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 301 Redirect</label><br />
 						</td>
 					</tr>
 
@@ -537,9 +545,9 @@ class somaOptions extends somaticFramework  {
 						</th>
 						<td>
 							<?php
-							$types = get_post_types(array('show_ui' => true), 'objects');
-							foreach ($types as $type) :?>
-								<label><input name="somatic_framework_options[kill_paging][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if (is_array($soma_options['kill_paging'])) { checked('1', in_array($type->name, $soma_options['kill_paging'])); } ?> /> <?php echo $type->label; ?></label><br />
+		$types = get_post_types( array( 'show_ui' => true ), 'objects' );
+		foreach ( $types as $type ) :?>
+								<label><input name="somatic_framework_options[kill_paging][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if ( is_array( $soma_options['kill_paging'] ) ) { checked( '1', in_array( $type->name, $soma_options['kill_paging'] ) ); } ?> /> <?php echo $type->label; ?></label><br />
 							<?php endforeach; ?>
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
@@ -552,9 +560,9 @@ class somaOptions extends somaticFramework  {
 						</th>
 						<td>
 							<?php
-							$types = get_post_types(array('show_ui' => true), 'objects');
-							foreach ($types as $type) :?>
-								<label><input name="somatic_framework_options[kill_autosave][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if (is_array($soma_options['kill_autosave'])) { checked('1', in_array($type->name, $soma_options['kill_autosave'])); } ?> /> <?php echo $type->label; ?></label><br />
+		$types = get_post_types( array( 'show_ui' => true ), 'objects' );
+		foreach ( $types as $type ) :?>
+								<label><input name="somatic_framework_options[kill_autosave][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if ( is_array( $soma_options['kill_autosave'] ) ) { checked( '1', in_array( $type->name, $soma_options['kill_autosave'] ) ); } ?> /> <?php echo $type->label; ?></label><br />
 							<?php endforeach; ?>
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
@@ -566,9 +574,9 @@ class somaOptions extends somaticFramework  {
 						</th>
 						<td>
 							<?php
-							$types = get_post_types(array('show_ui' => true), 'objects');
-							foreach ($types as $type) : ?>
-							<label><input name="somatic_framework_options[kill_revisions][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if (is_array($soma_options['kill_revisions'])) { checked('1', in_array($type->name, $soma_options['kill_revisions'])); } ?> /> <?php echo $type->label; ?></label><br />
+		$types = get_post_types( array( 'show_ui' => true ), 'objects' );
+		foreach ( $types as $type ) : ?>
+							<label><input name="somatic_framework_options[kill_revisions][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if ( is_array( $soma_options['kill_revisions'] ) ) { checked( '1', in_array( $type->name, $soma_options['kill_revisions'] ) ); } ?> /> <?php echo $type->label; ?></label><br />
 							<?php endforeach; ?>
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
@@ -583,7 +591,7 @@ class somaOptions extends somaticFramework  {
 						<td>
 							<strong>CAUTION!</strong> <em>don't change these values after you've already saved a post with metadata - you won't lose anything (it will still exist in the database) but it won't be visible anymore...</em><br />
 							<label>Post Meta Prefix <input type="text" size="7" name="somatic_framework_options[meta_prefix]" value="<?php echo $soma_options['meta_prefix']; ?>" /> <em>(just a few letters, can begin with but not end in underscore)</em></label><br />
-							<label><input name="somatic_framework_options[meta_serialize]" type="checkbox" value="1" <?php if (isset($soma_options['meta_serialize'])) { checked('1', $soma_options['meta_serialize']); } ?> /> Serialize post-meta when saving?</label><br />
+							<label><input name="somatic_framework_options[meta_serialize]" type="checkbox" value="1" <?php if ( isset( $soma_options['meta_serialize'] ) ) { checked( '1', $soma_options['meta_serialize'] ); } ?> /> Serialize post-meta when saving?</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 					</tr>
@@ -593,7 +601,7 @@ class somaOptions extends somaticFramework  {
 							Reset Options
 						</th>
 						<td>
-							<label><input name="somatic_framework_options[reset_default_options]" type="checkbox" value="1" <?php if (isset($soma_options['reset_default_options'])) { checked('1', $soma_options['reset_default_options']); } ?> /> Restore defaults upon plugin deactivation/reactivation</label><br />
+							<label><input name="somatic_framework_options[reset_default_options]" type="checkbox" value="1" <?php if ( isset( $soma_options['reset_default_options'] ) ) { checked( '1', $soma_options['reset_default_options'] ); } ?> /> Restore defaults upon plugin deactivation/reactivation</label><br />
 							<em>Only check this if you want to reset plugin settings the NEXT TIME this plugin is activated</em><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
@@ -608,19 +616,19 @@ class somaOptions extends somaticFramework  {
 
 			<?php endif; ?>
 
-			<?php if ( $active_tab == 'declarations' ) :													// second tab output ?>
+			<?php if ( $active_tab == 'declarations' ) :             // second tab output ?>
 
 			<table class="form-table">
 				<tr valign="top">
 					<th scope="row">Custom Post Types</th>
 					<td>
-						<?php echo implode(', ', $custom_types); ?>
+						<?php echo implode( ', ', $custom_types ); ?>
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row">Custom Taxonomies</th>
 					<td>
-						<?php echo implode(', ', $custom_taxes); ?>
+						<?php echo implode( ', ', $custom_taxes ); ?>
 					</td>
 				</tr>
 
@@ -629,7 +637,7 @@ class somaOptions extends somaticFramework  {
 
 			<?php endif; ?>
 
-			<?php if ( $active_tab == 'advanced' ) :												// third tab output ?>
+			<?php if ( $active_tab == 'advanced' ) :            // third tab output ?>
 
 			<!-- export .dat via admin_action_export hook -->
 			<form action="<?php echo admin_url( 'admin.php' ); ?>" method="post">
@@ -682,7 +690,7 @@ class somaOptions extends somaticFramework  {
 	}
 
 	// validate what has been posted from our settings page before sending along to update_option
-	function soma_options_validate($input) {
+	function soma_options_validate( $input ) {
 		// ensure date in mysql format
 		// $input['open_date'] = date("Y-m-d", strtotime($input['open_date']));
 		// $input['close_date'] = date("Y-m-d", strtotime($input['close_date']));
@@ -699,18 +707,18 @@ class somaOptions extends somaticFramework  {
 	 *
 	 * @since 1.6
 	 *
-	 * @param string $option The name of the option.
-	 * @param string $value The unsanitised value.
+	 * @param string  $option The name of the option.
+	 * @param string  $value  The unsanitised value.
 	 * @return string Sanitized value.
 	 */
-	function sanitize_soma_options($value, $option) {
+	function sanitize_soma_options( $value, $option ) {
 		// soma_dump($value);
 		return $value;
 	}
 
 	// hides parts of the user profile panel, reduce complexity
 	function hide_profile_options() {
-		?>
+?>
 		<script type="text/javascript">
 		jQuery(document).ready(function(){
 			jQuery("#your-profile .form-table:first, #your-profile h3:first").remove();
@@ -733,10 +741,10 @@ class somaOptions extends somaticFramework  {
 
 	// automatically populates the display name field with the First Last name (wp defaults to the username)
 	function full_display_name( $user_id ) {
-		$user = get_userdata($user_id);
+		$user = get_userdata( $user_id );
 		$fullname = $_POST['first_name'] . " " . $_POST['last_name'];
-		if ($user->display_name != $fullname) {
-			wp_update_user( array('ID' => $user_id, 'display_name' => $fullname) );
+		if ( $user->display_name != $fullname ) {
+			wp_update_user( array( 'ID' => $user_id, 'display_name' => $fullname ) );
 		}
 		return null;
 	}
@@ -748,35 +756,35 @@ class somaOptions extends somaticFramework  {
 		$contactmethods[$prefix .'user_phone'] = 'Phone Number';
 		$contactmethods[$prefix .'user_facebook'] = 'Facebook Profile URL';
 		$contactmethods[$prefix .'user_twitter'] = 'Twitter Username';
-		unset($contactmethods['yim']);
-		unset($contactmethods['aim']);
-		unset($contactmethods['jabber']);
+		unset( $contactmethods['yim'] );
+		unset( $contactmethods['aim'] );
+		unset( $contactmethods['jabber'] );
 		return $contactmethods;
 	}
 
 	//
 	function disable_dashboard_widgets() {
 		global $soma_options;
-		if (!is_array( $soma_options['disable_dashboard'] ) ) return false;					// abort to avoid PHP errors
-		if ( in_array( "quick_press", $soma_options['disable_dashboard'] ) ) remove_meta_box('dashboard_quick_press', 'dashboard', 'side');
-		if ( in_array( "recent_drafts", $soma_options['disable_dashboard'] ) ) remove_meta_box('dashboard_recent_drafts', 'dashboard', 'side');
-		if ( in_array( "recent_comments", $soma_options['disable_dashboard'] ) ) remove_meta_box('dashboard_recent_comments', 'dashboard', 'normal');
-		if ( in_array( "incoming_links", $soma_options['disable_dashboard'] ) ) remove_meta_box('dashboard_incoming_links', 'dashboard', 'normal');
-		if ( in_array( "plugins", $soma_options['disable_dashboard'] ) ) remove_meta_box('dashboard_plugins', 'dashboard', 'normal');
-		if ( in_array( "primary", $soma_options['disable_dashboard'] ) ) remove_meta_box('dashboard_primary', 'dashboard', 'side');
-		if ( in_array( "secondary", $soma_options['disable_dashboard'] ) ) remove_meta_box('dashboard_secondary', 'dashboard', 'side');
-		if ( in_array( "thesis_news_widget", $soma_options['disable_dashboard'] ) ) remove_meta_box('thesis_news_widget', 'dashboard', 'normal');
+		if ( !is_array( $soma_options['disable_dashboard'] ) ) return false;     // abort to avoid PHP errors
+		if ( in_array( "quick_press", $soma_options['disable_dashboard'] ) ) remove_meta_box( 'dashboard_quick_press', 'dashboard', 'side' );
+		if ( in_array( "recent_drafts", $soma_options['disable_dashboard'] ) ) remove_meta_box( 'dashboard_recent_drafts', 'dashboard', 'side' );
+		if ( in_array( "recent_comments", $soma_options['disable_dashboard'] ) ) remove_meta_box( 'dashboard_recent_comments', 'dashboard', 'normal' );
+		if ( in_array( "incoming_links", $soma_options['disable_dashboard'] ) ) remove_meta_box( 'dashboard_incoming_links', 'dashboard', 'normal' );
+		if ( in_array( "plugins", $soma_options['disable_dashboard'] ) ) remove_meta_box( 'dashboard_plugins', 'dashboard', 'normal' );
+		if ( in_array( "primary", $soma_options['disable_dashboard'] ) ) remove_meta_box( 'dashboard_primary', 'dashboard', 'side' );
+		if ( in_array( "secondary", $soma_options['disable_dashboard'] ) ) remove_meta_box( 'dashboard_secondary', 'dashboard', 'side' );
+		if ( in_array( "thesis_news_widget", $soma_options['disable_dashboard'] ) ) remove_meta_box( 'thesis_news_widget', 'dashboard', 'normal' );
 	}
 
 	// removes unwanted metaboxes from post editor
-	function disable_metaboxes($type, $context, $post) {
+	function disable_metaboxes( $type, $context, $post ) {
 		global $soma_options;
 		$boxes = $soma_options['disable_metaboxes'];
-		if (!is_array($boxes)) return false;
-		foreach ($boxes as $box) {
-			foreach (array('link', 'post', 'page') as $page){
-				foreach (array('normal', 'advanced', 'side') as $context) {
-					remove_meta_box($box, $type, $context);
+		if ( !is_array( $boxes ) ) return false;
+		foreach ( $boxes as $box ) {
+			foreach ( array( 'link', 'post', 'page' ) as $page ) {
+				foreach ( array( 'normal', 'advanced', 'side' ) as $context ) {
+					remove_meta_box( $box, $type, $context );
 				}
 			}
 		}
@@ -785,41 +793,41 @@ class somaOptions extends somaticFramework  {
 	//
 	function disable_admin_menus() {
 		global $soma_options;
-		if ( !is_array( $soma_options['disable_menus'] ) ) return false;				// abort to avoid PHP errors
+		if ( !is_array( $soma_options['disable_menus'] ) ) return false;    // abort to avoid PHP errors
 		if ( in_array( 'links', $soma_options['disable_menus'] ) )
-			remove_menu_page('link-manager.php');
+			remove_menu_page( 'link-manager.php' );
 		if ( in_array( 'comments', $soma_options['disable_menus'] ) )
-			remove_menu_page('edit-comments.php');
+			remove_menu_page( 'edit-comments.php' );
 		if ( in_array( 'media', $soma_options['disable_menus'] ) )
-			remove_menu_page('upload.php');
+			remove_menu_page( 'upload.php' );
 		if ( in_array( 'tools', $soma_options['disable_menus'] ) )
-			remove_menu_page('tools.php');
+			remove_menu_page( 'tools.php' );
 		if ( in_array( 'posts', $soma_options['disable_menus'] ) )
-			remove_menu_page('edit.php');
+			remove_menu_page( 'edit.php' );
 		if ( in_array( 'pages', $soma_options['disable_menus'] ) )
-			remove_menu_page('edit.php?post_type=page');
+			remove_menu_page( 'edit.php?post_type=page' );
 	}
 
 	//
 	function disable_admin_bar_links() {
 		global $wp_admin_bar, $soma_options;
-		if ( !is_array( $soma_options['disable_menus'] ) ) return false;				// abort to avoid PHP errors
-		if ( post_type_exists( 'feedback' ) )											// jetpack plugin contact forms they forgot to remove from the admin bar....
-			$wp_admin_bar->remove_menu('new-feedback');
+		if ( !is_array( $soma_options['disable_menus'] ) ) return false;    // abort to avoid PHP errors
+		if ( post_type_exists( 'feedback' ) )           // jetpack plugin contact forms they forgot to remove from the admin bar....
+			$wp_admin_bar->remove_menu( 'new-feedback' );
 		if ( in_array( 'links', $soma_options['disable_menus'] ) )
-			$wp_admin_bar->remove_menu('new-link');
+			$wp_admin_bar->remove_menu( 'new-link' );
 		if ( in_array( 'comments', $soma_options['disable_menus'] ) )
-			$wp_admin_bar->remove_menu('comments');
+			$wp_admin_bar->remove_menu( 'comments' );
 		if ( in_array( 'media', $soma_options['disable_menus'] ) )
-			$wp_admin_bar->remove_menu('new-media');
+			$wp_admin_bar->remove_menu( 'new-media' );
 		if ( in_array( 'posts', $soma_options['disable_menus'] ) )
-			$wp_admin_bar->remove_menu('new-post');
+			$wp_admin_bar->remove_menu( 'new-post' );
 		if ( in_array( 'pages', $soma_options['disable_menus'] ) )
-			$wp_admin_bar->remove_menu('new-page');
+			$wp_admin_bar->remove_menu( 'new-page' );
 	}
 
 	//
-	function disable_paging($query) {
+	function disable_paging( $query ) {
 		global $soma_options;
 		$obj = $query->get_queried_object();
 
@@ -827,20 +835,20 @@ class somaOptions extends somaticFramework  {
 		if ( $query->is_admin ) return $query;
 
 		// post type archives
-		if ($query->is_post_type_archive) {
+		if ( $query->is_post_type_archive ) {
 			if ( is_array( $soma_options[ 'kill_paging' ] ) && in_array( $query->query_vars['post_type'], $soma_options[ 'kill_paging' ] ) ) {
-				$query->set('nopaging', true);
+				$query->set( 'nopaging', true );
 				return $query;
 			}
 		}
 
 		// taxonomy listings
-		if ($query->is_tax) {
-			if (!is_null($query->queried_object)) {
-				$tax = get_taxonomy($query->queried_object->taxonomy);
-				foreach ($tax->object_type as $cpt) {
+		if ( $query->is_tax ) {
+			if ( !is_null( $query->queried_object ) ) {
+				$tax = get_taxonomy( $query->queried_object->taxonomy );
+				foreach ( $tax->object_type as $cpt ) {
 					if ( is_array( $soma_options[ 'kill_paging' ] ) && in_array( $cpt, $soma_options[ 'kill_paging' ] ) ) {
-						$query->set('nopaging', true);
+						$query->set( 'nopaging', true );
 						return $query;
 					}
 				}
@@ -852,10 +860,10 @@ class somaOptions extends somaticFramework  {
 	}
 
 	// disable the screen tab without losing whatever had been set in it (like dashboard columns)
-	function disable_screen_options($display_boolean, $wp_screen_object) {
+	function disable_screen_options( $display_boolean, $wp_screen_object ) {
 		global $soma_options, $pagenow;
-		$blacklist = array('post.php', 'post-new.php', 'index.php', 'edit.php');						// only on certain screens
-		if ($soma_options['disable_screen_options'] && in_array($GLOBALS['pagenow'], $blacklist)) {
+		$blacklist = array( 'post.php', 'post-new.php', 'index.php', 'edit.php' );      // only on certain screens
+		if ( $soma_options['disable_screen_options'] && in_array( $GLOBALS['pagenow'], $blacklist ) ) {
 			$wp_screen_object->render_screen_layout();
 			$wp_screen_object->render_per_page_options();
 			return false;
@@ -868,8 +876,9 @@ class somaOptions extends somaticFramework  {
 	function disable_autosave() {
 		global $soma_options;
 		global $post;
-		if ( is_array( $soma_options[ 'kill_autosave' ] ) && in_array( $post->post_type, $soma_options[ 'kill_autosave' ] ) ) {
-			wp_dequeue_script('autosave');
+		$killsave = somaFunctions::fetch_index( $soma_options, 'kill_autosave' );
+		if ( is_array($killsave) && in_array( $post->post_type, $killsave ) ) {
+			wp_dequeue_script( 'autosave' );
 		}
 
 	}
@@ -877,8 +886,9 @@ class somaOptions extends somaticFramework  {
 	// not sure if this works - need to test
 	function disable_revisions() {
 		global $soma_options;
-		if ( is_array( $soma_options[ 'kill_revisions' ] ) ) {
-			foreach ($soma_options[ 'kill_revisions' ] as $type) {
+		$types = somaFunctions::fetch_index( $soma_options, 'kill_revisions' );
+		if ( is_array( $types ) ) {
+			foreach ( $soma_options[ 'kill_revisions' ] as $type ) {
 				remove_post_type_support( $type, 'revisions' );
 			}
 		}
@@ -887,7 +897,7 @@ class somaOptions extends somaticFramework  {
 	// this is very deeeeep - need to finish and create UI for it above
 	function disable_support() {
 		global $soma_options;
-		if ( post_type_supports($post_type, $feature) && $soma_options['kill_support'] ) {
+		if ( post_type_supports( $post_type, $feature ) && $soma_options['kill_support'] ) {
 
 		}
 		/*
@@ -908,19 +918,19 @@ class somaOptions extends somaticFramework  {
 
 	function disable_drag_metabox() {
 		global $soma_options;
-		if ($soma_options['disable_drag_metabox'])
-			wp_deregister_script('postbox');
+		if ( somaFunctions::fetch_index( $soma_options, 'disable_drag_metabox' ) )
+			wp_deregister_script( 'postbox' );
 	}
 
-	function enable_threaded_comments(){
-		if (!is_admin()) {
-			if (is_singular() AND comments_open() AND (get_option('thread_comments') == 1))
-				wp_enqueue_script('comment-reply');
+	function enable_threaded_comments() {
+		if ( !is_admin() ) {
+			if ( is_singular() and comments_open() and ( get_option( 'thread_comments' ) == 1 ) )
+				wp_enqueue_script( 'comment-reply' );
 		}
 	}
 
-	function user_admin_bar_false_by_default($user_id) {
-	    update_user_meta( $user_id, 'show_admin_bar_front', 'false' );
+	function user_admin_bar_false_by_default( $user_id ) {
+		update_user_meta( $user_id, 'show_admin_bar_front', 'false' );
 	}
 
 	function show_admin_bar() {
@@ -929,7 +939,7 @@ class somaOptions extends somaticFramework  {
 		// $useroption = get_user_meta($user_ID, 'show_admin_bar_front', true);
 		// if ( empty( $useroption ) ) $useroption = false;
 		global $soma_options;
-		
+
 		if ( !is_admin() && $soma_options[ 'always_show_bar' ] && is_user_logged_in() ) {
 			add_filter( 'show_admin_bar', '__return_true' );
 		} else {

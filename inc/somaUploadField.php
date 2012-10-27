@@ -27,7 +27,7 @@ class somaUploadField extends somaticFramework {
 		if (isset($this->field['allowed']) && is_array($this->field['allowed'])) {
 			$this->allowed = implode(",", $field['allowed']);
 		} else {
-			$this->allowed = 'jpg,jpeg,gif,png';		// default
+			$this->allowed = 'jpg,jpeg,gif,png,mp3';		// default
 		}
 		// max uploads total (per upload session, does not restrict number of attachments)
 		if (isset($field['max'])) {
@@ -40,7 +40,7 @@ class somaUploadField extends somaticFramework {
 		}
 
 	}
-	
+
 	public function enqueue_scripts() {
 		wp_enqueue_script( 'plupload-all' );			// wp core
 		wp_enqueue_script( 'soma-plupload' );			// soma framework
@@ -75,12 +75,12 @@ class somaUploadField extends somaticFramework {
 				'quality' => 90,
 			);
 		}
-		wp_localize_script( 'soma-plupload', 'base_plupload_config', $plupload_init); 	// will place in footer because of soma-plupload registered in footer
+		wp_localize_script( 'soma-plupload', $this->field['id'].'_plupload_config', $plupload_init); 	// will place in footer because of soma-plupload registered in footer
 	}
-	
+
 	/**
      * Enqueue scripts and styles
-     * 
+     *
      * @return void
      */
     public function print_scripts() {
@@ -102,16 +102,16 @@ class somaUploadField extends somaticFramework {
 		// <input type="hidden" name="fieldID[0][file]" value="/home/www/uploads/myimage.jpg" class="storage-file" />
 		// <input type="hidden" name="fieldID[0][url]" value="http://example.com/uploads/myimage.jpg" class="storage-url" />
 		// <input type="hidden" name="fieldID[0][type]" value="image/jpeg" class="storage-type" />
-		
+
 		if ($this->featured) {
 			$pendinglabel = "Pending ".$this->field['name'];
 			$help = "Or drag and drop a file here";
 		} else {
 			$pendinglabel = "Pending Uploads";
- 			$help = "Or drag and drop files here (". $this->max . " " . _n( 'image', 'images' , $this->max ) . " max)";
+ 			$help = "Or drag and drop files here (". $this->max . " " . _n( 'item', 'items' , $this->max ) . " max)";
 		}
 		?>
-		<div id="<?php echo $this->field['id']; ?>_plupload-upload-ui" class="plupload-container hide-if-no-js<?php echo $this->hidden ? " hidden" : null; ?>">
+		<div id="<?php echo $this->field['id']; ?>_plupload-upload-ui" data-fieldid="<?php echo $this->field['id']; ?>" class="plupload-container hide-if-no-js<?php echo $this->hidden ? " hidden" : null; ?>">
 			<div id="<?php echo $this->field['id']; ?>_drag-drop-area" class="dropzone">
 				<input id="<?php echo $this->field['id']; ?>_plupload-browse-button" type="button" value="Select Files to Upload" class="button" />
 				<div class="dropzone-help"><?php echo $help; ?></div>
@@ -126,12 +126,12 @@ class somaUploadField extends somaticFramework {
 		</td></tr>
 		<?php
 	}
-	
-	
+
+
     /**
      * Upload
      * Ajax callback function
-     * 
+     *
      * @return error or (XML-)response
      */
 	static function plupload_action() {

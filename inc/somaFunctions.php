@@ -158,8 +158,8 @@ class somaFunctions extends somaticFramework {
 
 	// checks to see if $_GET or $_POST values are set, avoids Undefined index error
 	function fetch_index($array, $index) {
-		if (!is_array($array)) return null;
-		return isset($array[$index]) ? $array[$index] : null;
+		if (!is_array($array)) return false;
+		return isset($array[$index]) ? $array[$index] : false;
 	}
 
 	//
@@ -452,21 +452,21 @@ class somaFunctions extends somaticFramework {
 			// if (is_admin()) {
 			// 	if ( $review ) {
 			// 		// add lightbox link to image
-			// 		$html .= "\t<li class=\"post-thumb\"><a class=\"lightbox\" rel=\"gallery\" href=\"{$img['large']['url']}\"><img src=\"{$img['thumb']['url']}\" /></a></li>\n";
+			// 		$html .= "\t<li class=\"post-thumb\"><a class=\"lightbox\" rel=\"gallery\" href=\"{$img['large']['url']}\"><img src=\"{$img['thumbnail']['url']}\" /></a></li>\n";
 			// 	} else {
 			// 		// add edit link to image
-			// 		$html .= "\t<li class=\"post-thumb\"><a href=\"". get_edit_post_link($item->ID) ."\"><img src=\"{$img['thumb']['url']}\" /></a></li>\n";
+			// 		$html .= "\t<li class=\"post-thumb\"><a href=\"". get_edit_post_link($item->ID) ."\"><img src=\"{$img['thumbnail']['url']}\" /></a></li>\n";
 			// 	}
 			// } else {
 			// 	// add view link to image
-			// 	$html .= "<li class=\"post-thumb\"><a href=\"". get_permalink($item->ID) . "\"><img src=\"{$img['thumb']['url']}\" /></a></li>\n";
+			// 	$html .= "<li class=\"post-thumb\"><a href=\"". get_permalink($item->ID) . "\"><img src=\"{$img['thumbnail']['url']}\" /></a></li>\n";
 			// }
 
 
 			$html .= "\t\t<li class=\"asset-thumb\">\n";
 
-			$html .= "\t\t\t<a href=\"$edit\"><div class=\"fb-thumb\"><img src=\"{$img['thumb']['url']}\"/></a></div>\n";
-			// $html .= "\t\t\t<a href=\"$edit\"><img src=\"{$img['thumb']['url']}\"/></a>\n";
+			$html .= "\t\t\t<a href=\"$edit\"><div class=\"fb-thumb\"><img src=\"{$img['thumbnail']['url']}\"/></a></div>\n";
+			// $html .= "\t\t\t<a href=\"$edit\"><img src=\"{$img['thumbnail']['url']}\"/></a>\n";
 			$html .= "\t\t</li>\n";
 
 			$html .= "\t\t<li class=\"title\"><strong><a href=\"$edit\">". get_the_title($item->ID). "</a></strong></li>\n";
@@ -625,32 +625,22 @@ class somaFunctions extends somaticFramework {
         return( array_merge( $wp_query->query, $new_params ) );
     }
 
-	//** retrieves featured image of a post and returns array of intermediate sizes, paths, urls ----------------------------------------------------------------------------------//
+	//** retrieves featured image of a post, or an attachment itself and returns array of intermediate sizes, paths, urls ----------------------------------------------------------------------------------//
 	public function fetch_featured_image($pid = null, $specific = null) {
 		if (!$pid) {
 			return new WP_Error('missing', "must pass a post ID argument!");
 		}
 
-		$img = array();	// to hold image variants
+		$img = array();	// container
 
-		if (has_post_thumbnail($pid)) {	// fetch id of featured image attachment
+		// fetch id of featured image attachment
+		if (has_post_thumbnail($pid)) {
 			$att_id = get_post_thumbnail_id($pid);
 		}
-		if (get_post_type($pid) == 'attachment') {	// post is already attachment - just pass ID
+
+		// post is already attachment - just pass ID
+		if (get_post_type($pid) == 'attachment') {
 			$att_id = $pid;
-		}
-		if (get_post_type($pid) == 'batches') {	// retrieve first of any attached images for batches
-			$attachments = get_children(
-				array(
-					'post_parent' => $pid,
-					'post_type' => 'attachment',
-					'post_mime_type' => 'image',
-				));
-			// if batch has attachments, it must still be pending (accepted batches have a featured image set already)
-			if ($attachments) {
-				$att_id = array_shift($attachments); 	// extract just the first one
-				$att_id = $att_id->ID;
-			}
 		}
 
 		// some attachment successfully found
@@ -674,31 +664,13 @@ class somaFunctions extends somaticFramework {
 
 			// 'sizes' key will only exist if the uploaded image was equal or larger than the site option for thumbnail size
 			if ( isset( $att_meta['sizes'] ) ) {
-				// $img['icon']['file'] 	= 	$att_meta['sizes']['post-thumbnail']['file'];		// this was failing for lack of 'post-thumbnail' array
-				// $img['icon']['url'] 	= 	$media_url . $img['icon']['file'];
-				// $img['icon']['path'] 	= 	$media_path . $img['icon']['file'];
-
-				// check if each size exists (which it won't if uploaded file was smaller than options sizes)
-				if ( isset($att_meta['sizes']['thumbnail'])) {
-					$img['thumb']['file'] 	= 	$att_meta['sizes']['thumbnail']['file'];
-					$img['thumb']['height'] = 	$att_meta['sizes']['thumbnail']['height'];
-					$img['thumb']['width'] 	= 	$att_meta['sizes']['thumbnail']['width'];
-					$img['thumb']['url'] 	= 	$media_url . $img['thumb']['file'];
-					$img['thumb']['path'] 	= 	$media_path . $img['thumb']['file'];
-				}
-				if ( isset($att_meta['sizes']['medium'])) {
-					$img['medium']['file'] 		= 	$att_meta['sizes']['medium']['file'];
-					$img['medium']['width'] 	= 	$att_meta['sizes']['medium']['width'];
-					$img['medium']['height'] 	= 	$att_meta['sizes']['medium']['height'];
-					$img['medium']['url'] 		= 	$media_url . $img['medium']['file'];
-					$img['medium']['path']		= 	$media_path . $img['medium']['file'];
-				}
-				if ( isset($att_meta['sizes']['large'])) {
-					$img['large']['file'] 	= 	$att_meta['sizes']['large']['file'];
-					$img['large']['width'] 	= 	$att_meta['sizes']['large']['width'];
-					$img['large']['height'] = 	$att_meta['sizes']['large']['height'];
-					$img['large']['url'] 	= 	$media_url . $img['large']['file'];
-					$img['large']['path'] 	= 	$media_path . $img['large']['file'];
+				// loop through all available image sizes, including any custom ones via add_image_size()
+				foreach ($att_meta['sizes'] as $size => $data) {
+					$img[$size]['file'] 	= 	$data['file'];
+					$img[$size]['height'] 	= 	$data['height'];
+					$img[$size]['width'] 	= 	$data['width'];
+					$img[$size]['url'] 		= 	$media_url . $img[$size]['file'];
+					$img[$size]['path'] 	= 	$media_path . $img[$size]['file'];
 				}
 				$img['full']['file'] 	= 	basename($att_meta['file']);	// $att_meta['file'] contains the entire server path, so extract just the name
 				$img['full']['url'] 	= 	$media_url . $img['full']['file'];
@@ -710,11 +682,11 @@ class somaFunctions extends somaticFramework {
 
 			// populate thumb data with the direct file info, as the uploaded image was smaller or equal to the site option for thumbnail size. Yes, the thumb and the full img info are the same in this case...
 			} else {
-				$img['thumb']['file'] 	= 	basename($att_meta['file']);
-				$img['thumb']['height'] = 	$att_meta['height'];
-				$img['thumb']['width'] 	= 	$att_meta['width'];
-				$img['thumb']['url'] 	= 	WP_MEDIA_URL . '/'. $att_meta['file']; 	// don't include subdir when building paths, as we're taking path directly from 'file', which already includes it...
-				$img['thumb']['path'] 	= 	WP_MEDIA_DIR . '/'. $att_meta['file'];
+				$img['thumbnail']['file'] 	= 	basename($att_meta['file']);
+				$img['thumbnail']['height'] = 	$att_meta['height'];
+				$img['thumbnail']['width'] 	= 	$att_meta['width'];
+				$img['thumbnail']['url'] 	= 	WP_MEDIA_URL . '/'. $att_meta['file']; 	// don't include subdir when building paths, as we're taking path directly from 'file', which already includes it...
+				$img['thumbnail']['path'] 	= 	WP_MEDIA_DIR . '/'. $att_meta['file'];
 				$img['full']['file'] 	= 	basename($att_meta['file']);
 				$img['full']['url'] 	= 	WP_MEDIA_URL . '/'. $att_meta['file'];
 				$img['full']['path'] 	= 	WP_MEDIA_DIR . '/'. $att_meta['file'];
@@ -726,33 +698,40 @@ class somaFunctions extends somaticFramework {
 				//** FUTURE NOTE: might be good when there isn't a medium or large version of the image to default to some kind of "missing" image that actually says "image was too small"
 			}
 
-			$img['mime']			= 	get_post_mime_type($att_id);	// mime-type of file
-			$img['orientation']		= 	somaFunctions::fetch_index($att_meta, 'orientation');
-			$img['original']		= 	somaFunctions::fetch_index($att_meta, 'original');
+			$img['mime']			= 	get_post_mime_type($att_id);											// mime-type of file
 			$img['date']			= 	get_the_date('M j, Y',$att_id) ." - ". get_the_time('h:iA',$att_id); 	// date attachment was created
+			$img['orientation']		= 	somaFunctions::fetch_index($att_meta, 'orientation');					// custom attribute, generated with ACME system
+			$img['original']		= 	somaFunctions::fetch_index($att_meta, 'original');						// custom attribute, generated with ACME system
+
+			// should we pass along? too confusing... use the typical meta fields below instead
+			// $img['image_meta'] = $att_meta['image_meta'];
+
+			// need to fetch the post from the table to get all the extra fields
+			$att_post = get_post($att_id);
+			$img['title'] = $att_post->post_title;
+			$img['description'] = $att_post->post_content;
+			$img['caption'] = $att_post->post_excerpt;
+			$img['alt'] = get_post_meta($att_id, '_wp_attachment_image_alt', true);
 
 		} else {
-		// nothing found, return error image
+		// nothing found, return generic placeholder image
 			$img['id'] = false;
-			$img['thumb']['url'] = SOMA_IMG . 'missing-image-thumb.png';
-			$img['medium']['url'] = SOMA_IMG . 'missing-image-medium.png';
-			$img['large']['url'] = SOMA_IMG . 'missing-image-large.png';
+			$sizes = get_intermediate_image_sizes();
+			foreach ($sizes as $size) {
+				$img[$size]['url'] = SOMA_IMG . 'image-placeholder.png';
+			}
+			$img['thumbnail']['width'] = SOMA_THUMB_WIDTH;
+			$img['thumbnail']['height'] = SOMA_THUMB_HEIGHT;
 			$img['full']['name'] = 'MISSING IMAGE';
-			$img['full']['url'] = SOMA_IMG . 'missing-image-large.png';
-			$img['file']['path'] = SOMA_DIR . 'images/missing-image-large.png';
-			$img['file']['file'] = 'missing-image-large.png';
+			$img['full']['url'] = SOMA_IMG . 'image-placeholder.png';
+			$img['file']['path'] = SOMA_DIR . 'images/image-placeholder.png';
+			$img['file']['file'] = 'image-placeholder.png';
 		}
-		// // output each item as full html <img> item
-		// if ($html) {
-		// 	foreach ($img as &$image){ // adding the "&" modfies each array element rather than copying out
-		// 		$image = '<img src="'.$image.'" />';
-		// 	}
-		// }
 
 		// return just the requested URL
 		if (!is_null($specific)) {
 			if ($specific == 'filename') return $img['full']['file'];
-			if (is_array($att_meta['sizes'])) {
+			if (isset($att_meta['sizes']) && is_array($att_meta['sizes'])) {
 				if (array_key_exists($specific, $img)) {
 					return $img[$specific]['url'];			// this allows for custom image sizes to be passed via $specific
 				} else {
@@ -891,7 +870,7 @@ class somaFunctions extends somaticFramework {
 		// require scribu's p2p plugin
 		global $soma_options;
 
-		if ( $soma_options['p2p'] && !function_exists('p2p_register_connection_type') ) {
+		if ( somaFunctions::fetch_index($soma_options, 'p2p') && !function_exists('p2p_register_connection_type') ) {
 			add_action( 'admin_notices', create_function('', "
 				echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>PLUGIN REQUIRED: \"Posts 2 Posts\" - please <a href=\"http://scribu.net/wordpress/posts-to-posts\" target=\"_blank\">download</a> and/or activate!</p></div>';
 			"));
@@ -1218,7 +1197,6 @@ SQL;
 	function ajax_unlink_file() {
 		$file = somaFunctions::fetch_index($_POST, 'data');		// retrieve file from ajax post
 		if ($file && file_exists($file)) {						// make sure it's there
-			soma_dump($file);
 			$delete = unlink($file);							// kill it
 			if ($delete) {
 				$response = array( 'success' => true, 'msg' => 'Successfully deleted the uploaded file!' );

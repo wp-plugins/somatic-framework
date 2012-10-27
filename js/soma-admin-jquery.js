@@ -12,7 +12,7 @@ jQuery(document).ready(function($) {
 		//     return $(this).attr('inline');
 		// },
 		iframe: function(){
-		    return $(this).attr('iframe');
+			return $(this).attr('iframe');
 		},
 		width: function(){
 			if ($(this).attr('width') !== undefined) {
@@ -64,7 +64,7 @@ jQuery(document).ready(function($) {
 		$(document).keydown(function(event) {
 			switch (true) {
 				// backslash (mini-panel)
-				case ( event.keyCode == 220 && event.altKey == false):
+				case ( event.keyCode == 220 && event.altKey === false):
 					if ($("body").hasClass("debug-bar-partial") && $("body").hasClass("debug-bar-visible")) {
 						wpDebugBar.toggle.visibility(false);
 					} else {
@@ -74,7 +74,7 @@ jQuery(document).ready(function($) {
 
 				break;
 				// backslash + alt (full-panel)
-				case ( event.keyCode == 220 && event.altKey == true ):
+				case ( event.keyCode == 220 && event.altKey === true ):
 					if ($("body").hasClass("debug-bar-maximized") && $("body").hasClass("debug-bar-visible")) {
 						wpDebugBar.toggle.visibility(false);
 					} else {

@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.7.3
+Version: 1.7.4
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -37,7 +37,7 @@ if (!function_exists('is_admin')) {
 // the server path to the plugin's directory
 define( 'SOMA_DIR', WP_PLUGIN_DIR . '/somatic-framework/' );
 // the URL path to the plugin's directory - taking note of current scheme
-if ($_SERVER['HTTPS'] == 'on') {
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
 	$wp_plugin_url = str_replace( 'http://' , 'https://' , WP_PLUGIN_URL );
 } else {
 	$wp_plugin_url = WP_PLUGIN_URL;
@@ -62,6 +62,9 @@ define( 'WP_MEDIA_DIR', $wp_upload_dir['basedir'] );
 // the URL path to the media uploads directory
 define( 'WP_MEDIA_URL', $wp_upload_dir['baseurl'] );
 
+// retrieved from media settings
+define( 'SOMA_THUMB_WIDTH', get_option( 'thumbnail_size_w' ));
+define( 'SOMA_THUMB_HEIGHT', get_option( 'thumbnail_size_h' ));
 
 if (!class_exists("somaticFramework")) :
 
@@ -234,7 +237,8 @@ class somaticFramework {
 		if (!empty($soma_options['favicon'])) {
 			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";
 		}
-		if ($soma_options['bottom_admin_bar']) :
+
+		if (somaFunctions::fetch_index($soma_options, 'bottom_admin_bar')) :
 			?><style type="text/css" media="screen">
 			* html body{margin-top:0 !important;}
 			body.admin-bar{margin-top:-28px;padding-bottom:28px;}
@@ -255,16 +259,17 @@ class somaticFramework {
 		if (!empty($soma_options['favicon'])) {
 			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";
 		}
-		if ($soma_options['bottom_admin_bar']) :
-			?><style type="text/css" media="screen">
-			* html body{margin-top:0 !important;}
-			body.admin-bar{margin-top:-28px;padding-bottom:28px;}
-			body.wp-admin #footer{padding-bottom:28px;}
-			#wpadminbar{top:auto !important;bottom:0;}
-			#wpadminbar .quicklinks .ab-sub-wrapper{bottom:28px;}
-			#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}
-			</style><?php
-		endif;
+		/* if ($soma_options['bottom_admin_bar']) :
+		// 	?><style type="text/css" media="screen">
+		// 	* html body{margin-top:0 !important;}
+		// 	body.admin-bar{margin-top:-28px;padding-bottom:28px;}
+		// 	body.wp-admin #footer{padding-bottom:28px;}
+		// 	#wpadminbar{top:auto !important;bottom:0;}
+		// 	#wpadminbar .quicklinks .ab-sub-wrapper{bottom:28px;}
+		// 	#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}
+		// 	</style><?php
+		// endif;
+		 */
 
 		// inject html5shim if IE
 		global $is_IE;
@@ -299,7 +304,7 @@ class somaticFramework {
 		// get rid of any framework-generated pages?
 		// get rid of custom user roles?
 	}
-	
+
 	function login_head() {
 		global $soma_options;
 		if (!empty($soma_options['login_logo'])) {
@@ -385,7 +390,7 @@ class somaticFramework {
 endif;
 
 // initiate the primary class ------------------------------------------------------//
-if (class_exists("somaticFramework") && !$somaticFramework) {
+if (class_exists("somaticFramework") && !isset($somaticFramework)) {
 	$somaticFramework = new somaticFramework();
 }
 

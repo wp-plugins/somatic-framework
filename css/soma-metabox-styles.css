@@ -1,3 +1,6 @@
+/* @override 
+	http://israelcurtis.staging.wpengine.com/wp-content/plugins/somatic-framework/css/soma-metabox-styles.css?ver=1.7.3 */
+
 
 /* metabox fields */
 
@@ -173,6 +176,15 @@ li.meta-attachment-item .pic {
 	border: 1px solid #ddd;
 }
 
+li.meta-attachment-item .audioplayer {
+	width: 300px;
+}
+
+li.meta-attachment-item .videoplayer {
+	width: 800px;
+}
+
+
 .meta-attachment-actions {
 	position: relative;
 }
@@ -261,6 +273,7 @@ span.sub-label {
 	display: inline-block;
 	vertical-align: top;
 	position: relative;
+	max-width: 100px;
 }
 .plupload-thumbs .thumb img {
     width: auto;
@@ -275,12 +288,29 @@ span.sub-label {
 	max-width: 400px;
 }
 
+.plupload-thumbs .thumb.audio .icon {
+    width: 100px;
+    height: 100px;
+	display: block;
+	background: transparent url('../images/icon-audio.png') no-repeat left top;
+	background-size: 100%;
+}
+
+.plupload-thumbs .thumb.video .icon {
+    width: 100px;
+    height: 100px;
+	display: block;
+	background: transparent url('../images/icon-video.png') no-repeat left top;
+	background-size: 100%;
+}
+
+
 .dropzone {
 	text-align: center;
 	padding: 10px 10px 6px 10px;
 	border: 3px dashed #ddd;
 	height: auto;
-	width: 250px;
+	width: 274px;
 }
 .dropzone-help {
 	color: #888;
@@ -296,7 +326,7 @@ span.sub-label {
 }
 
 
-.plupload-thumbs .thumbinfo {
+.plupload-thumbs .pendinginfo {
 	display: inline-block;
 	margin-top: 2px;
 }

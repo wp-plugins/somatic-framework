@@ -37,6 +37,16 @@ function mysite_metabox_data() {
 		'publish' => true,													// makes the save button always change post_status to publish (instead of keeping it on whatever it was, which means new items are saved as drafts)
 		'fields' => array(													// array of individual fields within this metabox
 			array(
+				'name' => 'Featured Image',
+				'id' => 'customid',
+				'type' => 'upload-featured',
+				'data' => 'featured',
+				'width' => 320,
+				'height' => 160,
+				'allowed' => array('png'),
+				'desc' => '',
+			),
+			array(
 				'name' => 'Actor Name',										// text displayed alongside field input
 				'id' => 'actors', 											// used when saving, should be the name of the post_meta (key) or taxonomy (exact slug) we're manipulating
 				'type' => 'select',											// field type (usually input: text, area, select, checkbox, radio), sometimes output (posts, other readonly data)
@@ -76,32 +86,22 @@ function mysite_metabox_data() {
 				'desc' => 'Enter the URL of the image',
 			),
 			array(
-				'name' => 'Upload Images',
+				'name' => 'Upload Stuff',
 				'id' => 'customid',											// html tag ID should be unique for each field on the edit page
-				'type' => 'upload-images',									// displays plUpload image uploader
+				'type' => 'upload-files',									// displays plUpload file uploader
 				'data' => 'none',											// indicates there is no saved data to be retrieved when displaying this field
-				'max' => 10,												// how many images should be allowed to be uploaded
+				'max' => 10,												// how many items should be allowed to be uploaded
 				'width' => 900,												// if indicated, image will be resized to max of this integer, but not cropped
 				'height' => 600,											// if indicated, image will be resized to max of this integer, but not cropped
-				'allowed' => array('jpg','png'),							// array of permitted file extensions for this instance (defaults to jpg, jpeg, gif, png)
+				'allowed' => array('jpg','png'),							// array of permitted file extensions for this instance (defaults to jpg, jpeg, gif, png, mp3)
 				'desc' => 'Photos must be 3:2 aspect ratio, in JPG or PNG format',
 			),
 			array(
-				'name' => 'Item Logo',
-				'id' => 'customid',
-				'type' => 'upload-featured',
-				'data' => 'featured',
-				'width' => 320,
-				'height' => 160,
-				'allowed' => array('png'),
-				'desc' => '',
-			),
-			array(
-				'name' => 'Attached Photos',
+				'name' => 'Attached Files',
 				'id' => 'current-attachments',
-				'type' => 'attachment',
+				'type' => 'gallery',
 				'data' => 'attachment',
-				'desc' => 'These are your current image attachments',
+				'desc' => 'These are your currently attachmented files',
 			),
 		)
 	));

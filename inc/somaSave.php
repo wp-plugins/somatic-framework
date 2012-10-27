@@ -125,10 +125,10 @@ class somaSave extends somaticFramework {
 	function save_asset($pid, $post = null) {
 		// don't do on autosave or for new post creation or when trashing post or when using quick edit
 		if ( somaFunctions::fetch_index($_POST, 'action') == "inline-save" ) return; //  NOTE: REMOVE THIS ONE IF GOING TO DISPLAY CUSTOM COLUMN BOXES IN QUICK EDIT
-		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) return; 
+		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) return;
 		if ( $post->post_status == 'auto-draft' ) return;
 		if ( somaFunctions::fetch_index($_GET,'action') == 'trash' ) return;
-		
+
 		// don't do for core post types ** now that we're adding metaboxes to core types, forget this
 		// if ($post->post_type == 'post' || $post->post_type == 'page') return;
 
@@ -173,7 +173,7 @@ class somaSave extends somaticFramework {
 
 					// readonly fields - skip saving completely. also skip the post_content editor, as it saves itself...
 					if ($field['type'] == 'readonly' || $field['type'] == 'posts' || $field['type'] == 'help' ) continue;
-					
+
 					// avoid issues with other forms/plugins calling save_post by skipping when our field is not included (otherwise all our custom data gets wiped)
 					if (!isset($_POST[$field['id']])) continue;
 
@@ -183,7 +183,7 @@ class somaSave extends somaticFramework {
 					}
 					// skip saving one-time fields that already have data
 					if ($old && $field['once']) continue;
-						
+
 					if ($field['data'] == 'taxonomy') {
 						$tax = wp_get_object_terms($pid, $field['id']);
 						if (!is_wp_error($tax)) { // make sure the term request didn't fail
@@ -215,7 +215,7 @@ class somaSave extends somaticFramework {
 						}
 						// retrieve connections
 						$conn = p2p_get_connections($field['p2pname'], $p2pargs);
-						
+
 						// for p2p single relationships
 						if ($field['type'] == 'p2p-select') {
 							switch (true) {
@@ -273,7 +273,7 @@ class somaSave extends somaticFramework {
 							}
 						}
 					}
-					
+
 					// for link inputs  --------------------------------------------------------------//
 					if ($field['type'] == 'link') {
 						$title = $_POST[$field['id']][0];
@@ -286,7 +286,7 @@ class somaSave extends somaticFramework {
 						// 	$new['url'] = '( invalid URL given - make sure to include http:// )';
 						// }
 					}
-					
+
 					// for date inputs  --------------------------------------------------------------//
 					if ($field['type'] == 'date') {
 
@@ -432,8 +432,9 @@ class somaSave extends somaticFramework {
 						}
 					}
 
+					// OLD STYLE basic html file selector input uploader. replaced with plupload system below
 					// file uploads (creates attachments)  --------------------------------------------------------------//
-					if ($field['type'] == 'upload-files') {
+					if ($field['type'] == 'upload-OLD') {
 						if (!empty($_FILES[$field['id']])) {
 
 							self::fix_file_array($_FILES[$field['id']]); 							// reformats array to better process each item
@@ -464,11 +465,11 @@ class somaSave extends somaticFramework {
 						}
 						continue; // skip everything else, we're not comparing old/new uploads...
 					}
-					
+
 					// image uploads (creates attachments)  --------------------------------------------------------------//
 					// uses hidden inputs for data retrieval
 					// keys passed for each image instance: file, url, mime/type
-					if ($field['type'] == 'upload-images') {
+					if ($field['type'] == 'upload-files' || $field['type'] == 'upload-images') {
 						foreach ($_POST[$field['id']] as $incoming) {
 							if (file_exists($incoming['file'])) {
 								$attachment = array(
@@ -486,7 +487,7 @@ class somaSave extends somaticFramework {
 						}
 						continue; // skip everything else, we're not comparing old/new uploads...
 					}
-					
+
 					// image uploads (creates attachments and sets single as featured image)  --------------------------------------------------------------//
 					// uses hidden inputs for data retrieval
 					// keys passed for each image instance: file, url, mime/type
@@ -579,7 +580,7 @@ class somaSave extends somaticFramework {
 								p2p_delete_connection($conn[0]->p2p_id);
 								p2p_type( $field['p2pname'] )->connect( $pid, $new, array(
 									'date' => current_time('mysql')
-								) );								
+								) );
 							}
 							if ($field['type'] == 'p2p-multi') {
 								// remove all connections first?
@@ -590,7 +591,7 @@ class somaSave extends somaticFramework {
 								foreach ($new as $newid) {
 									p2p_type( $field['p2pname'] )->connect( $pid, $newid, array(
 										'date' => current_time('mysql')
-									) );								
+									) );
 								}
 							}
 						}
