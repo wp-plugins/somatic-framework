@@ -53,6 +53,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * FIX: custom post type update messages were not being produced properly...
 * thumbnail columns now automatically adjust width according to thumbnail options
 * FIX: media uploader metabox field type works again
+* improvements to the styling and behavior of the sorting pages
 
 
 = 1.7.3 =

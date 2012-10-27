@@ -1,12 +1,12 @@
-jQuery(document).ready(function($) {		
+jQuery(document).ready(function($) {
 	var typeList = $('#type-sort-list');
 
-	$(".loading-animation").hide(); 
+	$(".loading-animation").hide();
 
 	typeList.sortable({
 		update: function(event, ui) {
 			$('.loading-animation').show(); // Show the animate loading gif while waiting
- 			
+
 			opts = {
 				url: ajaxurl, // ajaxurl is defined by WordPress and points to /wp-admin/admin-ajax.php
 				type: 'POST',
@@ -33,8 +33,8 @@ jQuery(document).ready(function($) {
 			};
 			$.ajax(opts);
 		}
-	});	
-	
+	});
+
 	// controls animation and changes while waiting for server response
 	function waiting_for_server(which) {
 		if (which == 'start') {
