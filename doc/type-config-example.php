@@ -17,7 +17,7 @@ function mysite_type_data() {
 		"plural" => "Resources",												// used to build labels
 		"args" => array(														// optional argument overrides http://codex.wordpress.org/Function_Reference/register_post_type
 				'menu_position' => 5,											// where the admin menu item where sit
-				'supports' => array( 'title', 'thumbnail'),						// which features and core metaboxes to show -- Don't forget to use add_theme_support( 'post-thumbnails' ) when required!
+				'supports' => array( 'title', 'thumbnail', 'post-formats'),		// which features and core metaboxes to show -- Don't forget to use add_theme_support( 'post-thumbnails' ) when required!
 				// non-wp args below
 				'sort_by' => 'meta_value',										// how to filter the query when displaying this type - post_date (published), title (post_title), author, parent, modified, rand (random), meta_value, menu_order - which also causes the admin sorting menu to appear
 				'sort_key' => 'custommetakey',									// if "meta_value" is indicated for sort_by, must supply a post meta key (which will automatically have the site meta prefix added)

@@ -295,11 +295,11 @@ function soma_asset_meta( $action = null, $pid = null, $key = null, $value = nul
  * @return string - just the url of the specified $size
  */
 
-function soma_featured_image( $pid = null, $size = null ) {
-	if (!$pid) {
-		return new WP_Error('missing', "Must pass a post ID argument!");
+function soma_featured_image( $post = null, $size = null ) {
+	if (is_null($post)) {
+		return new WP_Error('missing', "Must pass a post argument!");
 	}
-	return somaFunctions::fetch_featured_image( $pid, $size );
+	return somaFunctions::fetch_featured_image( $post, $size );
 }
 
 
@@ -313,11 +313,11 @@ function soma_featured_image( $pid = null, $size = null ) {
  * @return array - tons of data
  * @return string - just the url of the specified $size
  */
-function soma_fetch_image( $pid = null, $size = null ) {
-	if (!$pid) {
+function soma_fetch_image( $post = null, $size = null ) {
+	if (is_null($post)) {
 		return new WP_Error('missing', "Must pass a post ID argument!");
 	}
-	return somaFunctions::fetch_featured_image( $pid, $size );
+	return somaFunctions::fetch_featured_image( $post, $size );
 }
 
 /**

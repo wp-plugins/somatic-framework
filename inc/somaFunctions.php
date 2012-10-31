@@ -626,10 +626,10 @@ class somaFunctions extends somaticFramework {
     }
 
 	//** retrieves featured image of a post, or an attachment itself and returns array of intermediate sizes, paths, urls ----------------------------------------------------------------------------------//
-	public function fetch_featured_image($pid = null, $specific = null) {
-		if (!$pid) {
-			return new WP_Error('missing', "must pass a post ID argument!");
-		}
+	public function fetch_featured_image($post = null, $specific = null) {
+		if (is_wp_error($post)) return $post;
+		if (is_null($post)) return new WP_Error('missing', "must pass a post argument!");
+		if (is_object($post)) $pid = $post->ID;
 
 		$img = array();	// container
 
