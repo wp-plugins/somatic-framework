@@ -831,16 +831,21 @@ class somaFunctions extends somaticFramework {
 	}
 
 
-	// returns all attachments
-	public function fetch_attached_media($pid, $mime = null, $exclude_featured = false) {
+	// returns all attachments (except featured image)
+	public function fetch_attached_media($post = null, $mime = null, $include_featured = false) {
+		if (is_wp_error($post)) return $post;
+		if (is_null($post)) return new WP_Error('missing', "must pass a post argument!");
+		if (is_object($post)) $pid = $post->ID;
+
 		$args = array(
 			'post_parent' => $pid,
 			'post_type' => 'attachment',
 			'numberposts' => -1,
 			'post_status' => 'any',
+			'exclude' => get_post_thumbnail_id($pid),
 		);
-		if ($exclude_featured == true) {
-			$args['exclude'] = get_post_thumbnail_id($pid);
+		if ($include_featured == true) {
+			unset($args['exclude']);
 		}
 		if (!is_null($mime)) {
 			// only return requested media type (audio/mpeg, video/mp4, image/jpeg, application/pdf, application/zip)

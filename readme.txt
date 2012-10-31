@@ -33,7 +33,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 == Changelog ==
 
 = 1.7.4 =
-* NEW api soma_attachments(), wrapper for get_posts() returns array of attached post objects
+* NEW api soma_attachments(), wrapper for get_posts() returns array of attached post objects, minus the featured image (unless specified)
 * NEW api soma_fetch_image(), basically just renamed soma_featured_image() [still around for backwards compatibility] - reflects its ability to retrieve image data for any attachment, not just featured images
 * somaFunctions::fetch_attached_media() now takes mime-type argument and an optional argument to exclude the featured image
 * metabox field type "attachment" is now "gallery" (still with data of "attachment"). Shows all attached images or audio or video (via mediaelement)
