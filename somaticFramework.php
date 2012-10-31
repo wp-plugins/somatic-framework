@@ -191,7 +191,7 @@ class somaticFramework {
 			'$_POST' => json_encode($_POST),
 			'$_GET' => json_encode($_GET)
 		);
-		wp_localize_script( 'jquery', 'soma_vars', $params); 	// will place in footer because of jquery registered in footer
+		if ($soma_options['debug']) wp_localize_script( 'jquery', 'soma_vars', $params); 	// will place in footer because of jquery registered in footer
 	}
 
 	// hooking admin for scripts and styles!

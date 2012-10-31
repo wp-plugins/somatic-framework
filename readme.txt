@@ -44,9 +44,10 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * old field type for featured image plUpload boxes, "upload-featured", is now deprecated: use "upload-files", with 'data' arg set to "featured"
 * FIX: multiple plUpload boxes on the same page now behave!
 * NOTE: any old metabox fields dealing with attachments should probably be revisited...
-* FIX: soma_featured_image() was failing certain specific requests, now returns original full file URL if the requested size is not available (eg: original pic was smaller than site's "large" setting)
-* FIX: soma_featured_image() now includes custom image sizes when available
-* NEW: soma_featured_image() now returns title, description, caption, and alt text
+* FIX: soma_fetch_image() was failing certain specific requests, now returns original full file URL if the requested size is not available (eg: original pic was smaller than site's "large" setting)
+* FIX: soma_fetch_image() now includes custom image sizes when available
+* NEW: soma_fetch_image() now returns title, description, caption, and alt text
+* NEW: soma_fetch_image() now accepts either a post object or post ID
 * NOTE: this means the key for the thumbnail image is now "thumbnail" (as returned by wp), and not "thumb", as it had been hardcoded before. Your old calls to soma_featured_image() for thumbs are likely broken now
 * NOTE: the missing image placeholder is now one single size image, so make sure you manually indicate the width and height in your image tags (or else they'll all display at 512px)
 * options to hide new Thesis 2.0 metaboxes
