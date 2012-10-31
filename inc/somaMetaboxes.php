@@ -178,8 +178,8 @@ class somaMetaboxes extends somaticFramework {
 
 			// get all media attachments (minus featured image)
 			if ($field['data'] == 'attachment') {
-				$mime = soma_fetch_index($field, 'mime-type');
-				$meta = somaFunctions::fetch_attached_media($post->ID, $mime, true);
+				$mime = soma_fetch_index($field, 'mime-type');						// filter specific mimetype if specified
+				$meta = somaFunctions::fetch_attached_media($post->ID, $mime);
 			}
 
 			// don't show attachment gallery field at all if there aren't any yet

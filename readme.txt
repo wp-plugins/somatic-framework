@@ -47,7 +47,6 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * FIX: soma_fetch_image() was failing certain specific requests, now returns original full file URL if the requested size is not available (eg: original pic was smaller than site's "large" setting)
 * FIX: soma_fetch_image() now includes custom image sizes when available
 * NEW: soma_fetch_image() now returns title, description, caption, and alt text
-* NEW: soma_fetch_image() now accepts either a post object or post ID
 * NOTE: this means the key for the thumbnail image is now "thumbnail" (as returned by wp), and not "thumb", as it had been hardcoded before. Your old calls to soma_featured_image() for thumbs are likely broken now
 * NOTE: the missing image placeholder is now one single size image, so make sure you manually indicate the width and height in your image tags (or else they'll all display at 512px)
 * options to hide new Thesis 2.0 metaboxes
@@ -57,7 +56,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * FIX: media uploader metabox field type works again
 * improvements to the styling and behavior of the sorting pages
 * improvements to the somaUploadField class
-
+* NEW: soma_fetch_image(), soma_asset_meta(), soma_attachments(), soma_fetch_image(), soma_singular_term() now accept either a post object or post ID (integer or string)
 
 = 1.7.3 =
 * FIX save routines on external media and images don't die anymore if empty

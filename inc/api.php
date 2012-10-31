@@ -271,7 +271,7 @@ function soma_select_generic($items) {
  *
  * @since 1.3
  * @param $action (string) ["save", "get", "delete"]: what to do (required).
- * @param $pid (integer/string): the post ID to be manipulated (required).
+ * @param $post (object/integer/string): the post object or ID to be manipulated (required).
  * @param $key (string): name of the post_meta key to work on (required).
  * @param $value (string/array): what to save to this post_meta key (optional, unless saving).
  * @param $serialize (boolean): override the global option for serializing the data (optional)
@@ -280,8 +280,8 @@ function soma_select_generic($items) {
  * @return value of the post_meta key requested (when action = 'get')
  */
 
-function soma_asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null, $use_prefix = true ) {
-	return somaFunctions::asset_meta( $action, $pid, $key, $value, $serialize, $use_prefix );
+function soma_asset_meta( $action = null, $post = null, $key = null, $value = null, $serialize = null, $use_prefix = true ) {
+	return somaFunctions::asset_meta( $action, $post, $key, $value, $serialize, $use_prefix );
 }
 
 /**
@@ -296,7 +296,7 @@ function soma_asset_meta( $action = null, $pid = null, $key = null, $value = nul
  */
 
 function soma_featured_image( $post = null, $size = null ) {
-	if (is_null($post)) {
+	if (empty($post)) {
 		return new WP_Error('missing', "Must pass a post argument!");
 	}
 	return somaFunctions::fetch_featured_image( $post, $size );
@@ -314,7 +314,7 @@ function soma_featured_image( $post = null, $size = null ) {
  * @return string - just the url of the specified $size
  */
 function soma_fetch_image( $post = null, $size = null ) {
-	if (is_null($post)) {
+	if (empty($post)) {
 		return new WP_Error('missing', "Must pass a post argument!");
 	}
 	return somaFunctions::fetch_featured_image( $post, $size );
@@ -331,7 +331,7 @@ function soma_fetch_image( $post = null, $size = null ) {
  */
 
 function soma_attachments($post = null, $mime = null, $include = false) {
-	if (is_null($post)) {
+	if (empty($post)) {
 		return new WP_Error('missing', "Must pass a post argument!");
 	}
 	return somaFunctions::fetch_attached_media($pid, $mime, $include);
@@ -371,14 +371,14 @@ function soma_external_media( $url = null, $width = null, $height = null ) {
  * Useful for taxonomies that function like a "status"
  *
  * @since 1.3.1
- * @param $pid - (string/integer) post ID (required)
+ * @param $post - (object/string/integer) post ID (required)
  * @param $tax - (string) taxonomy slug to get the set term of (required)
  * @param $label - (string) can be "name" or "slug"
  * @return string - the term's pretty name
  */
 
-function soma_singular_term( $pid = null, $tax = null, $label = "slug" ) {
-	if (!$pid || !$tax) {
+function soma_singular_term( $post = null, $tax = null, $label = "slug" ) {
+	if (empty($post) || !$tax) {
 		return new WP_Error('missing', "must pass a post ID and a taxonomy!");
 	}
 	return somaFunctions::fetch_the_singular_term( $pid, $tax, $label );
@@ -388,13 +388,13 @@ function soma_singular_term( $pid = null, $tax = null, $label = "slug" ) {
 * Gets the excerpt of a specific post ID or object
 * @since 1.7.3
 
-* @param - $post - object/int - the ID or object of the post to get the excerpt of
+* @param - $post - object/int/string - the ID or object of the post to get the excerpt of
 * @param - $length - int - the length of the excerpt in words
 * @param - $tags - string - the allowed HTML tags. These will not be stripped out
 * @param - $extra - string - text to append to the end of the excerpt
 */
 function soma_get_excerpt($post = null, $length = 30, $tags = '<a><em><strong>', $extra = ' …') {
-	if ( is_null($post) ) return new WP_Error('missing', "must pass a post ID or post Object!");
+	if ( empty($post) ) return new WP_Error('missing', "must pass a post ID or post Object!");
 	return somaFunctions::fetch_excerpt( $post, $length, $tags, $extra );
 }
 

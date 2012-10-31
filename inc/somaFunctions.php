@@ -158,8 +158,8 @@ class somaFunctions extends somaticFramework {
 
 	// checks to see if $_GET or $_POST values are set, avoids Undefined index error
 	function fetch_index($array, $index) {
-		if (!is_array($array)) return false;
-		return isset($array[$index]) ? $array[$index] : false;
+		if (!is_array($array)) return null;
+		return isset($array[$index]) ? $array[$index] : null;
 	}
 
 	//
@@ -294,7 +294,15 @@ class somaFunctions extends somaticFramework {
 	}
 
 	// retrieves taxonomy terms that are used in a singular way (only one possible state, ie ON or OFF)
-	function fetch_the_singular_term( $pid, $taxonomy, $label = "slug" ) {
+	function fetch_the_singular_term( $post, $taxonomy, $label = "slug" ) {
+		if (is_wp_error($post)) return $post;
+		if (empty($post)) return new WP_Error('missing', "must pass a post argument!");
+		if (is_object($post)) {
+			$pid = $post->ID;
+		} else {
+			$pid = intval($post);
+		}
+
 		$term = wp_get_object_terms( $pid, $taxonomy );
 		if (is_wp_error($term)) return null;
 		if ($label == 'slug') {
@@ -628,8 +636,12 @@ class somaFunctions extends somaticFramework {
 	//** retrieves featured image of a post, or an attachment itself and returns array of intermediate sizes, paths, urls ----------------------------------------------------------------------------------//
 	public function fetch_featured_image($post = null, $specific = null) {
 		if (is_wp_error($post)) return $post;
-		if (is_null($post)) return new WP_Error('missing', "must pass a post argument!");
-		if (is_object($post)) $pid = $post->ID;
+		if (empty($post)) return new WP_Error('missing', "must pass a post argument!");
+		if (is_object($post)) {
+			$pid = $post->ID;
+		} else {
+			$pid = intval($post);
+		}
 
 		$img = array();	// container
 
@@ -747,10 +759,15 @@ class somaFunctions extends somaticFramework {
 	}
 
 	// handles saving and retrieving post_meta via serialized arrays
-	public function asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null, $use_prefix = true ) {
-		if ( !$pid || !$action ) {
-			return new WP_Error('missing', "Must pass ID and action...");
+	public function asset_meta( $action = null, $post = null, $key = null, $value = null, $serialize = null, $use_prefix = true ) {
+		if (is_wp_error($post)) return $post;
+		if ( empty($post) || empty($action) ) return new WP_Error('missing', "Must pass ID and action...");
+		if (is_object($post)) {
+			$pid = $post->ID;
+		} else {
+			$pid = intval($post);
 		}
+
 
 		global $soma_options;										// fetch options
 		if ( $serialize === null ) {
@@ -834,8 +851,12 @@ class somaFunctions extends somaticFramework {
 	// returns all attachments (except featured image)
 	public function fetch_attached_media($post = null, $mime = null, $include_featured = false) {
 		if (is_wp_error($post)) return $post;
-		if (is_null($post)) return new WP_Error('missing', "must pass a post argument!");
-		if (is_object($post)) $pid = $post->ID;
+		if (empty($post)) return new WP_Error('missing', "must pass a post argument!");
+		if (is_object($post)) {
+			$pid = $post->ID;
+		} else {
+			$pid = intval($post);
+		}
 
 		$args = array(
 			'post_parent' => $pid,
@@ -847,7 +868,7 @@ class somaFunctions extends somaticFramework {
 		if ($include_featured == true) {
 			unset($args['exclude']);
 		}
-		if (!is_null($mime)) {
+		if (!empty($mime)) {
 			// only return requested media type (audio/mpeg, video/mp4, image/jpeg, application/pdf, application/zip)
 			$args['post_mime_type'] = $mime;
 		}
@@ -1496,17 +1517,20 @@ SQL;
 	* Gets the excerpt of a specific post ID or object - if one doesn't exist, it will create one dynamically
 	* @since 1.7.3
 
-	* @param - $post - object/int - the ID or object of the post to get the excerpt of
+	* @param - $post - object/int/string - the ID or object of the post to get the excerpt of
 	* @param - $length - int - the length of the excerpt in words
 	* @param - $tags - string - the allowed HTML tags. These will not be stripped out
 	* @param - $extra - string - text to append to the end of the excerpt
 	*/
 	function fetch_excerpt($post, $length = 30, $tags = '<a><em><strong>', $extra = '…') {
 
-		if ( is_int($post) ) {
-			$post = get_post($post);			// get the post object of the passed ID
-		} elseif ( !is_object($post) ) {
-			return false;
+		if (is_wp_error($post)) return $post;
+		if (empty($post)) return new WP_Error('missing', "must pass a post argument!");
+		if (!is_object($post)) {
+			$post = get_post(intval($post));
+		}
+		if (!is_object($post)) {
+			return new WP_Error('error', "Can't retrieve the requested post...");
 		}
 
 		if (has_excerpt($post->ID)) {
