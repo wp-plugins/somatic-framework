@@ -289,7 +289,7 @@ function soma_asset_meta( $action = null, $pid = null, $key = null, $value = nul
  * or if missing, returns image data for a "missing" placeholder
  *
  * @since 1.3
- * @param $pid - (string/integer) post ID - if the post has a featured image, that image will be returned. if this post ID is an attachment itself, its own data will be returned.
+ * @param $post - (object/string/integer) post object or ID - if the post has a featured image, that image will be returned. if this post ID is an attachment itself, its own data will be returned.
  * @param $size - (string) [thumbnail,medium,large,full] (optional)
  * @return array - tons of data
  * @return string - just the url of the specified $size
@@ -308,14 +308,14 @@ function soma_featured_image( $post = null, $size = null ) {
  * or if missing, returns image data for a "missing" placeholder
  *
  * @since 1.7.4
- * @param $pid - (string/integer) post ID - if the post has a featured image, that image will be returned. if this post ID is an attachment itself, its own data will be returned.
+ * @param $post - (object/string/integer) post object or ID - if the post has a featured image, that image will be returned. if this post ID is an attachment itself, its own data will be returned.
  * @param $size - (string) [thumbnail,medium,large,full] (optional)
  * @return array - tons of data
  * @return string - just the url of the specified $size
  */
 function soma_fetch_image( $post = null, $size = null ) {
 	if (is_null($post)) {
-		return new WP_Error('missing', "Must pass a post ID argument!");
+		return new WP_Error('missing', "Must pass a post argument!");
 	}
 	return somaFunctions::fetch_featured_image( $post, $size );
 }
@@ -324,17 +324,17 @@ function soma_fetch_image( $post = null, $size = null ) {
  * Retrieves an array of all attachments as post objects
  *
  * @since 1.7.4
- * @param $pid - (string/integer) post ID to get the featured image of (required)
+ * @param $post - (object/string/integer) post object or ID to get the featured image of (required)
  * @param $mime - (string) [audio/mpeg, video/mp4, image/jpeg, application/pdf, application/zip] (optional) - filters for only that media type
- * @param $exclude - (bool) exclude featured image when retrieving (optional)
+ * @param $include - (bool) include featured image when retrieving all attachments (optional)
  * @return array - tons of data
  */
 
-function soma_attachments($pid = null, $mime = null, $exclude = false) {
-	if (!$pid) {
-		return new WP_Error('missing', "Must pass a post ID argument!");
+function soma_attachments($post = null, $mime = null, $include = false) {
+	if (is_null($post)) {
+		return new WP_Error('missing', "Must pass a post argument!");
 	}
-	return somaFunctions::fetch_attached_media($pid, $mime, $exclude);
+	return somaFunctions::fetch_attached_media($pid, $mime, $include);
 }
 
 
