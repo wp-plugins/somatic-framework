@@ -189,6 +189,7 @@ class somaTypes extends somaticFramework {
 
 	function column_styles() {
 		$width = get_option( 'thumbnail_size_w' );
+		if (intval($width) > 200) $width = '200';
 		echo "\n<style>.wp-list-table .column-thumb { width:".$width."px; }</style>";
 	}
 

@@ -124,13 +124,11 @@ class somaSave extends somaticFramework {
 	// NOTE: debugging any values within this function must be done with wp_die() not var_dump() otherwise won't show
 	function save_asset($pid, $post = null) {
 		// don't do on autosave or for new post creation or when trashing post or when using quick edit
-		if ( somaFunctions::fetch_index($_POST, 'action') == "inline-save" ) return; //  NOTE: REMOVE THIS ONE IF GOING TO DISPLAY CUSTOM COLUMN BOXES IN QUICK EDIT
+		if ( somaFunctions::fetch_index($_POST, 'action') == "inline-save" ) return;	//  NOTE: REMOVE THIS ONE IF GOING TO DISPLAY CUSTOM COLUMN BOXES IN QUICK EDIT
 		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) return;
 		if ( $post->post_status == 'auto-draft' ) return;
 		if ( somaFunctions::fetch_index($_GET,'action') == 'trash' ) return;
-
-		// don't do for core post types ** now that we're adding metaboxes to core types, forget this
-		// if ($post->post_type == 'post' || $post->post_type == 'page') return;
+		if (!somaFunctions::fetch_index($_POST, 'somatic')) return;						// don't fire unless this form has our signature on it (and thus contains our custom fields to save)
 
 		global $wpdb;
 		global $hook_suffix;
@@ -150,7 +148,7 @@ class somaSave extends somaticFramework {
 
 		// verify nonce
 		if (!wp_verify_nonce($_POST['soma_meta_box_nonce'], 'soma-save-asset')) {
-			// wp_die('Invalid nonce!', 'Save Error!', array('back_link' => true));
+			wp_die('Invalid nonce!', 'Save Error!', array('back_link' => true));
 		}
 
 		// check permissions
@@ -165,7 +163,7 @@ class somaSave extends somaticFramework {
 		foreach (somaMetaboxes::$data as $meta_box) {
 			// don't process metaboxes which are hidden for non-staff (otherwise saving will complain the item is incomplete... )
 			if ($meta_box['restrict'] && !SOMA_STAFF) continue;
-			// skip meta boxes whose post-type is not being used on this edit screen
+			// only fire for meta boxes whose post-type is set to the current post object
 			if (in_array($type, $meta_box['types'])) {
 
 				// cycle through fields and save post_meta
@@ -174,7 +172,13 @@ class somaSave extends somaticFramework {
 					// readonly fields - skip saving completely. also skip the post_content editor, as it saves itself...
 					if ($field['type'] == 'readonly' || $field['type'] == 'posts' || $field['type'] == 'help' ) continue;
 
-					// avoid issues with other forms/plugins calling save_post by skipping when our field is not included (otherwise all our custom data gets wiped)
+					// single toggle checkboxes are a unique case in that when they are unchecked, they dont' show up in $_POST at all, but this is the only way to communicate that they have been unchecked!
+					if (!isset($_POST[$field['id']]) && ($field['type'] == 'checkbox-single' || $field['type'] == 'toggle')) {
+						somaFunctions::asset_meta('delete', $pid, $field['id']);
+						continue;
+					}
+
+					// if we're hooked into save_post, we might execute even when our meta fields are not on the page, so skip when our field is not included in $_POST (otherwise all our saved data gets wiped)
 					if (!isset($_POST[$field['id']])) continue;
 
 					// retrieve existing data per type
@@ -257,6 +261,7 @@ class somaSave extends somaticFramework {
 
 					// default $new
 					$new = $_POST[$field['id']];
+
 
 					// $new transformations by type
 					if ($field['data'] == 'taxonomy') {
@@ -343,6 +348,11 @@ class somaSave extends somaticFramework {
 						} else {
 							$new = false;
 						}
+					}
+
+					// transforming the html checkbox value of "on" into boolean for DB clarity adn easier testing later...
+					if (($field['type'] == 'checkbox-single' || $field['type'] == 'toggle') && $_POST[$field['id']] == "on") {
+						$new = 1;
 					}
 
 					// for external media URL fields  --------------------------------------------------------------//
@@ -495,14 +505,14 @@ class somaSave extends somaticFramework {
 					// must return $new unmodified if conditionals don't match!
 					$new = apply_filters('soma_field_save_meta', $new, $field, $pid, $post);
 
-
 					// var_dump($field['id']);
 					// var_dump($new);
 
 					//**** SAVING *****
 
-					// if field is empty
+					// if field is empty, nuke saved values
 					if ($new == '' || $new == null) {
+
 						if ($field['data'] == 'taxonomy') {
 							if ($field['id'] == 'new-'.$field['taxonomy'].'-term') {
 								continue;
@@ -510,21 +520,21 @@ class somaSave extends somaticFramework {
 							// all other taxonomy cases
 							wp_set_object_terms($pid, $new, $field['id'], false);
 						}
+
 						if ($field['data'] == 'meta') {
 							somaFunctions::asset_meta('delete', $pid, $field['id']);
 						}
 
-						// single checkboxes that are not checked are supposed to return null, and are entirely optional, so don't tag as missing
-						// comments are also optional
 						// only do this if meta field is required
-						if ($field['type'] != 'checkbox-single' && $field['data'] != 'comment' && $field['required'] === true) {
+						// comments are optional, so don't tag as missing
+						if ($field['required'] === true && $field['data'] != 'comment') {
 							// set missing state at least this once for assigning incomplete metadata later
 							$missing = true;
-							// var_dump($field['id']); // use this to debug what's missing
 						}
+						// move on - no additional save routines needed
 						continue;
-					// field isn't blank and it's changed from old
 					}
+					// field isn't blank and it's changed from old
 					if ($new && $new != $old) {
 						if ($field['data'] == 'taxonomy') {
 							if ($new == 'create') { // skip saving the select box which is indicating term creation
@@ -597,6 +607,7 @@ class somaSave extends somaticFramework {
 					// new value is blank, changed from old value
 					// selection set to "none", so get rid of meta and terms
 					}
+
 					// useful for debugging what's being saved
 					$trace[$field['id']] = $new;
 				}

@@ -62,6 +62,8 @@
 	display: block;
 	border: 1px solid #ddd;
 	background: #eee;
+	max-height: 200px;
+	max-width: 200px;	
 }
 
 

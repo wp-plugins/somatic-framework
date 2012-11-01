@@ -91,7 +91,7 @@ class somaMetaboxes extends somaticFramework {
 	upload-files (upload-images) [uses plupload]
 	select
 	radio
-	checkbox-single
+	checkbox-single/toggle
 	checkbox-multi
 	select-multi (does that work?)
 	date
@@ -112,6 +112,11 @@ class somaMetaboxes extends somaticFramework {
 
 		// Use nonce for verification
 		echo '<input type="hidden" name="soma_meta_box_nonce" value="', wp_create_nonce("soma-save-asset"), '" />';
+
+		// tag this form as containing somatic Framework fields, so our save routines can kick in
+		echo '<input type="hidden" name="somatic" value="true" />';
+
+		// build the form
 		echo '<table class="form-table">';
 
 		foreach ($meta_box['fields'] as $field) {
@@ -154,6 +159,11 @@ class somaMetaboxes extends somaticFramework {
 			// get current post meta data
 			if ($field['data'] == 'meta') {
 				$meta = somaFunctions::asset_meta('get', $post->ID, $field['id']);
+			}
+
+			// toggle checkboxes either exist with value of 1 (or "on"), or they don't exist at all
+			if (($field['type'] == 'checkbox-single' || $field['type'] == 'toggle') && $meta == 'on') {
+				$meta = 1;
 			}
 			// if field is readonly and meta is empty, skip this line
 			if ($field['data'] == 'meta' && $field['type'] == 'readonly' && !$meta) {
@@ -466,8 +476,9 @@ class somaMetaboxes extends somaticFramework {
 					break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'checkbox-single':
-					// would have been better to include 'value="1"' so that 1 gets stored in the DB (which is easier to test as true), but by leaving the value off, the string "on" is what gets stored - if I change this, everyone's legacy post_meta won't work...
-					echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', checked($meta, "on") , ' class="meta-checkbox-single', $complete ? null : $missing, '" />';
+				case 'toggle':
+					// this is unique case, in that when checked, the value "on" gets stored in post_meta - when unchecked, this input doesn't exist at all in the $_POST, so the post_meta entry will get nuked...
+					echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', checked($meta, 1) , ' class="meta-toggle ', $complete ? null : $missing, '" />';
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'checkbox-multi':
@@ -483,7 +494,7 @@ class somaMetaboxes extends somaticFramework {
 						}
 					} else {
 						// if meta isn't array, default to checkbox-single behaviour
-						echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', checked($meta, "on") , ' class="', $complete ? null : $missing, '" />';
+						echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', checked($meta, 1) , ' class="', $complete ? null : $missing, '" />';
 					}
 					echo '</ul>';
 					break;
@@ -735,7 +746,7 @@ class somaMetaboxes extends somaticFramework {
 						}
 					} else {
 						// if meta isn't array, default to checkbox-single behaviour
-						echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', checked($meta, "on") , ' class="', $complete ? null : $missing, '" />';
+						echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', checked($meta, 1) , ' class="', $complete ? null : $missing, '" />';
 					}
 					echo '</ul>';
 					break;
@@ -756,9 +767,9 @@ class somaMetaboxes extends somaticFramework {
 						$featured = 'checked="checked"';
 					}
 					// output
-					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="import-ext-image" id="import-ext-image" class="meta-checkbox-single" '.$import.'/><label for="import-ext-image">Import the external media thumbnail image as an attachment</label></td></tr>';
-					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="use-ext-feature" id="use-ext-feature" class="meta-checkbox-single" '.$featured.'/><label for="use-ext-feature">Use the imported image as the Featured Image for this asset</label></td></tr>';
-					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="copy-ext-meta" id="copy-ext-meta" class="meta-checkbox-single"/><label for="copy-ext-meta">Use the Title and Description from the external media source</label></td></tr>';
+					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="import-ext-image" id="import-ext-image" class="meta-toggle" '.$import.'/><label for="import-ext-image">Import the external media thumbnail image as an attachment</label></td></tr>';
+					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="use-ext-feature" id="use-ext-feature" class="meta-toggle" '.$featured.'/><label for="use-ext-feature">Use the imported image as the Featured Image for this asset</label></td></tr>';
+					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="copy-ext-meta" id="copy-ext-meta" class="meta-toggle"/><label for="copy-ext-meta">Use the Title and Description from the external media source</label></td></tr>';
 					$dodesc = false;
 					if ($meta) {
 						$ext = soma_asset_meta('get', $post->ID, $field['id'].'_ext');	// grab external media API response we've already saved
@@ -788,8 +799,8 @@ class somaMetaboxes extends somaticFramework {
 					} else {
 						$img = soma_featured_image($post->ID, 'thumb');
 					}
-					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="import-ext-image" id="import-ext-image" class="meta-checkbox-single" '.$thumb.'/><label for="import-ext-image">Import the external image as an attachment</label></td></tr>';
-					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="use-ext-feature" id="use-ext-feature" class="meta-checkbox-single" '.$thumb.'/><label for="use-ext-feature">Use the imported image as the Featured Image for this asset</label></td></tr>';
+					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="import-ext-image" id="import-ext-image" class="meta-toggle" '.$thumb.'/><label for="import-ext-image">Import the external image as an attachment</label></td></tr>';
+					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="use-ext-feature" id="use-ext-feature" class="meta-toggle" '.$thumb.'/><label for="use-ext-feature">Use the imported image as the Featured Image for this asset</label></td></tr>';
 					$dodesc = false;
 					if ($meta) {
 						echo '<tr><td class="field-label">Source Link</td><td class="field-data"><a href="'.$meta.'" target="_blank">'.$meta.'</a></td></tr>';

@@ -23,6 +23,8 @@
 #type-sort-list li .wp-post-image {
 	display: block;
 	float: right;
+	max-height: 60px;
+	max-width: 60px;
 }
 
 #type-sort-list li .loading-animation {

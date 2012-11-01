@@ -799,7 +799,7 @@ class somaFunctions extends somaticFramework {
 				if (!$value) return new WP_Error('missing', "Missing a value for $key...");
 
 				$post_meta = get_post_meta( $pid, $meta_key, true);			// retrieve meta
-				if ($value == '') {
+				if (empty($value)) {
 					if ( $serialize ) {
 						unset($post_meta[$key]);							// remove key if value is empty (otherwise key will be saved with blank value)
 					} else {

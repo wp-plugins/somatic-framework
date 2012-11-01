@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.7.4
+Version: 1.7.5
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -113,7 +113,7 @@ class somaticFramework {
 
 		// front-end scripts and styles
 		wp_register_script( 'soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
-		wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.6', 'all' );
+		// wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.6', 'all' );
 		wp_register_style( 'soma-login', SOMA_CSS.'soma-login-styles.css', array(), '1.6', 'all' );
 
 
@@ -191,7 +191,7 @@ class somaticFramework {
 			'$_POST' => json_encode($_POST),
 			'$_GET' => json_encode($_GET)
 		);
-		if ($soma_options['debug']) wp_localize_script( 'jquery', 'soma_vars', $params); 	// will place in footer because of jquery registered in footer
+		wp_localize_script( 'jquery', 'soma_vars', $params); 	// will place in footer because of jquery registered in footer
 	}
 
 	// hooking admin for scripts and styles!
@@ -240,16 +240,17 @@ class somaticFramework {
 			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";
 		}
 
-		if (somaFunctions::fetch_index($soma_options, 'bottom_admin_bar')) :
-			?><style type="text/css" media="screen">
-			* html body{margin-top:0 !important;}
-			body.admin-bar{margin-top:-28px;padding-bottom:28px;}
-			body.wp-admin #footer{padding-bottom:28px;}
-			#wpadminbar{top:auto !important;bottom:0;}
-			#wpadminbar .quicklinks .ab-sub-wrapper{bottom:28px;}
-			#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}
-			</style><?php
-		endif;
+		/* if (somaFunctions::fetch_index($soma_options, 'bottom_admin_bar')) :
+		// 	?><style type="text/css" media="screen">
+		// 	* html body{margin-top:0 !important;}
+		// 	body.admin-bar{margin-top:-28px;padding-bottom:28px;}
+		// 	body.wp-admin #footer{padding-bottom:28px;}
+		// 	#wpadminbar{top:auto !important;bottom:0;}
+		// 	#wpadminbar .quicklinks .ab-sub-wrapper{bottom:28px;}
+		// 	#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}
+		// 	</style><?php
+		// endif;
+		 */
 	}
 
 	function admin_footer() {

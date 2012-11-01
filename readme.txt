@@ -3,8 +3,8 @@ Contributors: somatic
 Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
-Tested up to: 3.4.1
-Stable tag: 1.7.4
+Tested up to: 3.4.2
+Stable tag: 1.7.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,6 +32,12 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.7.5 =
+* FIX: metabox field type 'checkbox-single' (now known as 'toggle') finally works as expected! You can uncheck things now :-P
+* NEW: soma_fetch_image(), soma_asset_meta(), soma_attachments(), soma_fetch_image(), soma_singular_term() now accept either a post object or post ID (integer or string)
+* improved the save hooks to fire only when dealing with our custom fields
+* thumbnail columns now automatically adjust width according to thumbnail options (max width 200px)
+
 = 1.7.4 =
 * NEW api soma_attachments(), wrapper for get_posts() returns array of attached post objects, minus the featured image (unless specified)
 * NEW api soma_fetch_image(), basically just renamed soma_featured_image() [still around for backwards compatibility] - reflects its ability to retrieve image data for any attachment, not just featured images
@@ -43,7 +49,6 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * NEW: metabox field "upload-files" can now handle audio as well as images!
 * old field type for featured image plUpload boxes, "upload-featured", is now deprecated: use "upload-files", with 'data' arg set to "featured"
 * FIX: multiple plUpload boxes on the same page now behave!
-* NOTE: any old metabox fields dealing with attachments should probably be revisited...
 * FIX: soma_fetch_image() was failing certain specific requests, now returns original full file URL if the requested size is not available (eg: original pic was smaller than site's "large" setting)
 * FIX: soma_fetch_image() now includes custom image sizes when available
 * NEW: soma_fetch_image() now returns title, description, caption, and alt text
@@ -52,11 +57,10 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * options to hide new Thesis 2.0 metaboxes
 * cleaned up all undefined index warnings
 * FIX: custom post type update messages were not being produced properly...
-* thumbnail columns now automatically adjust width according to thumbnail options
 * FIX: media uploader metabox field type works again
 * improvements to the styling and behavior of the sorting pages
 * improvements to the somaUploadField class
-* NEW: soma_fetch_image(), soma_asset_meta(), soma_attachments(), soma_fetch_image(), soma_singular_term() now accept either a post object or post ID (integer or string)
+* NOTE: any old metabox fields dealing with attachments should probably be revisited...
 
 = 1.7.3 =
 * FIX save routines on external media and images don't die anymore if empty
