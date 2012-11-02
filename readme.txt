@@ -37,6 +37,8 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * NEW: soma_fetch_image(), soma_asset_meta(), soma_attachments(), soma_fetch_image(), soma_singular_term() now accept either a post object or post ID (integer or string)
 * improved the save hooks to fire only when dealing with our custom fields
 * thumbnail columns now automatically adjust width according to thumbnail options (max width 200px)
+* FIX: finally overhauled somaSave and somaMetaboxes classes to more accurately handle saving and retrieving multiple items vs. single items
+* NOTE: when checkboxes are desired (one or more), use the new field type "checkbox" and pass options array. the old 'checkbox-single' type is deprecated in favor of 'toggle' - but to be used only with meta data (not taxonomy, etc)
 
 = 1.7.4 =
 * NEW api soma_attachments(), wrapper for get_posts() returns array of attached post objects, minus the featured image (unless specified)

@@ -60,24 +60,23 @@ class somaMetaboxes extends somaticFramework {
 	}
 
 
-	// add_meta_box Callback function to display fields in meta box
+
 /*
  * Metabox Field array:
- * args:
-	name
-	id
-	type
-	data - meta, core, user, p2p, attachment
-	options
-	once - only allows data to be set one time, then becomes readonly
-	multple
-	taxonomy
-	required
-	default
-	desc
- * types:
+ * ARGS:
+	name 		- text shown in left column of field row
+	id 			- (when data is taxonomy, this id must match the taxonomy slug!)
+	type 		- (see below)
+	data 		- meta, taxonomy, core, user, p2p, attachment
+	options 	- array of name => value pairs
+	once 		- only allows data to be set one time, then becomes readonly
+	multiple 	- set to false to prevent more than one selection being saved
+	required 	- set to true to trigger missing taxonomy assignment and error highlighting
+	default 	- give a text string here to automatically show in input fields or have automatically selected
+	desc 		- text string to show below field input
+ * TYPES:
 	readonly
-	gallery (of attachments)
+	gallery (of attachments, minus featured)
 	p2p-objects
 	p2p-list
 	p2p-select
@@ -91,9 +90,9 @@ class somaMetaboxes extends somaticFramework {
 	upload-files (upload-images) [uses plupload]
 	select
 	radio
-	checkbox-single/toggle
-	checkbox-multi
-	select-multi (does that work?)
+	toggle
+	checkbox
+	select-multi (does that work??)
 	date
 	datepicker
 	time
@@ -104,6 +103,8 @@ class somaMetaboxes extends somaticFramework {
 	external_image
 	embed
 */
+
+	// add_meta_box Callback function to display fields in meta box
 	function soma_metabox_generator($post,$box) {
 		$meta_box = $box['args']['box'];
 
@@ -120,37 +121,38 @@ class somaMetaboxes extends somaticFramework {
 		echo '<table class="form-table">';
 
 		foreach ($meta_box['fields'] as $field) {
-			$meta = null;																// reset the value of $meta each loop, otherwise an empty iteration can pass on $meta to the next one
+			$meta = null;																				// reset the value of $meta each loop, otherwise an empty iteration can pass on $meta to the next one
 			// get current taxonomy data
 			if ($field['data'] == 'taxonomy') {
-				if (empty($field['options']) && $field['id'] != 'new-'.$field['taxonomy'].'-term' && $field['type'] != 'readonly') {		// the new-term field is going to retrieve empty, but we want to render it anyway. - ALSO, readonly taxonomies don't bother retrieving options
-					continue;														// if the options are empty, then the taxonomy itself doesn't exist or it has no terms and rendering will fail, so skip this field
+				if (empty($field['options']) && $field['id'] != 'new-'.$field['taxonomy'].'-term' && $field['type'] != 'readonly') {		// the new-term field is going to retrieve empty, but we want to render it anyway. - ALSO, readonly taxonomies don't bother retrieving options ****SOMETHING FISHY HERE!!!!
+					continue;																			// if the options are empty, then the taxonomy itself doesn't exist or it has no terms and rendering will fail, so skip this field
 				}
-				if ($field['id']=='new-'.$field['taxonomy'].'-term') {				// don't bother fetching existing terms, as we're going to create a new term with this field
-					$meta = null;													// clear $meta so it doesn't fill the input text box with string "array" - don't care about displaying saved data in this one case
+				if ($field['id']=='new-'.$field['taxonomy'].'-term') {									// don't bother fetching existing terms, as we're going to create a new term with this field
+					$meta = null;																		// clear $meta so it doesn't fill the input text box with string "array" - don't care about displaying saved data in this one case
 				} else {
-					$terms = wp_get_object_terms($post->ID, $field['id']); 			// retrieve terms
+					$terms = wp_get_object_terms($post->ID, $field['id']);								// retrieve terms
 					if (is_wp_error($terms)) {
 						wp_die($terms->get_error_message());
 					}
+					// if ($field['type'] == 'checkbox-multi' && is_null(soma_fetch_index($field, 'multiple'))) $field['multiple'] == true;		// default to multiple when using checkbox-multi, in case forgot to specify
 
-					if ($field['type'] == 'checkbox-multi' && !isset($field['multiple'])) $field['multiple'] == true;		// default to multiple when using checkbox-multi, in case forgot to specify
-
-					if ($field['type'] == 'readonly' && !$field['multiple']) {		// if readonly and singluar, then $meta is just the name, no object
+					if ($field['type'] == 'readonly' && $field['multiple'] === false) {					// if readonly and singular, then $meta is just the name, no object
 						$meta = $terms[0]->name;
 					}
-					if ($field['type'] != 'readonly' && !$field['multiple']) { 		// not readonly but singular
-						$meta = intval($terms[0]->term_id);							// grab only first array, as we accept singular storage only
-					}
-					if ($field['type'] == 'readonly' && $field['multiple']) {		// if readonly and multiple, then $meta is just a list, no objects
-						$meta = somaFunctions::fetch_the_term_list( $post->ID, $field['id'],'',', ');// returns linked html list of comma-separated terms
+					if ($field['type'] == 'readonly' && $field['multiple']) {							// if readonly and multiple, then $meta is just a list, no objects
+						$meta = somaFunctions::fetch_the_term_list( $post->ID, $field['id'],'',', ');	// returns linked html list of comma-separated terms
 						if (!$meta) {
-							continue;												// if fetching terms comes up empty, then don't render this one
+							continue;																	// if fetching terms comes up empty, then don't render this one
 						}
 					}
-					if ($field['type'] != 'readonly' && $field['multiple']) {		// not readonly but multiple values are accepted
+					if ($field['type'] != 'readonly') {													// not readonly but multiple values are accepted
 						foreach ($terms as $term) {
 							$meta[] = intval($term->term_id);
+						}
+					}
+					if ($field['type'] == 'checkbox-single' || $field['type'] == 'toggle') {
+						if (!empty($terms[0]->slug)) {													// check if theres a term in this taxonomy assigned at all, then set special $meta value to 1 (for the checked() function later)
+							$meta = 1;
 						}
 					}
 				}
@@ -165,6 +167,7 @@ class somaMetaboxes extends somaticFramework {
 			if (($field['type'] == 'checkbox-single' || $field['type'] == 'toggle') && $meta == 'on') {
 				$meta = 1;
 			}
+
 			// if field is readonly and meta is empty, skip this line
 			if ($field['data'] == 'meta' && $field['type'] == 'readonly' && !$meta) {
 				// continue;
@@ -434,67 +437,74 @@ class somaMetaboxes extends somaticFramework {
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'select':
 					echo '<select name="', $field['id'], '" id="', $field['id'], '"', $disable ? ' disabled="disabled"' : null, ' class="meta-select', $complete ? null : $missing, '" >';
-					if (is_array($field['options'])) {		// must check if array exists or foreach will throw error
-						// if meta is empty (never been set), and there's no default specified, display a 'none' option
-						if (!$meta && !$field['default']) {
-							echo '<option value="" selected="selected">[Select One]</option>';
+					if (is_array($meta)) $meta = array_shift($meta);		// existing data might be an array, especially if taxonomy. But since this is a single-value selector, extract just the one value
+					$opts = soma_fetch_index($field, 'options');
+					if (!is_array($opts)) {
+						echo "<em>to use a dropdown select box, you must supply an array of options (though that array can contain just one item)</em>";
+						break;
+					}
+
+					// if meta is empty (never been set), and there's no default specified, display a 'none' option
+					if (empty($meta) && !$field['default']) {
+						echo '<option value="" selected="selected">[Select One]</option>';
+					}
+					// list values and match
+					foreach ($opts as $option) {
+						// if meta matches, or if there's no meta, but there is a default string specified that matches
+						if ($meta == $option['value'] || (empty($meta) && $field['default'] == $option['name'])) {
+							$select = true;
+						} else {
+							$select = false;
 						}
-						// list values and match
-						foreach ($field['options'] as $option) {
-							// if meta matches, or if there's no meta, but there is a default string specified that matches
-							if ($meta == $option['value'] || (!$meta && $field['default'] == $option['name'])) {
-								$select = true;
-							} else {
-								$select = false;
-							}
-							echo '<option value="', $option['value'], '"', $select ? ' selected="selected"' : null, '>', $option['name'],'</option>';
-						}
-					} else {
-						// if meta isn't array, default to single behaviour
-						echo '<option value="', $option['value'], '"', $meta == $option['value'] ? ' selected="selected"' : '', '>', $option['name'],'</option>';
+						echo '<option value="', $option['value'], '"' , selected($select), '>', $option['name'],'</option>';
 					}
 					echo '</select>';
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'radio':
 					echo '<ul class="meta-radio', $complete ? null : $missing, '" >';
-					if (is_array($field['options'])) {		// must check if array exists or foreach will throw error
-						foreach ($field['options'] as $option) {
-							// if meta matches, or if the default string matches -- if meta is empty (never been set), and there's no default specified, no radio item will be checked
-							if ($meta == $option['value'] || $field['default'] == $option['name']) {
-								$select = true;
-							} else {
-								$select = false;
-							}
-							echo '<li><label><input type="radio" name="', $field['id'], '" value="', $option['value'], '"', checked($select), ' />', $option['name'],'</label></li>';
+					if (is_array($meta)) $meta = array_shift($meta);		// existing data might be an array, especially if taxonomy. But since this is a single-value selector, extract just the one value
+					$opts = soma_fetch_index($field, 'options');
+					if (!is_array($opts)) {
+						echo "<em>to use radio buttons, you must supply an array of options (two items minimum)</em>";
+						break;
+					}
+					foreach ($opts as $option) {
+						// if meta matches, or if the default string matches -- if meta is empty (never been set), and there's no default specified, no radio item will be checked
+						if ($meta == $option['value'] || (empty($meta) && $field['default'] == $option['name'])) {
+							$select = true;
+						} else {
+							$select = false;
 						}
-					} else {
-						// if meta isn't array, default to single behaviour
-						echo '<li><label><input type="radio" name="', $field['id'], '" value="', $option['value'], '"', checked($meta, $option['value']) , ' />', $option['name'],'</label></li>';
+						echo '<li><label><input type="radio" name="', $field['id'], '" value="', $option['value'], '"' , checked($select), ' />', $option['name'],'</label></li>';
 					}
 					echo '</ul>';
 					break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
-				case 'checkbox-single':
+				case 'checkbox-single':		// legacy support
 				case 'toggle':
-					// this is unique case, in that when checked, the value "on" gets stored in post_meta - when unchecked, this input doesn't exist at all in the $_POST, so the post_meta entry will get nuked...
-					echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', checked($meta, 1) , ' class="meta-toggle ', $complete ? null : $missing, '" />';
+					if ($field['data'] != 'meta') {
+						echo "<em>please only use meta data for single checkbox fields. use checkbox fields for taxonomy data.</em>";
+						break;
+					}
+					echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"' , checked($meta, 1) , ' class="meta-toggle ', $complete ? null : $missing, '" />';
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
-				case 'checkbox-multi':
+				case 'checkbox-multi':		// legacy support
+				case 'checkbox':
 					echo '<ul class="meta-checkbox-multi', $complete ? null : $missing, '" >';
-					// echo '<span ', $complete ? null : $missing, '>';
-					if (is_array($field['options'])) {		// must check if array exists or foreach will throw error
-						foreach ($field['options'] as $option) {
-							if (!empty($meta) && ( soma_fetch_index($option['value'], $meta) || $option['value'] == $meta ) ) {	// $meta isn't empty, and this option is within it
-								echo '<li><label><input type="checkbox" value="', $option['value'],'" name="', $field['id'], '[]" id="check-', $option['value'],'" checked="checked" /><strong>',$option['name'],'</strong></label></li>';
-							} else {
-								echo '<li><label><input type="checkbox" value="', $option['value'],'" name="', $field['id'], '[]" id="check-', $option['value'], '" />',$option['name'],'</label></li>';
-							}
+					$opts = soma_fetch_index($field, 'options');
+					if (!is_array($opts)) {
+						echo "<em>to use checkboxes, you must supply an array of options (though that array can contain just one item)</em>";
+						break;
+					}
+					foreach ($opts as $option) {
+						$val = soma_fetch_index($option, 'value');
+						if ( is_array($meta) && in_array($val, $meta) ) {
+							echo '<li><label><input type="checkbox" value="', $option['value'],'" name="', $field['id'], '[]" id="check-', $option['value'],'" checked="checked" /><strong>',$option['name'],'</strong></label></li>';
+						} else {
+							echo '<li><label><input type="checkbox" value="', $option['value'],'" name="', $field['id'], '[]" id="check-', $option['value'], '" />',$option['name'],'</label></li>';
 						}
-					} else {
-						// if meta isn't array, default to checkbox-single behaviour
-						echo '<input type="checkbox" name="', $field['id'], '" id="', $field['id'], '"', checked($meta, 1) , ' class="', $complete ? null : $missing, '" />';
 					}
 					echo '</ul>';
 					break;

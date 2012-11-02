@@ -128,7 +128,7 @@ class somaSave extends somaticFramework {
 		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) return;
 		if ( $post->post_status == 'auto-draft' ) return;
 		if ( somaFunctions::fetch_index($_GET,'action') == 'trash' ) return;
-		if (!somaFunctions::fetch_index($_POST, 'somatic')) return;						// don't fire unless this form has our signature on it (and thus contains our custom fields to save)
+		if ( is_null(somaFunctions::fetch_index($_POST, 'somatic'))) return;						// don't fire unless this form has our signature on it (and thus contains our custom fields to save)
 
 		global $wpdb;
 		global $hook_suffix;
@@ -159,7 +159,9 @@ class somaSave extends somaticFramework {
 		// reset var for determining if fields are empty
 		$missing = false;
 
-		//** CYCLE THROUGH ALL METABOXES AND SAVE
+		//
+		//** ---------------------- CYCLE THRU CONFIGURED METABOXES -------------------- **//
+		//
 		foreach (somaMetaboxes::$data as $meta_box) {
 			// don't process metaboxes which are hidden for non-staff (otherwise saving will complain the item is incomplete... )
 			if ($meta_box['restrict'] && !SOMA_STAFF) continue;
@@ -174,37 +176,45 @@ class somaSave extends somaticFramework {
 
 					// single toggle checkboxes are a unique case in that when they are unchecked, they dont' show up in $_POST at all, but this is the only way to communicate that they have been unchecked!
 					if (!isset($_POST[$field['id']]) && ($field['type'] == 'checkbox-single' || $field['type'] == 'toggle')) {
-						somaFunctions::asset_meta('delete', $pid, $field['id']);
-						continue;
+						if ($field['data'] == 'meta') {
+							somaFunctions::asset_meta('delete', $pid, $field['id']);
+							continue;
+						}
+						if ($field['data'] == 'taxonomy') {
+							wp_set_object_terms($pid, null, $field['id'], false);
+							continue;
+						}
 					}
 
-					// if we're hooked into save_post, we might execute even when our meta fields are not on the page, so skip when our field is not included in $_POST (otherwise all our saved data gets wiped)
-					if (!isset($_POST[$field['id']])) continue;
+					//
+					//** ---------------------- RETRIEVE EXISTING DATA -------------------- **//
+					//
 
-					// retrieve existing data per type
 					if ($field['data'] == 'meta') {
 						$old = somaFunctions::asset_meta('get', $pid, $field['id']);
 					}
-					// skip saving one-time fields that already have data
-					if ($old && $field['once']) continue;
 
+					//
 					if ($field['data'] == 'taxonomy') {
-						$tax = wp_get_object_terms($pid, $field['id']);
-						if (!is_wp_error($tax)) { // make sure the term request didn't fail
-							$old = intval($tax[0]->term_id);	// when passing term_id into wp_set_object_terms, the value must be integer, not string, or else it will create a new term with the name of the string
-						} else {
-							$old = '';
+						$taxes = wp_get_object_terms($pid, $field['id']);
+						$old = array();										// remains empty if can't fetch anything
+						if (!is_wp_error($tax)) {							// make sure the term request didn't fail
+							foreach ($taxes as $tax) {
+								$old[] = intval($tax->term_id);			// when passing term_id into wp_set_object_terms, the value must be integer, not string, or else it will create a new term with the name of the string
+							}
 						}
 					}
+					//
 					if ($field['data'] == 'core') {
 						$old = $post->$field['id'];
 					}
 
-
+					//
 					if ($field['data'] == 'user') {
 						$old = $post->post_author;
 					}
 
+					//
 					if ($field['data'] == 'p2p') {
 						$p2pargs = array(
 							'direction' => 'any',
@@ -238,7 +248,7 @@ class somaSave extends somaticFramework {
 						if ($field['type'] == 'p2p-multi') {
 							switch (true) {
 								case (empty($conn)) :
-									$old = false;					// if no connections exist, keep false value
+									$old = array();					// if no connections exist, make empty array
 								break;
 								case ($field['dir'] == 'to') :
 									foreach ($conn as $con) {
@@ -254,28 +264,35 @@ class somaSave extends somaticFramework {
 						}
 					}
 
+					// skip saving one-time fields that already have data
+					if ($old && $field['once']) continue;
 
-					//**
-					//** retrieve and assemble $new data from current field states
-					//**
+
+					//
+					//** -------- RETRIEVE AND ASSEMBLE $NEW DATA FROM CURRENT FIELD STATES -------- **//
+					//
 
 					// default $new
 					$new = $_POST[$field['id']];
 
 
-					// $new transformations by type
+					// taxonomy data has to be sanitized first  --------------------------------------------------------------//
 					if ($field['data'] == 'taxonomy') {
 						if ($field['id']=='new-'.$field['taxonomy'].'-term') {
 							$new = $new; // leave as string
+						// $_POST gave us array
 						} elseif (is_array($new)) {
-							foreach ($new as $key => $var) {	// convert all array items to integer
+							foreach ($new as $key => $var) {		// convert all array items to integer
 								$new[$key] = intval($var);
 							}
+						// $_POST gave us a single value, still need to transform into array
 						} else {
-							$new = intval($new);	// when passing term_id thru wp_set_object_terms, the value must be integer, not string, or else it will create a new term with the name of the string
-							if ($new == 0) {
-								$new = null;
+							if (empty($new)) {
+								$new = array();
+							} else {
+								$new = array(intval($new));			// when passing term_id thru wp_set_object_terms, the value must be integer, not string, or else it will create a new term with the name of the string
 							}
+
 						}
 					}
 
@@ -445,32 +462,31 @@ class somaSave extends somaticFramework {
 					// OLD STYLE basic html file selector input uploader. replaced with plupload system below
 					// file uploads (creates attachments)  --------------------------------------------------------------//
 					if ($field['type'] == 'upload-OLD') {
-						if (!empty($_FILES[$field['id']])) {
+						if (!soma_fetch_index($_FILES, $field['id'])) continue;			// skip if no file has been posted for uploading
 
-							self::fix_file_array($_FILES[$field['id']]); 							// reformats array to better process each item
+						self::fix_file_array($_FILES[$field['id']]); 							// reformats array to better process each item
 
-							foreach ($_FILES[$field['id']] as $position => $fileitem) {
-								if ($fileitem['error'] == UPLOAD_ERR_NO_FILE) continue;				// don't bother handling uploads from blank inputs
-								$file = wp_handle_upload($fileitem, array('test_form' => false));
-								if (isset($file['error'])) {
-									wp_die(var_dump($fileitem, $file['error']));					// barf when there's a problem
-								}
-								$filename = $file['file'];											// local path
+						foreach ($_FILES[$field['id']] as $position => $fileitem) {
+							if ($fileitem['error'] == UPLOAD_ERR_NO_FILE) continue;				// don't bother handling uploads from blank inputs
+							$file = wp_handle_upload($fileitem, array('test_form' => false));
+							if (isset($file['error'])) {
+								wp_die(var_dump($fileitem, $file['error']));					// barf when there's a problem
+							}
+							$filename = $file['file'];											// local path
 
-								if (!empty($filename)) {
-									$wp_filetype = wp_check_filetype(basename($filename), null);	// get from file extension
-									$attachment = array(
-										'post_mime_type' => $wp_filetype['type'],
-										'post_title' => preg_replace('/\.[^.]+$/', '', basename($filename)),
-										'post_status' => 'inherit'
-									);
-									$attach_id = wp_insert_attachment($attachment, $filename, $pid);
-									// you must first include the image.php file
-									// for the function wp_generate_attachment_metadata() to work
-									require_once(ABSPATH . 'wp-admin/includes/image.php');
-									$attach_data = wp_generate_attachment_metadata($attach_id, $filename);
-									wp_update_attachment_metadata($attach_id, $attach_data);
-								}
+							if (!empty($filename)) {
+								$wp_filetype = wp_check_filetype(basename($filename), null);	// get from file extension
+								$attachment = array(
+									'post_mime_type' => $wp_filetype['type'],
+									'post_title' => preg_replace('/\.[^.]+$/', '', basename($filename)),
+									'post_status' => 'inherit'
+								);
+								$attach_id = wp_insert_attachment($attachment, $filename, $pid);
+								// you must first include the image.php file
+								// for the function wp_generate_attachment_metadata() to work
+								require_once(ABSPATH . 'wp-admin/includes/image.php');
+								$attach_data = wp_generate_attachment_metadata($attach_id, $filename);
+								wp_update_attachment_metadata($attach_id, $attach_data);
 							}
 						}
 						continue; // skip everything else, we're not comparing old/new uploads...
@@ -480,6 +496,7 @@ class somaSave extends somaticFramework {
 					// uses hidden inputs for data retrieval
 					// keys passed for each image instance: file, url, mime/type
 					if ($field['type'] == 'upload-files' || $field['type'] == 'upload-images') {
+						if (!soma_fetch_index($_POST, $field['id'])) continue;			// skip if no file has been posted for uploading
 						foreach ($_POST[$field['id']] as $incoming) {
 							if (file_exists($incoming['file'])) {
 								$attachment = array(
@@ -505,18 +522,20 @@ class somaSave extends somaticFramework {
 					// must return $new unmodified if conditionals don't match!
 					$new = apply_filters('soma_field_save_meta', $new, $field, $pid, $post);
 
-					// var_dump($field['id']);
-					// var_dump($new);
 
-					//**** SAVING *****
+					//
+					//** ----------------------- COMMIT CHANGES TO DB ------------------------- **//
+					//
 
-					// if field is empty, nuke saved values
-					if ($new == '' || $new == null) {
+					// ---- if field is empty, nuke saved values ---- //
+
+					if ($new == '' || $new == null || (is_array($new) && empty($new))) {
 
 						if ($field['data'] == 'taxonomy') {
 							if ($field['id'] == 'new-'.$field['taxonomy'].'-term') {
 								continue;
 							}
+
 							// all other taxonomy cases
 							wp_set_object_terms($pid, $new, $field['id'], false);
 						}
@@ -534,44 +553,40 @@ class somaSave extends somaticFramework {
 						// move on - no additional save routines needed
 						continue;
 					}
-					// field isn't blank and it's changed from old
-					if ($new && $new != $old) {
-						if ($field['data'] == 'taxonomy') {
-							if ($new == 'create') { // skip saving the select box which is indicating term creation
-								continue;
-							} elseif (is_array($new) && !$field['multiple']) {
-								wp_die("not allowed to assign multiple terms!", 'Save Error!', array('back_link' => true));
-							} elseif ($field['id'] == 'new-'.$field['taxonomy'].'-term') { 	// creating a new term from field instead of selector
-								wp_set_object_terms($pid, $new, $field['taxonomy'], false);
-							} else {
-								wp_set_object_terms($pid, $new, $field['id'], false);		// multiple values accepted for non-hierarchical (tag-style) on stills and videos
+
+					// ---- field isn't blank and it's changed from old ---- //
+
+					if (is_array($new) && is_array($old)) {											// array data
+						$diffo = array_diff($old, $new);
+						$diffn = array_diff($new, $old);
+						// wp_die(var_dump($new, $old, $diffn, $diffo));	// debug
+						if (!empty($diffo) || !empty($diffn)) {
+
+
+							//
+							if ($field['data'] == 'taxonomy') {
+								if ($new == 'create') { 											// skip saving the select box which is indicating term creation
+									continue;
+								} elseif ((count($new) > 1) && $field['multiple'] === false) {
+									wp_die("not allowed to assign multiple terms for {$field['name']}!", 'Save Error!', array('back_link' => true));
+								} elseif ($field['id'] == 'new-'.$field['taxonomy'].'-term') { 		// creating a new term from field instead of selector
+									wp_set_object_terms($pid, $new, $field['taxonomy'], false);
+								} else {
+									wp_set_object_terms($pid, $new, $field['id'], false);			// multiple values accepted for non-hierarchical (tag-style)
+								}
 							}
-						}
 
-						if ($field['data'] == 'meta') {
-							somaFunctions::asset_meta('save', $pid, $field['id'], $new);
-						}
-
-						if ($field['data'] == 'user') {
-							$wpdb->update( $wpdb->posts, array( $field['id'] => $new ), array( 'ID' => $pid ));
-						}
-
-						if ($field['data'] == 'core') {
-							if ($field['type'] == "richtext" || $field['type'] == "textarea" || $field['type'] == "text") {
-								$new = stripslashes($new);									// because tinymce adds them.... even though we're using the_editor()...
+							//
+							if ($field['data'] == 'meta') {
+								if ((count($new) > 1) && $field['multiple'] === false) {
+									wp_die("not allowed to assign multiple terms for {$field['name']}!", 'Save Error!', array('back_link' => true));
+								} else {
+									somaFunctions::asset_meta('save', $pid, $field['id'], $new);
+								}
 							}
-							$wpdb->update( $wpdb->posts, array( $field['id'] => $new ), array( 'ID' => $pid ));
-						}
 
-						if ($field['data'] == 'p2p') {
-							if ($field['type'] == 'p2p-select') {
-								// remove all connections first, as we're only keeping one
-								p2p_delete_connection($conn[0]->p2p_id);
-								p2p_type( $field['p2pname'] )->connect( $pid, $new, array(
-									'date' => current_time('mysql')
-								) );
-							}
-							if ($field['type'] == 'p2p-multi') {
+							//
+							if ($field['data'] == 'p2p' && $field['type'] == 'p2p-multi') {
 								// remove all connections first?
 								foreach ($conn as $con) {
 									p2p_delete_connection($con->p2p_id);
@@ -583,6 +598,30 @@ class somaSave extends somaticFramework {
 									) );
 								}
 							}
+						}
+					} elseif (!empty($new) && $new != $old) {									// non-array data
+
+						if ($field['data'] == 'meta') {
+							somaFunctions::asset_meta('save', $pid, $field['id'], $new);
+						}
+
+						if ($field['data'] == 'user') {
+							$wpdb->update( $wpdb->posts, array( $field['id'] => $new ), array( 'ID' => $pid ));
+						}
+
+						if ($field['data'] == 'core') {
+							if ($field['type'] == "richtext" || $field['type'] == "textarea" || $field['type'] == "text") {
+								$new = stripslashes($new);										// because tinymce adds them.... even though we're using the_editor()...
+							}
+							$wpdb->update( $wpdb->posts, array( $field['id'] => $new ), array( 'ID' => $pid ));
+						}
+
+						if ($field['data'] == 'p2p' && $field['type'] == 'p2p-select') {
+							// remove all connections first, as we're only keeping one
+							p2p_delete_connection($conn[0]->p2p_id);
+							p2p_type( $field['p2pname'] )->connect( $pid, $new, array(
+								'date' => current_time('mysql')
+							) );
 						}
 
 						if ($field['data'] == 'comment') {
@@ -599,14 +638,14 @@ class somaSave extends somaticFramework {
 							);
 							$comment_id = wp_new_comment($data);
 						}
-
-						// hook additional field data cases to save custom metadata
-						// must match $field['data'] to something before executing any saves, otherwise will always fire!
-						do_action('soma_field_save_meta', $new, $field, $pid, $post);
-
-					// new value is blank, changed from old value
-					// selection set to "none", so get rid of meta and terms
 					}
+
+
+
+					// hook additional field data cases to save custom metadata
+					// must match $field['data'] to something before executing any saves, otherwise will always fire!
+					do_action('soma_field_save_meta', $new, $field, $pid, $post);
+
 
 					// useful for debugging what's being saved
 					$trace[$field['id']] = $new;
