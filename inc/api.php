@@ -334,7 +334,7 @@ function soma_attachments($post = null, $mime = null, $include = false) {
 	if (empty($post)) {
 		return new WP_Error('missing', "Must pass a post argument!");
 	}
-	return somaFunctions::fetch_attached_media($pid, $mime, $include);
+	return somaFunctions::fetch_attached_media($post, $mime, $include);
 }
 
 
@@ -381,7 +381,7 @@ function soma_singular_term( $post = null, $tax = null, $label = "slug" ) {
 	if (empty($post) || !$tax) {
 		return new WP_Error('missing', "must pass a post ID and a taxonomy!");
 	}
-	return somaFunctions::fetch_the_singular_term( $pid, $tax, $label );
+	return somaFunctions::fetch_the_singular_term( $post, $tax, $label );
 }
 
 /*
