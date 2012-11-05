@@ -119,9 +119,9 @@ class somaticFramework {
 		wp_register_style( 'soma-sorter', SOMA_CSS . 'soma-sorter.css', array(), SOMA_VERSION, all);
 
 		// front-end scripts and styles
-		wp_register_script( 'soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
-		// wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.6', 'all' );
-		wp_register_style( 'soma-login', SOMA_CSS.'soma-login-styles.css', array(), '1.6', 'all' );
+		wp_register_script( 'soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), SOMA_VERSION, true);
+		// wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), SOMA_VERSION, 'all' );
+		wp_register_style( 'soma-login', SOMA_CSS.'soma-login-styles.css', array(), SOMA_VERSION, 'all' );
 
 
 		// jquery plugin lightbox functionality
