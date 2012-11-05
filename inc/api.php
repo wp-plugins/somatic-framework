@@ -463,7 +463,6 @@ $defaults = array(
 	"disable_metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),									// hide metaboxes in post editor
 	"disable_drag_metabox" => 1,									// prevent users from dragging metaboxes (even dashboard widgets)
 	"reset_default_options" => 0,									// will reset options to defaults next time plugin is activated
-	"plugin_db_version" => self::get_plugin_version()
 );
 */
 

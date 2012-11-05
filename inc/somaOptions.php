@@ -44,7 +44,6 @@ class somaOptions extends somaticFramework  {
 	//** sets somatic framework options defaults on Activation of plugin
 	// if there are no theme options currently set, or the user has selected the checkbox to reset options to their defaults then the options are set/reset.
 	function init_soma_options() {
-		$version = somaticFramework::get_plugin_version();
 
 		$defaults = array(
 			"favicon" => "",            // full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
@@ -65,7 +64,7 @@ class somaOptions extends somaticFramework  {
 			"disable_drag_metabox" => 0,         // prevent users from dragging/rearranging metaboxes (even dashboard widgets)
 			// "disable_screen_options" => 0,         // hide the screen options tab
 			"reset_default_options" => 0,         // will reset options to defaults next time plugin is activated
-			"plugin_db_version" => $version,
+			"plugin_db_version" => SOMA_VERSION,
 		);
 
 		/* core WP metabox slugs for disabling:
@@ -289,7 +288,7 @@ class somaOptions extends somaticFramework  {
 				$raw_options = file_get_contents( $_FILES['file']['tmp_name'] );
 				$new_options = unserialize( $raw_options );
 
-				if ( is_array( $new_options ) && version_compare( somaticFramework::get_plugin_version(), $new_options['plugin_db_version'], '<=' ) ) {
+				if ( is_array( $new_options ) && version_compare( SOMA_VERSION, $new_options['plugin_db_version'], '<=' ) ) {
 					$update = update_option( 'somatic_framework_options', $new_options );
 					if ( $update ) {
 						$result = add_query_arg( 'result', 'upload-success', $_SERVER['HTTP_REFERER'] );
