@@ -527,3 +527,7 @@ function soma_notices($type, $msg) {
 	}
 	echo $output;
 }
+
+function soma_go_link($slug, $text) {
+	return somaFunctions::make_go_link($slug, $text);
+}

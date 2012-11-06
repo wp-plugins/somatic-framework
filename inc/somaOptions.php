@@ -7,19 +7,21 @@
 class somaOptions extends somaticFramework  {
 
 	function __construct() {
-		add_action( 'init', array( __CLASS__, 'soma_global_options' ), 7 );       // populate global variable with options to avoid additional DB queries - try to hook earlier than normal...
-		// add_action( 'init', array( __CLASS__, 'show_admin_bar' ), 9 );        // gotta get in early to execute before _wp_admin_bar_init()
-		add_action( 'wp', array( __CLASS__, 'soma_cron' ) );           // init our cron
-		add_action( 'soma_daily_event', array( __CLASS__, 'delete_autodrafts' ) );     // fire this every day
-		// add_action( 'personal_options', array(__CLASS__, 'hide_profile_options') );     // hides some useless cruft, make profile simpler
-		add_action( 'user_register', array( __CLASS__, 'full_display_name' ) );      // automatically populate display name with fullname
-		add_filter( 'user_contactmethods', array( __CLASS__, 'extend_user_contactmethod' ) );   // mods contact fields on user profile
-		add_action( 'admin_menu', array( __CLASS__, 'add_pages' ) );         // adds menu items to wp-admin
-		add_action( 'admin_init', array( __CLASS__, 'register_soma_options' ) );      // register settings to help with form saving and sanitizing
-		add_action( 'admin_action_flush', array( __CLASS__, 'flush_rules' ) );      // dynamically generated hook created by the ID on forms POSTed from admin.php
-
-		add_action( 'admin_action_export', array( __CLASS__, 'export_settings' ) );     // dynamically generated hook created by the ID on forms POSTed from admin.php
-		add_action( 'admin_action_import', array( __CLASS__, 'import_settings' ) );     // dynamically generated hook created by the ID on forms POSTed from admin.php
+		add_action( 'init', array( __CLASS__, 'soma_global_options' ), 7 );     	  				// populate global variable with options to avoid additional DB queries - try to hook earlier than normal...
+		add_action( 'init', array( __CLASS__, 'soma_go_endpoint') );								// creates new permalink endpoint of /go/[slug], used for redirects
+		add_action( 'template_redirect', array( __CLASS__, 'soma_go_redirect' ) );					// logic to redirect
+		add_filter( 'soma_go_redirect_codes', array( __CLASS__, 'soma_default_links' ), 1, 1 );		// default redirect links
+		// add_action( 'init', array( __CLASS__, 'show_admin_bar' ), 9 );        					// gotta get in early to execute before _wp_admin_bar_init()
+		add_action( 'wp', array( __CLASS__, 'soma_cron' ) );           								// init our cron
+		add_action( 'soma_daily_event', array( __CLASS__, 'delete_autodrafts' ) );     				// fire this every day
+		// add_action( 'personal_options', array(__CLASS__, 'hide_profile_options') );   			// hides some useless cruft, make profile simpler
+		add_action( 'user_register', array( __CLASS__, 'full_display_name' ) );     				// automatically populate display name with fullname
+		add_filter( 'user_contactmethods', array( __CLASS__, 'extend_user_contactmethod' ) );	   	// mods contact fields on user profile
+		add_action( 'admin_menu', array( __CLASS__, 'add_pages' ) );         						// adds menu items to wp-admin
+		add_action( 'admin_init', array( __CLASS__, 'register_soma_options' ) ); 				    // register settings to help with form saving and sanitizing
+		add_action( 'admin_action_flush', array( __CLASS__, 'flush_rules' ) );   					// dynamically generated hook created by the ID on forms POSTed from admin.php
+		add_action( 'admin_action_export', array( __CLASS__, 'export_settings' ) );   				// dynamically generated hook created by the ID on forms POSTed from admin.php
+		add_action( 'admin_action_import', array( __CLASS__, 'import_settings' ) );   				// dynamically generated hook created by the ID on forms POSTed from admin.php
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'disable_dashboard_widgets' ), 100 );  // disable dashboard widgets
 		add_action( 'admin_menu', array( __CLASS__, 'disable_admin_menus' ) );      // hide the admin sidebar menu items
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'disable_autosave' ) );    // optional disable autosave
@@ -62,6 +64,7 @@ class somaOptions extends somaticFramework  {
 			"disable_dashboard" => array( 'quick_press', 'recent_drafts', 'recent_comments', 'incoming_links', 'plugins', 'primary', 'secondary', 'thesis_news_widget' ),  // hide dashboard widgets from everyone
 			"disable_metaboxes" => array( 'thesis_seo_meta', 'thesis_image_meta', 'thesis_multimedia_meta', 'thesis_javascript_meta' ),         // hide metaboxes in post editor from everyone
 			"disable_drag_metabox" => 0,         // prevent users from dragging/rearranging metaboxes (even dashboard widgets)
+			"go_redirect" => "0",
 			// "disable_screen_options" => 0,         // hide the screen options tab
 			"reset_default_options" => 0,         // will reset options to defaults next time plugin is activated
 			"plugin_db_version" => SOMA_VERSION,
@@ -433,6 +436,7 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[disable_drag_metabox]" type="checkbox" value="1" <?php if ( isset( $soma_options['disable_drag_metabox'] ) ) { checked( '1', $soma_options['disable_drag_metabox'] ); } ?> /> Disable dragging of metaboxes</label><br />
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if ( isset( $soma_options['p2p'] ) ) { checked( '1', $soma_options['p2p'] ); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
 							<label><input name="somatic_framework_options[colorbox]" type="checkbox" value="1" <?php if ( isset( $soma_options['colorbox'] ) ) { checked( '1', $soma_options['colorbox'] ); } ?> /> Enable Colorbox JS lightbox plugin on front-end</label><br />
+							<label><input name="somatic_framework_options[go_redirect]" type="checkbox" value="1" <?php if ( isset( $soma_options['go_redirect'] ) ) { checked( '1', $soma_options['go_redirect'] ); } ?> /> Enable custom redirects via go/[code]</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 					</tr>
@@ -944,6 +948,42 @@ class somaOptions extends somaticFramework  {
 		} else {
 			add_filter( 'show_admin_bar', '__return_false' );
 		}
+	}
+
+	function soma_go_endpoint() {
+		global $soma_options;
+		if ( somaFunctions::fetch_index( $soma_options, 'go_redirect' ) ) {
+			add_rewrite_endpoint( 'go', EP_ALL );
+		}
+	}
+
+	function soma_go_redirect() {
+		global $soma_options, $wp_query;
+		$go = soma_fetch_index($wp_query->query_vars, 'go');					// possibly redirect an erroneous /go/ link, whether or not option is on...
+		if (is_null($go)) return;												// go query var isn't set, so do nothing and wp continues on...
+		if ($go == ""): wp_redirect( home_url(), 301 ); exit(); endif;			// go exists, but is empty, so just go back home
+		if ( somaFunctions::fetch_index( $soma_options, 'go_redirect' ) ) {
+			$codes = array();
+			$codes = apply_filters('soma_go_redirect_codes', $codes);			// allow expansion - add another associative slug/url array key/value
+			foreach ($codes as $slug => $url) {
+				$slug = sanitize_title_with_dashes($slug);
+				if ($go == $slug) {
+					wp_redirect( esc_url_raw($url), 301 );
+					exit();
+				}
+			}
+			wp_redirect( home_url(), 301 );										// no matches, so just go back home
+			exit;
+		}
+	}
+
+	function soma_default_links($codes) {
+		// init container
+		$codes = array();
+		$codes['wpengine'] = "http://www.shareasale.com/r.cfm?b=394686&u=402945&m=41388&urllink=";
+		$codes['thesis'] = "http://www.shareasale.com/r.cfm?B=198392&U=402945&M=24570&urllink=";
+		$codes['hover'] = "https://hover.com/MqSwvYkz";
+		return $codes;
 	}
 
 }

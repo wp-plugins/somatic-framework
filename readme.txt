@@ -32,6 +32,10 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.7.6 =
+* NEW: option to enable custom link redirects via /go/[slug]. Use the filter 'soma_go_redirect_codes' to add a new slug/url pair. remember to flush rewrite rules
+* NEW: api soma_go_link(), returns HTML link code for an existing go code and link text
+
 = 1.7.5 =
 * FIX: metabox field type 'checkbox-single' (now known as 'toggle') finally works as expected! You can uncheck things now :-P
 * NEW: soma_fetch_image(), soma_asset_meta(), soma_attachments(), soma_fetch_image(), soma_singular_term() now accept either a post object or post ID (integer or string)

@@ -1513,10 +1513,10 @@ SQL;
 		return $att_id;
 	}
 
-	/*
+	/**
 	* Gets the excerpt of a specific post ID or object - if one doesn't exist, it will create one dynamically
 	* @since 1.7.3
-
+	*
 	* @param - $post - object/int/string - the ID or object of the post to get the excerpt of
 	* @param - $length - int - the length of the excerpt in words
 	* @param - $tags - string - the allowed HTML tags. These will not be stripped out
@@ -1549,6 +1549,27 @@ SQL;
 		return apply_filters('the_content', $the_excerpt);
 	}
 
+	/**
+	* generates HTML link code in conjunction with the soma_go_redirect option
+	* won't work unless you've already hooked the soma_go_redirect_codes filter and added a slug/url pair
+	* @since 1.7.6
+	*
+	* @param - $slug - string - properly formatted slug for the url: /go/[slug]
+	* @param - $text - string - text to be wrapped inside the <a> tags
+	* @return - string - HTML link code
+	*/
+	function make_go_link($slug = null, $text = null) {
+		if (empty($slug) || empty($text)) return new WP_Error('missing', "must pass a slug and text argument!");
+		$slug = sanitize_title_with_dashes($slug);
+		$text = sanitize_title($text);
+		$codes = apply_filters('soma_go_redirect_codes', $codes);
+		if (array_key_exists($slug, $codes)) {
+			return "<a href='{$codes[$slug]}' rel='nofollow'>$text</a>";
+		} else {
+			return new WP_Error('error', "that slug hasn't been added yet, so I can't give you a URL ...");
+		}
+
+	}
 }
 // --> END class somaFunctions
 // INIT
