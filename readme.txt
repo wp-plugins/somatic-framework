@@ -36,8 +36,8 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * NEW: option to enable custom link redirects via /go/[slug]. Use the filter 'soma_go_redirect_codes' to add a new slug/url pair. remember to flush rewrite rules
 * NEW: api soma_go_link(), returns HTML link code for an existing go code and link text
 * NEW: system for dynamically showing/hiding certain metabox field rows based on a list selection
-* field argument 'toggle-control' - should be assigned only to a 'radio' or 'select' field type (and only one per page)
-* field argument 'toggle-group' - array of names corresponding with the possible values of the toggle-control selector. If the current value is in the array, that field is shown, otherwise hidden
+* field argument 'reveal-control' - should be assigned only to a 'radio' or 'select' field type (and only one per page)
+* field argument 'reveal-group' - array of names corresponding with the possible values of the reveal-control selector. If the current value is in the array, that field is shown, otherwise hidden
 * changes to table structure for metabox field rows - now descriptions and extra options are all within the main field row, so they can all be hidden together
 * FIX: taxonomy dropdown selectors can finally use "Create New" and have a new term created upon save! just use soma_select_taxonomy_terms('mytaxonomy', true) to generate the field 'options' array
 
