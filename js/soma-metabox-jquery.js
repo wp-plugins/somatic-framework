@@ -185,8 +185,8 @@ jQuery(document).ready(function($) {
 
 	// based on initial value of the toggle controller, show/hide fieldrows
 	var initstr = "";
-	if ($(".toggle-control").length) {
-		controller = $(".toggle-control");
+	if ($(".reveal-control").length) {
+		controller = $(".reveal-control");
 		if (controller.hasClass('meta-select')) {
 			initstr = controller.children('select option:selected').text();
 		}
@@ -197,7 +197,7 @@ jQuery(document).ready(function($) {
 	}
 
 	// when the toggle controller is changed, fetch the selected value and pass to the toggler
-	$(".toggle-control").change(function() {
+	$(".reveal-control").change(function() {
 		var which = "";
 		if ($(this).hasClass('meta-select')) {
 			which = $(this).children('select option:selected').text();
@@ -210,8 +210,8 @@ jQuery(document).ready(function($) {
 
 	// take the current value and compare to the array of values for a toggleable field-row, toggles it
 	function togglegroup(which) {
-		$(".toggle-row").each(function() {
-			group = $(this).data('toggle-group');
+		$(".reveal-row").each(function() {
+			group = $(this).data('reveal-group');
 			if ($.inArray(which, group) == -1) {			// this fieldrow isn't in the group for this selector value
 				$(this).hide();
 			} else {

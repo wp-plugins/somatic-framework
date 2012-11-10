@@ -74,6 +74,8 @@ class somaMetaboxes extends somaticFramework {
 	required 	- set to true to trigger missing taxonomy assignment and error highlighting
 	default 	- give a text string here to automatically show in input fields or have automatically selected
 	desc 		- text string to show below field input
+	reveal-control	- boolean assigned one selector (radio or dropdown) per page
+	reveal-group 	- array of names corresponding with potential values of a reveal-control selector
  * TYPES:
 	readonly
 	gallery (of attachments, minus featured)
@@ -288,18 +290,18 @@ class somaMetaboxes extends somaticFramework {
 
 			// field row CSS class assignments
 			$rowclass = "fieldrow";
-			$group = soma_fetch_index($field, 'toggle-group');
-			$toggle = false;				// reset each pass
+			$group = soma_fetch_index($field, 'reveal-group');
+			$reveal = false;				// reset each pass
 			$initshow = true;				// reset each pass
 
 			if (is_array($group)) {
-				$toggle = true;
-				$rowclass .= " toggle-row";
-				$toggledata = " data-toggle-group='" . json_encode($group) . "'";
+				$reveal = true;
+				$rowclass .= " reveal-row";
+				$revealdata = " data-reveal-group='" . json_encode($group) . "'";
 			}
 
 			// build the field row
-			echo '<tr id="', $field['id'] , '-row" class="', $rowclass, '"', $toggle ? $toggledata : null,' ', $initshow ? null : 'style="display:none;" ' ,'>';
+			echo '<tr id="', $field['id'] , '-row" class="', $rowclass, '"', $reveal ? $revealdata : null,' ', $initshow ? null : 'style="display:none;" ' ,'>';
 
 			// include column for field name if included
 			if ($field['name']) {
@@ -447,8 +449,8 @@ class somaMetaboxes extends somaticFramework {
 				case 'select':
 					$selectclass = "meta-select";
 					if (!$complete) $selectclass .= $missing;
-					if (soma_fetch_index($field, 'toggle-control')) {
-						$selectclass .= " toggle-control";
+					if (soma_fetch_index($field, 'reveal-control')) {
+						$selectclass .= " reveal-control";
 					}
 					echo '<select name="', $field['id'], '" id="', $field['id'], '"', $disable ? ' disabled="disabled"' : null, ' class="', $selectclass, '" data-taxonomy="', $field['id'],'" >';
 					if (is_array($meta)) $meta = array_shift($meta);		// existing data might be an array, especially if taxonomy. But since this is a single-value selector, extract just the one value
@@ -479,8 +481,8 @@ class somaMetaboxes extends somaticFramework {
 				case 'radio':
 					$radioclass = "meta-radio";
 					if (!$complete) $radioclass .= $missing;
-					if (soma_fetch_index($field, 'toggle-control')) {
-						$radioclass .= " toggle-control";
+					if (soma_fetch_index($field, 'reveal-control')) {
+						$radioclass .= " reveal-control";
 					}
 					echo "<ul class='$radioclass' >";
 					if (is_array($meta)) $meta = array_shift($meta);		// existing data might be an array, especially if taxonomy. But since this is a single-value selector, extract just the one value
