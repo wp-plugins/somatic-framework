@@ -57,7 +57,7 @@ jQuery(document).ready(function($) {
 		showSecond: false,
 		buttonImage: soma_vars.SOMA_JS + '/ui/clock-icon.png',
 		buttonImageOnly: true,
-		buttonText: 'Click to Select',
+		buttonText: 'Click to Select'
 		// altField: $(this).next('.timemirror'),	// display human-readable date in dummy field
 		// altFormat: "h:mm TT"
 	});
@@ -133,7 +133,7 @@ jQuery(document).ready(function($) {
 				data:{
 					action: 'delete_attachment',
 					nonce: $(this).attr("data-nonce"),
-					data: $(this).attr("rel"),							// contains attachment ID integer
+					data: $(this).attr("rel")							// contains attachment ID integer
 				},
 				beforeSend: function(jqXHR, settings) {					// optionally process data before submitting the form via AJAX
 
@@ -143,7 +143,7 @@ jQuery(document).ready(function($) {
 					// remove the thumbnail here ??
 					$(this).next('.kill-animation').hide();
 					container.fadeOut( "fast", function() {
-						// if this was a featurd image, show the uploader 
+						// if this was a featurd image, show the uploader
 						if (featured) {
 							$(this).parents('ul:first').next('.plupload-container').fadeIn('fast');
 							$(this).parents('ul:first').remove();		// kill this attachment thumb container
@@ -170,6 +170,44 @@ jQuery(document).ready(function($) {
 		}
 		return false;
 	});
+
+
+	// based on initial value of the toggle controller, show/hide fieldrows
+	var initstr = "";
+	if ($(".toggle-control").length) {
+		controller = $(".toggle-control");
+		if (controller.hasClass('meta-select')) {
+			initstr = controller.children('select option:selected').text();
+		}
+		if (controller.hasClass('meta-radio')) {
+			initstr = controller.find('input:radio:checked').parent().text();
+		}
+		togglegroup(initstr);
+	}
+
+	// when the toggle controller is changed, fetch the selected value and pass to the toggler
+	$(".toggle-control").change(function() {
+		var which = "";
+		if ($(this).hasClass('meta-select')) {
+			which = $(this).children('select option:selected').text();
+		}
+		if ($(this).hasClass('meta-radio')) {
+			which = $(this).find('input:radio:checked').parent().text();
+		}
+		togglegroup(which);
+	});
+
+	// take the current value and compare to the array of values for a toggleable field-row, toggles it
+	function togglegroup(which) {
+		$(".toggle-row").each(function() {
+			group = $(this).data('toggle-group');
+			if ($.inArray(which, group) == -1) {			// this fieldrow isn't in the group for this selector value
+				$(this).hide();
+			} else {
+				$(this).show();
+			}
+		});
+	}
 
 	// automatically grow textareas as you type
 	// $('textarea').autosize();

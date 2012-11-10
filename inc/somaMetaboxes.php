@@ -292,7 +292,12 @@ class somaMetaboxes extends somaticFramework {
 
 			// include column for field name if included
 			if ($field['name']) {
-				echo '<tr id="'.$field['id'].'-row" class="fieldrow">';		// begin building table row (with class to allow border)
+				$rowclass = "fieldrow";
+				if (is_array($group = soma_fetch_index($field, 'toggle-group'))) {
+					$rowclass .= " toggle-row";
+					$togglegroup = json_encode($group);
+				}
+				echo "<tr id='{$field['id']}-row' class='$rowclass' data-toggle-group='$togglegroup'>";		// begin building table row (with class to allow border)
 				echo '<td class="field-label"><label for="', $field['id'], '" class="', $complete ? null : $missing, '" >', $field['name'], '</label></td>';
 				echo '<td class="field-data">';
 			} else {
@@ -436,7 +441,12 @@ class somaMetaboxes extends somaticFramework {
 
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'select':
-					echo '<select name="', $field['id'], '" id="', $field['id'], '"', $disable ? ' disabled="disabled"' : null, ' class="meta-select', $complete ? null : $missing, '" >';
+					$selectclass = "meta-select";
+					if (!$complete) $selectclass .= $missing;
+					if (soma_fetch_index($field, 'toggle-control')) {
+						$selectclass .= " toggle-control";
+					}
+					echo '<select name="', $field['id'], '" id="', $field['id'], '"', $disable ? ' disabled="disabled"' : null, ' class="', $selectclass, '" >';
 					if (is_array($meta)) $meta = array_shift($meta);		// existing data might be an array, especially if taxonomy. But since this is a single-value selector, extract just the one value
 					$opts = soma_fetch_index($field, 'options');
 					if (!is_array($opts)) {
@@ -462,7 +472,12 @@ class somaMetaboxes extends somaticFramework {
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'radio':
-					echo '<ul class="meta-radio', $complete ? null : $missing, '" >';
+					$radioclass = "meta-radio";
+					if (!$complete) $radioclass .= $missing;
+					if (soma_fetch_index($field, 'toggle-control')) {
+						$radioclass .= " toggle-control";
+					}
+					echo "<ul class='$radioclass' >";
 					if (is_array($meta)) $meta = array_shift($meta);		// existing data might be an array, especially if taxonomy. But since this is a single-value selector, extract just the one value
 					$opts = soma_fetch_index($field, 'options');
 					if (!is_array($opts)) {
@@ -764,7 +779,7 @@ class somaMetaboxes extends somaticFramework {
 				// external media (youtube, vimeo, soundcloud)
 				case 'external_media':
 					echo '<input type="text" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $meta : $field['default'], '" class="meta-text', $complete ? null : $missing, '" />';
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null, '</td></tr>';
+					echo $field['desc'] ? "<div class=\"field-desc\">". $field['desc'] : null, '</div>';
 
 					$existing = soma_asset_meta('get', $post->ID, $field['id']."_attached");			// did we already save an attachment for this field?
 					if (empty($existing)) {
@@ -777,9 +792,10 @@ class somaMetaboxes extends somaticFramework {
 						$featured = 'checked="checked"';
 					}
 					// output
-					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="import-ext-image" id="import-ext-image" class="meta-toggle" '.$import.'/><label for="import-ext-image">Import the external media thumbnail image as an attachment</label></td></tr>';
-					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="use-ext-feature" id="use-ext-feature" class="meta-toggle" '.$featured.'/><label for="use-ext-feature">Use the imported image as the Featured Image for this asset</label></td></tr>';
-					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="copy-ext-meta" id="copy-ext-meta" class="meta-toggle"/><label for="copy-ext-meta">Use the Title and Description from the external media source</label></td></tr>';
+					echo '<div class="field-option"><input type="checkbox" name="import-ext-image" id="import-ext-image" class="meta-toggle" '.$import.'/><label for="import-ext-image">Import the external media thumbnail image as an attachment</label></div>';
+					echo '<div class="field-option"><input type="checkbox" name="use-ext-feature" id="use-ext-feature" class="meta-toggle" '.$featured.'/><label for="use-ext-feature">Use the imported image as the Featured Image for this asset</label></div>';
+					echo '<div class="field-option"><input type="checkbox" name="copy-ext-meta" id="copy-ext-meta" class="meta-toggle"/><label for="copy-ext-meta">Use the Title and Description from the external media source</label></div>';
+					echo '</td></tr>';
 					$dodesc = false;
 					if ($meta) {
 						$ext = soma_asset_meta('get', $post->ID, $field['id'].'_ext');	// grab external media API response we've already saved
@@ -802,15 +818,16 @@ class somaMetaboxes extends somaticFramework {
 				// external image (direct url)
 				case 'external_image':
 					echo '<input type="text" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $meta : $field['default'], '" class="meta-text', $complete ? null : $missing, '" />';
-					echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null, '</td></tr>';
+					echo $field['desc'] ? "<div class=\"field-desc\">". $field['desc'] : null, '</div>';
 
 					if ( !has_post_thumbnail( $post->ID ) ) {
 						$thumb = 'checked="checked"';	// select these by default if there isn't already a featured image
 					} else {
 						$img = soma_featured_image($post->ID, 'thumb');
 					}
-					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="import-ext-image" id="import-ext-image" class="meta-toggle" '.$thumb.'/><label for="import-ext-image">Import the external image as an attachment</label></td></tr>';
-					echo '<tr><td></td><td class="field-data field-option"><input type="checkbox" name="use-ext-feature" id="use-ext-feature" class="meta-toggle" '.$thumb.'/><label for="use-ext-feature">Use the imported image as the Featured Image for this asset</label></td></tr>';
+					echo '<div class="field-option"><input type="checkbox" name="import-ext-image" id="import-ext-image" class="meta-toggle" '.$thumb.'/><label for="import-ext-image">Import the external image as an attachment</label></div>';
+					echo '<div class="field-option"><input type="checkbox" name="use-ext-feature" id="use-ext-feature" class="meta-toggle" '.$thumb.'/><label for="use-ext-feature">Use the imported image as the Featured Image for this asset</label></div>';
+					echo '</td></tr>';
 					$dodesc = false;
 					if ($meta) {
 						echo '<tr><td class="field-label">Source Link</td><td class="field-data"><a href="'.$meta.'" target="_blank">'.$meta.'</a></td></tr>';
@@ -828,8 +845,6 @@ class somaMetaboxes extends somaticFramework {
 				// upload/modify media file button
 				$label = $meta ? "Modify Media File" : "Upload Media File";
 				echo "<a href=\"media-upload.php?post_id=$post->ID&amp;TB_iframe=1&amp;height=800&amp;width=640\" id=\"add_media\" class=\"thickbox clicker\" onclick=\"return false;\">$label</a>";
-				echo $field['desc'] ? "</td></tr>\n<tr>\n<td></td>\n<td class=\"field-desc\">". $field['desc'] : null, '</td></tr>';
-				$dodesc = false;
 
 				// don't attempt to show player if no media exist yet
 				if (!empty($meta)) {
@@ -871,7 +886,8 @@ class somaMetaboxes extends somaticFramework {
 
 			// output td for field description and close tags
 			if ($dodesc) {
-				echo $field['desc'] ? "</td></tr>\n<tr class=\"desc-row\">\n<td class=\"field-label\"></td>\n<td class=\"field-desc\">". $field['desc'] : null;
+				echo $field['desc'] ? "<div class='field-desc'>{$field['desc']}</div>" : null;
+				// echo $field['desc'] ? "</td></tr>\n<tr class=\"desc-row\">\n<td class=\"field-label\"></td>\n<td class=\"field-desc\">". $field['desc'] : null;
 				echo '</td></tr>';
 			}
 		}

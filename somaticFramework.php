@@ -34,13 +34,6 @@ if (!function_exists('is_admin')) {
 
 //** DECLARE CONSTANTS
 
-
-if ( ! function_exists( 'get_plugins' ) ) require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-$plugin_folder = get_plugins( '/' . plugin_basename( dirname( __FILE__ ) ) );
-$plugin_file = basename( ( __FILE__ ) );
-// current plugin version
-define( 'SOMA_VERSION', $plugin_folder[$plugin_file]['Version'] );
-
 // the server path to the plugin's directory
 define( 'SOMA_DIR', WP_PLUGIN_DIR . '/somatic-framework/' );
 // the URL path to the plugin's directory - taking note of current scheme
@@ -110,18 +103,18 @@ class somaticFramework {
 		add_action( 'parse_request', array(__CLASS__, 'parse_request' ) );
 
 		// admin scripts and styles
-		wp_register_script( 'soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), SOMA_VERSION, true);
-		wp_register_script( 'soma-metabox-jquery', SOMA_JS.'soma-metabox-jquery.js', array('jquery', 'jquery-ui-core'), SOMA_VERSION, true);
-		wp_register_script( 'soma-plupload', SOMA_JS.'soma-plupload.js', array('jquery', 'jquery-ui-core'), SOMA_VERSION, true);
-		wp_register_script( 'soma-sorter-js', SOMA_JS . 'soma-sorter.js', array('jquery', 'jquery-ui-core'), SOMA_VERSION, true);
-		wp_register_style( 'soma-admin-styles', SOMA_CSS.'soma-admin-styles.css', array(), SOMA_VERSION, 'all' );
-		wp_register_style( 'soma-metabox-styles', SOMA_CSS.'soma-metabox-styles.css', array(), SOMA_VERSION, 'all' );
-		wp_register_style( 'soma-sorter', SOMA_CSS . 'soma-sorter.css', array(), SOMA_VERSION, all);
+		wp_register_script( 'soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.7.4', true);
+		wp_register_script( 'soma-metabox-jquery', SOMA_JS.'soma-metabox-jquery.js', array('jquery', 'jquery-ui-core'), '1.7.6', true);
+		wp_register_script( 'soma-plupload', SOMA_JS.'soma-plupload.js', array('jquery', 'jquery-ui-core'), '1.7.4', true);
+		wp_register_script( 'soma-sorter-js', SOMA_JS . 'soma-sorter.js', array('jquery', 'jquery-ui-core'), '1.7.4', true);
+		wp_register_style( 'soma-admin-styles', SOMA_CSS.'soma-admin-styles.css', array(), '1.7.4', 'all' );
+		wp_register_style( 'soma-metabox-styles', SOMA_CSS.'soma-metabox-styles.css', array(), '1.7.6', 'all' );
+		wp_register_style( 'soma-sorter', SOMA_CSS . 'soma-sorter.css', array(), '1.7.4', all);
 
 		// front-end scripts and styles
-		wp_register_script( 'soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), SOMA_VERSION, true);
-		// wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), SOMA_VERSION, 'all' );
-		wp_register_style( 'soma-login', SOMA_CSS.'soma-login-styles.css', array(), SOMA_VERSION, 'all' );
+		wp_register_script( 'soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
+		// wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.6', 'all' );
+		wp_register_style( 'soma-login', SOMA_CSS.'soma-login-styles.css', array(), '1.6', 'all' );
 
 
 		// jquery plugin lightbox functionality
@@ -292,7 +285,7 @@ class somaticFramework {
 
 	// custom admin footer credit
 	function admin_footer_text() {
-		echo 'Somatic Framework '. SOMA_VERSION .'<br />';
+		echo 'Somatic Framework '. self::get_plugin_version() .'<br />';
 		// echo 'Built by <a href="http://www.somaticstudios.com">Somatic Studios</a><br />';
 		echo get_num_queries() . " queries. " . timer_stop(0,3) . " seconds.";
 	}
@@ -359,6 +352,14 @@ class somaticFramework {
 		if (array_key_exists('download', $wp->query_vars )) {
 			new somaDownload($wp->query_vars['download']);
 		}
+	}
+
+	function get_plugin_version() {
+		if ( ! function_exists( 'get_plugins' ) )
+			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		$plugin_folder = get_plugins( '/' . plugin_basename( dirname( __FILE__ ) ) );
+		$plugin_file = basename( ( __FILE__ ) );
+		return $plugin_folder[$plugin_file]['Version'];
 	}
 
 	function requires_wordpress_version() {

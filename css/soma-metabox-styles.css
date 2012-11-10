@@ -1,5 +1,6 @@
 /* @override 
-	http://israelcurtis.staging.wpengine.com/wp-content/plugins/somatic-framework/css/soma-metabox-styles.css?ver=1.7.3 */
+	http://israelcurtis.staging.wpengine.com/wp-content/plugins/somatic-framework/css/soma-metabox-styles.css?ver=1.7.3
+	http://www.voluntarymeans.com/wp-content/plugins/somatic-framework/css/soma-metabox-styles.css?ver=1.7.6c */
 
 
 /* metabox fields */
@@ -42,19 +43,24 @@
 	border-top: none;
 }
 
-.metabox-holder td.field-data.field-option {
+.metabox-holder .field-option {
 	margin-bottom: 0;
 	padding-bottom: 0;
 	padding-top: 0;
+	display: block;
+}
+.metabox-holder .field-option label {
+	margin-left: .5em;
 }
 
-.metabox-holder td.field-desc {
+.metabox-holder .field-desc {
 	color: #acacac;
 	font-style: italic;
 	line-height: 1.2em;
 	padding: 0;
 	display: block;
-	margin-bottom: 1em;
+	margin-top: .5em;
+	margin-bottom: .5em;
 }
 
 .metabox-holder td.field-data input[type='text'],
@@ -112,7 +118,7 @@
 
 #side-sortables td.field-label,
 #side-sortables td.field-data,
-#side-sortables td.field-desc {
+#side-sortables .field-desc {
 	padding: 10px 0 0 0;
 	display: block;
 	width: 100%;
