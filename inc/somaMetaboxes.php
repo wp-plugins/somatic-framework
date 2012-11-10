@@ -121,39 +121,35 @@ class somaMetaboxes extends somaticFramework {
 		echo '<table class="form-table">';
 
 		foreach ($meta_box['fields'] as $field) {
-			$meta = null;																				// reset the value of $meta each loop, otherwise an empty iteration can pass on $meta to the next one
+			$meta = null;																			// reset the value of $meta each loop, otherwise an empty iteration can pass on $meta to the next one
 			// get current taxonomy data
 			if ($field['data'] == 'taxonomy') {
-				if (empty($field['options']) && $field['id'] != 'new-'.$field['taxonomy'].'-term' && $field['type'] != 'readonly') {		// the new-term field is going to retrieve empty, but we want to render it anyway. - ALSO, readonly taxonomies don't bother retrieving options ****SOMETHING FISHY HERE!!!!
-					continue;																			// if the options are empty, then the taxonomy itself doesn't exist or it has no terms and rendering will fail, so skip this field
+				if (empty($field['options']) && $field['type'] != 'readonly') {
+					continue;																		// if the options are empty and it's not readonly, then the taxonomy itself doesn't exist or it has no terms and rendering will fail, so skip this field
 				}
-				if ($field['id']=='new-'.$field['taxonomy'].'-term') {									// don't bother fetching existing terms, as we're going to create a new term with this field
-					$meta = null;																		// clear $meta so it doesn't fill the input text box with string "array" - don't care about displaying saved data in this one case
-				} else {
-					$terms = wp_get_object_terms($post->ID, $field['id']);								// retrieve terms
-					if (is_wp_error($terms)) {
-						wp_die($terms->get_error_message());
-					}
-					// if ($field['type'] == 'checkbox-multi' && is_null(soma_fetch_index($field, 'multiple'))) $field['multiple'] == true;		// default to multiple when using checkbox-multi, in case forgot to specify
+				$terms = wp_get_object_terms($post->ID, $field['id']);								// retrieve terms
+				if (is_wp_error($terms)) {
+					wp_die($terms->get_error_message());
+				}
+				// if ($field['type'] == 'checkbox-multi' && is_null(soma_fetch_index($field, 'multiple'))) $field['multiple'] == true;		// default to multiple when using checkbox-multi, in case forgot to specify
 
-					if ($field['type'] == 'readonly' && $field['multiple'] === false) {					// if readonly and singular, then $meta is just the name, no object
-						$meta = $terms[0]->name;
+				if ($field['type'] == 'readonly' && $field['multiple'] === false) {					// if readonly and singular, then $meta is just the name, no object
+					$meta = $terms[0]->name;
+				}
+				if ($field['type'] == 'readonly' && $field['multiple']) {							// if readonly and multiple, then $meta is just a list, no objects
+					$meta = somaFunctions::fetch_the_term_list( $post->ID, $field['id'],'',', ');	// returns linked html list of comma-separated terms
+					if (!$meta) {
+						continue;																	// if fetching terms comes up empty, then don't render this one
 					}
-					if ($field['type'] == 'readonly' && $field['multiple']) {							// if readonly and multiple, then $meta is just a list, no objects
-						$meta = somaFunctions::fetch_the_term_list( $post->ID, $field['id'],'',', ');	// returns linked html list of comma-separated terms
-						if (!$meta) {
-							continue;																	// if fetching terms comes up empty, then don't render this one
-						}
+				}
+				if ($field['type'] != 'readonly') {													// not readonly but multiple values are accepted
+					foreach ($terms as $term) {
+						$meta[] = intval($term->term_id);
 					}
-					if ($field['type'] != 'readonly') {													// not readonly but multiple values are accepted
-						foreach ($terms as $term) {
-							$meta[] = intval($term->term_id);
-						}
-					}
-					if ($field['type'] == 'checkbox-single' || $field['type'] == 'toggle') {
-						if (!empty($terms[0]->slug)) {													// check if theres a term in this taxonomy assigned at all, then set special $meta value to 1 (for the checked() function later)
-							$meta = 1;
-						}
+				}
+				if ($field['type'] == 'checkbox-single' || $field['type'] == 'toggle') {
+					if (!empty($terms[0]->slug)) {													// check if theres a term in this taxonomy assigned at all, then set special $meta value to 1 (for the checked() function later)
+						$meta = 1;
 					}
 				}
 			}
@@ -290,19 +286,27 @@ class somaMetaboxes extends somaticFramework {
 				$field['desc'] = '';
 			}
 
+			// field row CSS class assignments
+			$rowclass = "fieldrow";
+			$group = soma_fetch_index($field, 'toggle-group');
+			$toggle = false;				// reset each pass
+			$initshow = true;				// reset each pass
+
+			if (is_array($group)) {
+				$toggle = true;
+				$rowclass .= " toggle-row";
+				$toggledata = " data-toggle-group='" . json_encode($group) . "'";
+			}
+
+			// build the field row
+			echo '<tr id="', $field['id'] , '-row" class="', $rowclass, '"', $toggle ? $toggledata : null,' ', $initshow ? null : 'style="display:none;" ' ,'>';
+
 			// include column for field name if included
 			if ($field['name']) {
-				$rowclass = "fieldrow";
-				if (is_array($group = soma_fetch_index($field, 'toggle-group'))) {
-					$rowclass .= " toggle-row";
-					$togglegroup = json_encode($group);
-				}
-				echo "<tr id='{$field['id']}-row' class='$rowclass' data-toggle-group='$togglegroup'>";		// begin building table row (with class to allow border)
 				echo '<td class="field-label"><label for="', $field['id'], '" class="', $complete ? null : $missing, '" >', $field['name'], '</label></td>';
 				echo '<td class="field-data">';
+			// no name given, so span both columns
 			} else {
-				echo '<tr id="'.$field['id'].'-row">';						// begin building table row
-				// no name given, so span both columns
 				echo '<td colspan="2">';
 			}
 
@@ -446,7 +450,7 @@ class somaMetaboxes extends somaticFramework {
 					if (soma_fetch_index($field, 'toggle-control')) {
 						$selectclass .= " toggle-control";
 					}
-					echo '<select name="', $field['id'], '" id="', $field['id'], '"', $disable ? ' disabled="disabled"' : null, ' class="', $selectclass, '" >';
+					echo '<select name="', $field['id'], '" id="', $field['id'], '"', $disable ? ' disabled="disabled"' : null, ' class="', $selectclass, '" data-taxonomy="', $field['id'],'" >';
 					if (is_array($meta)) $meta = array_shift($meta);		// existing data might be an array, especially if taxonomy. But since this is a single-value selector, extract just the one value
 					$opts = soma_fetch_index($field, 'options');
 					if (!is_array($opts)) {
@@ -469,6 +473,7 @@ class somaMetaboxes extends somaticFramework {
 						echo '<option value="', $option['value'], '"' , selected($select), '>', $option['name'],'</option>';
 					}
 					echo '</select>';
+					echo '<input type="text" name="', $field['id'], '-create" id="', $field['id'], '-create" value="" class="meta-select-input" disabled="disabled" />';
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'radio':
@@ -944,7 +949,7 @@ class somaMetaboxes extends somaticFramework {
 			$terms = get_terms($tax,'hide_empty=0');
 			if (!empty($terms)) {
 				if ($create) {
-					$list[] = array('name' => 'Create New', 'value' => 'create');
+					$list[] = array('name' => '-- Create New --', 'value' => 'create');
 				}
 				foreach ($terms as $term) {
 					$list[] = array('name' => $term->name, 'value' => intval($term->term_id));

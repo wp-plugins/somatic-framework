@@ -278,19 +278,23 @@ class somaSave extends somaticFramework {
 
 					// taxonomy data has to be sanitized first  --------------------------------------------------------------//
 					if ($field['data'] == 'taxonomy') {
-						if ($field['id']=='new-'.$field['taxonomy'].'-term') {
-							$new = $new; // leave as string
+						// $_POST gave us 'create'
+						if ($new == 'create') {							// the taxonomy selector has been set to "Create New"
+							$new = $_POST[$field['id']."-create"];		// so grab the text from the accompanying input field, which will passed a string, thus creating a new term
+							$old = "";									// make old an empty string instead of empty array, so that later conditionals will work
+
 						// $_POST gave us array
 						} elseif (is_array($new)) {
-							foreach ($new as $key => $var) {		// convert all array items to integer
+							foreach ($new as $key => $var) {			// convert all array items to integer
 								$new[$key] = intval($var);
 							}
+
 						// $_POST gave us a single value, still need to transform into array
 						} else {
 							if (empty($new)) {
 								$new = array();
 							} else {
-								$new = array(intval($new));			// when passing term_id thru wp_set_object_terms, the value must be integer, not string, or else it will create a new term with the name of the string
+								$new = array(intval($new));				// when passing term_id thru wp_set_object_terms, the value must be integer, not string, or else it will create a new term with the name of the string
 							}
 
 						}
@@ -532,11 +536,6 @@ class somaSave extends somaticFramework {
 					if ($new == '' || $new == null || (is_array($new) && empty($new))) {
 
 						if ($field['data'] == 'taxonomy') {
-							if ($field['id'] == 'new-'.$field['taxonomy'].'-term') {
-								continue;
-							}
-
-							// all other taxonomy cases
 							wp_set_object_terms($pid, $new, $field['id'], false);
 						}
 
@@ -562,15 +561,10 @@ class somaSave extends somaticFramework {
 						// wp_die(var_dump($new, $old, $diffn, $diffo));	// debug
 						if (!empty($diffo) || !empty($diffn)) {
 
-
 							//
 							if ($field['data'] == 'taxonomy') {
-								if ($new == 'create') { 											// skip saving the select box which is indicating term creation
-									continue;
-								} elseif ((count($new) > 1) && $field['multiple'] === false) {
+								if ((count($new) > 1) && $field['multiple'] === false) {
 									wp_die("not allowed to assign multiple terms for {$field['name']}!", 'Save Error!', array('back_link' => true));
-								} elseif ($field['id'] == 'new-'.$field['taxonomy'].'-term') { 		// creating a new term from field instead of selector
-									wp_set_object_terms($pid, $new, $field['taxonomy'], false);
 								} else {
 									wp_set_object_terms($pid, $new, $field['id'], false);			// multiple values accepted for non-hierarchical (tag-style)
 								}
@@ -600,6 +594,10 @@ class somaSave extends somaticFramework {
 							}
 						}
 					} elseif (!empty($new) && $new != $old) {									// non-array data
+
+						if ($field['data'] == 'taxonomy') {
+							wp_set_object_terms($pid, $new, $field['id'], false);
+						}
 
 						if ($field['data'] == 'meta') {
 							somaFunctions::asset_meta('save', $pid, $field['id'], $new);

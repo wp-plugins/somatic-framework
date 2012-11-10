@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.4.2
-Stable tag: 1.7.5
+Stable tag: 1.7.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * field argument 'toggle-control' - should be assigned only to a 'radio' or 'select' field type (and only one per page)
 * field argument 'toggle-group' - array of names corresponding with the possible values of the toggle-control selector. If the current value is in the array, that field is shown, otherwise hidden
 * changes to table structure for metabox field rows - now descriptions and extra options are all within the main field row, so they can all be hidden together
+* FIX: taxonomy dropdown selectors can finally use "Create New" and have a new term created upon save! just use soma_select_taxonomy_terms('mytaxonomy', true) to generate the field 'options' array
 
 = 1.7.5 =
 * FIX: metabox field type 'checkbox-single' (now known as 'toggle') finally works as expected! You can uncheck things now :-P

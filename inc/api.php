@@ -169,7 +169,7 @@ function soma_select_taxonomy_terms($tax, $create = false) {
 		$terms = get_terms($tax,'hide_empty=0');
 		if (!empty($terms)) {
 			if ($create) {
-				$list[] = array('name' => 'Create New', 'value' => 'create');
+				$list[] = array('name' => '-- Create New --', 'value' => 'create');
 			}
 			foreach ($terms as $term) {
 				$list[] = array('name' => $term->name, 'value' => intval($term->term_id));

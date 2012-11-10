@@ -171,6 +171,17 @@ jQuery(document).ready(function($) {
 		return false;
 	});
 
+	// revealing the new term input field when "Create New" is selected
+	$(".meta-select").change(function() {
+		var foo = $(this).children('select option:selected').val();
+		var tax = $(this).data('taxonomy');
+		if (foo == 'create') {
+			$("#"+tax+"-create").show().prop('disabled', false);
+		} else {
+			$("#"+tax+"-create").hide().prop('disabled', true);
+		}
+	});
+
 
 	// based on initial value of the toggle controller, show/hide fieldrows
 	var initstr = "";
