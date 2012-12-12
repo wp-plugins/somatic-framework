@@ -59,7 +59,7 @@ class somaTypes extends somaticFramework {
 			'hierarchical' 			=> false,			//wp -allows parent to be specified (not sure where...)
 			'query_var' 			=> true,			//wp
 			'show_in_nav_menus' 	=> true,			//wp (default: value of 'public' arg)
-			'supports' 				=> array( 'title', 'editor', 'thumbnail' ),		//wp
+			'supports' 				=> array( 'title', 'editor', 'thumbnail' ),		//wp -- pass false to disable all core metaboxes, including title and editor
 			'rewrite' 				=> array( 'slug' => $slug, 'with_front' => false ), //wp
 			'register_meta_box_cb' 	=> array( 'somaMetaBoxes', 'add_boxes' ), //wp
 			'labels' 				=> $labels,			//wp
@@ -81,7 +81,7 @@ class somaTypes extends somaticFramework {
 
 		// special case for when we don't want ANY core wp metaboxes
 		if ( somaFunctions::fetch_index( $data['args'], 'blank_slate' ) ) {
-			$args['supports'] = array( null );
+			$args['supports'] = false;
 		}
 
 		// in order to take advantage of hierarchical post types, need to be able to select parent, thus we need the attributes metabox...
