@@ -32,6 +32,9 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.7.7 =
+* NEW action hook: soma_init - allows hooking init but only after Somatic Framework loads. Otherwise other plugins trying to register custom types would fail if they loaded before this one.
+
 = 1.7.6 =
 * NEW: option to enable custom link redirects via /go/[slug]. Use the filter 'soma_go_redirect_codes' to add a new slug/url pair. remember to flush rewrite rules
 * NEW: api soma_go_link(), returns HTML link code for an existing go code and link text

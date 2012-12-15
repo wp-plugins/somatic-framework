@@ -3,6 +3,7 @@
 class somaTypes extends somaticFramework {
 
 	function __construct() {
+		add_action( 'init', array( __CLASS__, 'soma_init' ) );
 		add_action( 'admin_head', array( __CLASS__, 'custom_type_icons' ) );
 		add_action( 'admin_head', array( __CLASS__, 'column_styles' ) );
 		add_filter( 'nav_menu_css_class', array( __CLASS__, 'fix_nav_classes' ), 10, 3 );
@@ -22,6 +23,10 @@ class somaTypes extends somaticFramework {
 	// global storage container for custom post type data (used in functions outside init_type)
 	public static $type_data = array();
 
+	// allows other plugins to hook init when registering custom post types (even though they might load before this plugin)
+	public function soma_init() {
+		do_action('soma_init');
+	}
 
 	// assembles and generates a custom post type  --  http://codex.wordpress.org/Function_Reference/register_post_type
 	public function init_type( $data ) {
