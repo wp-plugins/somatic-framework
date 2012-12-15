@@ -147,9 +147,9 @@ class somaTypes extends somaticFramework {
 	// columns retrieved from $type_data container
 	function custom_list_columns( $columns ) {
 		global $post_type;
-		if ( isset( self::$type_data[$post_type]['columns'] ) ) {       				// custom columns defined?
+		if ( isset( self::$type_data[$post_type]['columns'] ) ) {       				// custom columns defined? if there are any, we're going to replace WP default ones completely...
 			$first = array( "cb" => "<input type=\"checkbox\" />" );     				// we always want to show the checkbox in the first column for bulk actions
-			$columns = array_merge( $first, self::$type_data[$post_type]['columns'] ); 	// combine with the user-defined columns
+			$columns = array_merge( $first, self::$type_data[$post_type]['columns'] ); 	// combine checkbox with the user-defined columns
 		}
 		return $columns;
 	}
@@ -217,7 +217,7 @@ class somaTypes extends somaticFramework {
 			'public' => true,
 			'show_ui' => true,
 			'show_in_nav_menus' => true,
-			'show_column' => true,   // new in 3.5, sets up taxonomy column
+			'show_admin_column' => true,   // new in 3.5, sets up taxonomy column - but will only show up if no custom columns have been defined for the post type!
 			'labels' => array(
 				'name' => $plural,
 				'singular_name' => $single,
