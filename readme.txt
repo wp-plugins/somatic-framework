@@ -34,6 +34,9 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 = 1.7.7 =
 * NEW action hook: soma_init - allows hooking init but only after Somatic Framework loads. Otherwise other plugins trying to register custom types would fail if they loaded before this one.
+* FIX: major bug with hiearchical post types not supporting anything
+* NEW functions fetch_sub_pages() and fetch_root_pages() for dealing with hierarchical post types
+* fixed stray undefined indexes...
 
 = 1.7.6 =
 * NEW: option to enable custom link redirects via /go/[slug]. Use the filter 'soma_go_redirect_codes' to add a new slug/url pair. remember to flush rewrite rules

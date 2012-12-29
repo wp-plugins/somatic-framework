@@ -149,7 +149,7 @@ class somaticFramework {
 			wp_enqueue_style( 'soma-public' );
 		}
 		global $soma_options;
-		if ($soma_options['colorbox']) {
+		if (!is_null(somaFunctions::fetch_index($soma_options, 'colorbox'))) {
 			wp_enqueue_script( 'colorbox' );
 			wp_enqueue_style( 'colorbox-theme' );
 		}
@@ -171,7 +171,7 @@ class somaticFramework {
 		} else {
 			$admin = 'false';
 		}
-		if ($soma_options['debug']) {
+		if (!is_null(somaFunctions::fetch_index($soma_options, 'debug'))) {
 			$debug = 'true';
 		} else {
 			$debug = 'false';

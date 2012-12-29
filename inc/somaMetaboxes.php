@@ -17,6 +17,7 @@ class somaMetaboxes extends somaticFramework {
 	static $data = array();				// container for other plugins and themes to store custom metabox and field data - SHOULD WE STORE THIS IN THE DB INSTEAD???
 
 	function init() {
+
 	}
 
 	// called in the custom post type registration, responsible for rendering metaboxes in those types
@@ -25,7 +26,8 @@ class somaMetaboxes extends somaticFramework {
 		// treat core post types differently
 		$type_obj = get_post_type_object($post->post_type);
 
-		if ($type_obj->somatic && $type_obj->blank_slate) $warning = true; // identify this as a native CPT to differentiate between _builtin and CPT's defined by other plugins, and only in the case where no core WP box support is given
+		// identify this as a native CPT to differentiate between _builtin and CPT's defined by other plugins, and only in the case where no core WP box support is given
+		if ($type_obj->somatic && $type_obj->blank_slate) { $warning = true; } else { $warning = false; }
 
 		if (empty(self::$data) || !self::$data) {
 			// THIS IS BAD - OUPTUTS BEFORE PAGE HEADERS

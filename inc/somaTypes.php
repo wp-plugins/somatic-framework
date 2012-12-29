@@ -61,7 +61,7 @@ class somaTypes extends somaticFramework {
 			'publicly_queryable' 	=> true,			//wp
 			'show_ui' 				=> true,			//wp
 			'has_archive' 			=> $slug,			//wp
-			'hierarchical' 			=> false,			//wp -allows parent to be specified (not sure where...)
+			'hierarchical' 			=> false,			//wp - allows parent to be specified
 			'query_var' 			=> true,			//wp
 			'show_in_nav_menus' 	=> true,			//wp (default: value of 'public' arg)
 			'supports' 				=> array( 'title', 'editor', 'thumbnail' ),		//wp -- pass false to disable all core metaboxes, including title and editor
@@ -91,7 +91,7 @@ class somaTypes extends somaticFramework {
 
 		// in order to take advantage of hierarchical post types, need to be able to select parent, thus we need the attributes metabox...
 		if ( somaFunctions::fetch_index( $data['args'], 'hierarchical' ) == true ) {
-			$args['supports'] = 'page-attributes';
+			$args['supports'][] = 'page-attributes';
 		}
 
 		// create the post-type
@@ -208,8 +208,11 @@ class somaTypes extends somaticFramework {
 		} else {
 			$plural = $data['plural'];
 		}
-		$metabox = somaFunctions::is_blank( $data['metabox'] ) ? true : $data['metabox'];   // default to showing metabox
-		$types = somaFunctions::is_blank( $data['types'] ) ? new WP_Error( 'missing', 'can\'t declare taxonomy without post types...' ) : $data['types'] ;
+
+		$metabox = somaFunctions::fetch_index( $data, 'metabox' );
+		if (is_null($metabox)) $metabox = true;   						// default to showing metabox (must pass false exactly)
+		$types = somaFunctions::fetch_index( $data, 'types' );
+		if (is_null($types)) new WP_Error( 'missing', 'can\'t declare taxonomy without post types...' );
 
 		$default_args = array(
 			'hierarchical' => true,   // category vs. tag style
@@ -218,6 +221,11 @@ class somaTypes extends somaticFramework {
 			'show_ui' => true,
 			'show_in_nav_menus' => true,
 			'show_admin_column' => true,   // new in 3.5, sets up taxonomy column - but will only show up if no custom columns have been defined for the post type!
+			'rewrite' => array(
+				'slug' => $slug,
+				'with_front' => false,
+				'hierarchical' => true
+			),
 			'labels' => array(
 				'name' => $plural,
 				'singular_name' => $single,
@@ -254,7 +262,7 @@ class somaTypes extends somaticFramework {
 		if ( !empty( $data['terms'] ) ) {
 			global $pagenow;
 			// execute only upon plugin activation -- NOTE this will return true anytime we're activating ANY plugin - still better than executing every page load....
-			if ( is_admin() && $_GET['action'] == "activate" && $pagenow == "plugins.php" ) {
+			if ( is_admin() && soma_fetch_index($_GET,'action') == "activate" && $pagenow == "plugins.php" ) {
 				self::term_generator( $slug, $data['terms'] ); // populate terms
 			}
 

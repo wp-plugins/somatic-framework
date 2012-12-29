@@ -62,7 +62,7 @@ class somaOptions extends somaticFramework  {
 			"kill_revisions" => array(),         // array of post types slugs to disable autosave
 			"disable_menus" => array( 'links', 'tools' ),                             // hide admin sidebar menu items from everyone (but you could still go to the page directly)
 			"disable_dashboard" => array( 'quick_press', 'recent_drafts', 'recent_comments', 'incoming_links', 'plugins', 'primary', 'secondary', 'thesis_news_widget' ),  // hide dashboard widgets from everyone
-			"disable_metaboxes" => array( 'thesis_seo_meta', 'thesis_image_meta', 'thesis_multimedia_meta', 'thesis_javascript_meta' ),         // hide metaboxes in post editor from everyone
+			"disable_metaboxes" => array( 'thesis_seo_meta', 'thesis_image_meta', 'thesis_multimedia_meta', 'thesis_javascript_meta', 'tb_page_options' ),         // hide metaboxes in post editor from everyone
 			"disable_drag_metabox" => 0,         // prevent users from dragging/rearranging metaboxes (even dashboard widgets)
 			"go_redirect" => "0",
 			// "disable_screen_options" => 0,         // hide the screen options tab
@@ -511,6 +511,7 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="commentstatusdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'commentstatusdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Comment Status</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="revisionsdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'revisionsdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Revisions</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="authordiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'authordiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Author</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="tb_page_options" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'tb_page_options', $soma_options['disable_metaboxes'] ) ); } ?> /> Jump Start Page Options</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 						<td>
@@ -521,6 +522,7 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="slugdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'slugdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Slug</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="tagsdiv-post_tag" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'tagsdiv-post_tag', $soma_options['disable_metaboxes'] ) ); } ?> /> Post Tags</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="categorydiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'categorydiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Post Categories</label><br />
+						</td>
 						<td>
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_seo_meta" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_seo_meta', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis SEO</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_image_meta" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_image_meta', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis Image</label><br />
@@ -839,7 +841,8 @@ class somaOptions extends somaticFramework  {
 
 		// post type archives
 		if ( $query->is_post_type_archive ) {
-			if ( is_array( $soma_options[ 'kill_paging' ] ) && in_array( $query->query_vars['post_type'], $soma_options[ 'kill_paging' ] ) ) {
+			$paging = soma_fetch_index( $soma_options, 'kill_paging' );
+			if ( is_array( $paging ) && in_array( $query->query_vars['post_type'], $paging) ) {
 				$query->set( 'nopaging', true );
 				return $query;
 			}

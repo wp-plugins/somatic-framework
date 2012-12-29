@@ -1050,7 +1050,7 @@ SQL;
 	}
 
 	function fetch_end_timestamp($pid) {
-		$date = somaFunctions::asset_meta('get', $pid, 'start_date');
+		$date = somaFunctions::asset_meta('get', $pid, 'end_date');
 		$time = somaFunctions::asset_meta('get', $pid, 'end_time');
 		$end = strtotime($date . " " . $time);
 		return $end;
@@ -1569,6 +1569,35 @@ SQL;
 			return new WP_Error('error', "that slug hasn't been added yet, so I can't give you a URL ...");
 		}
 
+	}
+
+	// Return all sub pages of a given post
+	// -------------------------------------------------------------
+	function fetch_sub_pages($pid = null) {
+		if (empty($pid)) return null;
+		$post_type = get_post_type($pid);
+		$args = array(
+			'post_type' => $post_type,
+			'child_of' => $pid,
+			'parent' => $pid,
+			'sort_order' => 'ASC',
+			'sort_column' => 'menu_order',
+			'numberposts' => -1
+		);
+		return get_pages($args);
+	}
+
+	// Return all root (top-level) posts of any given post type
+	// -------------------------------------------------------------
+	function fetch_root_pages($post_type = 'page') {
+		$args = array(
+			'post_type' => $post_type,
+			'parent' => 0,
+			'order' => 'ASC',
+			'orderby' => 'menu_order',
+			'numberposts' => -1
+		);
+		return get_pages($args);
 	}
 }
 // --> END class somaFunctions
