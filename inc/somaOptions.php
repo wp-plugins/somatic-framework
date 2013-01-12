@@ -816,7 +816,7 @@ class somaOptions extends somaticFramework  {
 	//
 	function disable_admin_bar_links() {
 		global $wp_admin_bar, $soma_options;
-		if ( !is_array( $soma_options['disable_menus'] ) ) return false;    // abort to avoid PHP errors
+		if ( !is_array( soma_fetch_index($soma_options,'disable_menus') ) ) return false;    // abort to avoid PHP errors
 		if ( post_type_exists( 'feedback' ) )           // jetpack plugin contact forms they forgot to remove from the admin bar....
 			$wp_admin_bar->remove_menu( 'new-feedback' );
 		if ( in_array( 'links', $soma_options['disable_menus'] ) )
