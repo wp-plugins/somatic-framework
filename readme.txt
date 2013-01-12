@@ -37,6 +37,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * FIX: major bug with hiearchical post types not supporting anything
 * NEW functions fetch_sub_pages() and fetch_root_pages() for dealing with hierarchical post types
 * fixed stray undefined indexes...
+* FIX: deep bug that caused hierarchical CPTs to return 404 on child pages
 
 = 1.7.6 =
 * NEW: option to enable custom link redirects via /go/[slug]. Use the filter 'soma_go_redirect_codes' to add a new slug/url pair. remember to flush rewrite rules

@@ -834,7 +834,6 @@ class somaOptions extends somaticFramework  {
 	//
 	function disable_paging( $query ) {
 		global $soma_options;
-		$obj = $query->get_queried_object();
 
 		// abort in admin
 		if ( $query->is_admin ) return $query;

@@ -526,7 +526,7 @@ class somaTypes extends somaticFramework {
 		if ( somaFunctions::fetch_index( $query->query_vars, 'suppress_filters' ) || somaFunctions::fetch_index( $_GET, 'orderby' ) ) return $query;
 
 		// fetch object when query is for post/archive output
-		$obj = $query->get_queried_object();
+		$obj = $query->get_queried_object;
 		if ( is_null( $obj ) ) return $query;
 
 		// edit listings?
@@ -564,7 +564,7 @@ class somaTypes extends somaticFramework {
 	function posts_orderby( $orderby ) {
 		global $soma_current_query;
 		// check the current query
-		$obj = $soma_current_query->get_queried_object();
+		$obj = $soma_current_query->get_queried_object;
 		// got nothing, abort
 		if ( is_null( $obj ) ) return $orderby;
 		// are we querying a custom post type that has sorting arguments?
@@ -580,7 +580,7 @@ class somaTypes extends somaticFramework {
 	function posts_join( $join ) {
 		global $soma_current_query;
 		// check the current query
-		$obj = $soma_current_query->get_queried_object();
+		$obj = $soma_current_query->get_queried_object;
 		// got nothing, abort
 		if ( is_null( $obj ) ) return $join;
 		// are we querying a custom post type that has sorting arguments set?
