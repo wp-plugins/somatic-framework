@@ -520,67 +520,38 @@ class somaTypes extends somaticFramework {
 
 	//** modifies the QUERY before output ------------------------------------------------------//
 	function filter_current_query( $query ) {
-		global $soma_current_query;
 		// abort if suppressing or if ordering has been manually chosen by GET
 		if ( somaFunctions::fetch_index( $query->query_vars, 'suppress_filters' ) || somaFunctions::fetch_index( $_GET, 'orderby' ) ) return $query;
-		// fetch object when query is for post/archive output
-		$soma_current_query = get_queried_object();
-		if ( is_null( $soma_current_query ) ) return $query;
 
-		// edit listings?
-		// if ( $query->is_post_type_archive ) {
-		//  $cptobj = get_post_type_object( $query->query_vars['post_type'] );
-		//  soma_dump($cptobj);
-		//  if ( !is_null( $cptobj ) && isset( $cptobj->sort_by ) ) {
-		//   $query->set( 'orderby', $cptobj->sort_by );
-		//   $query->set( 'order', $cptobj->sort_order );
-		//   return $query;
-		//  }
-		// }
-
-		// if this is a taxonomy or term, extract the post types (if *any* of the associated post types are set to be sortable, they'll all display in order...)
-
-		// not sure how I'm using this...????? now that we're using posts_orderby filters... is taxonomy still a special case?
-		if ( $soma_current_query->taxonomy ) {
-			$tax = get_taxonomy( $soma_current_query->taxonomy );
-			foreach ( $tax->object_type as $cpt ) {
-				$cptobj = get_post_type_object( $cpt );
-				if ( !is_null( $cptobj ) && isset( $cptobj->sort_by ) ) {
-					$query->set( 'orderby', $cptobj->sort_by );
-					$query->set( 'order', $cptobj->sort_order );
-					return $query;
-				}
-			}
-		}
 
 		// nothing matched, pass along unfiltered
 		return $query;
 	}
 
-	// modifies SQL query orderby values BEFORE parsing - requires filter_current_query() to set the global $soma_current_query
+	// modifies SQL query orderby values BEFORE parsing
 	// http://codex.wordpress.org/Custom_Queries
 	function posts_orderby( $orderby ) {
-		global $soma_current_query;
+		$obj = get_queried_object();
 		// got nothing, abort
-		if ( is_null( $soma_current_query ) ) return $orderby;
+		if ( is_null( $obj ) ) return $orderby;
 		// are we querying a custom post type that has sorting arguments?
-		if ( !$soma_current_query->_builtin && isset( $soma_current_query->sort_by ) && !$soma_current_query->taxonomy ) {
-			$orderby = $soma_current_query->sort_by . " " . $soma_current_query->sort_order;     // reconstruct the ORDERBY sql string
+		if ( !$obj->_builtin && isset( $obj->sort_by ) && !$obj->taxonomy ) {
+			$orderby = $obj->sort_by . " " . $obj->sort_order;     // reconstruct the ORDERBY sql string
 		}
 		// soma_dump($orderby);
 		return $orderby;
 	}
 
-	// joins additional tables to SQL query BEFORE parsing - requires filter_current_query() to set the global $soma_current_query
+	// joins additional tables to SQL query BEFORE parsing
 	// http://codex.wordpress.org/Custom_Queries
 	function posts_join( $join ) {
-		global $soma_current_query;
+		$obj = get_queried_object();
 		// got nothing, abort
-		if ( is_null( $soma_current_query ) ) return $join;
+		if ( is_null( $obj ) ) return $join;
 		// are we querying a custom post type that has sorting arguments set?
-		if ( !$soma_current_query->_builtin && $soma_current_query->sort_by == "meta_value" && isset( $soma_current_query->sort_key ) ) {
+		if ( !$obj->_builtin && $obj->sort_by == "meta_value" && isset( $obj->sort_key ) ) {
 			global $wpdb, $soma_options;
-			$key = $soma_options['meta_prefix'] . "_" . $soma_current_query->sort_key;  // assemble post_meta key
+			$key = $soma_options['meta_prefix'] . "_" . $obj->sort_key;  // assemble post_meta key
 			$join .= "LEFT JOIN $wpdb->postmeta ON ({$wpdb->posts}.ID = $wpdb->postmeta.post_id AND $wpdb->postmeta.meta_key = '$key')";  // join the post_meta table so we can sort by the meta_value
 		}
 		return $join;
