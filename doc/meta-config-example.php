@@ -3,7 +3,10 @@
 //** it won't do you much good if you don't have the Somatic Framework installed **//
 
 
-add_action('admin_init', 'mysite_metabox_data' );								// define metabox vars only in admin
+add_action( 'admin_init', 'mysite_metabox_data' );										// define metabox vars only in admin
+add_action( 'add_meta_boxes_product', array('somaMetaboxes', 'add_boxes') );			// use our somatic metabox generator for another post type (maybe defined by another plugin)
+
+
 
 // add_action('soma_field_type_case', 'media_field_type', 10, 4);
 // add_filter('soma_field_fetch_meta', 'fetch_media_field', 10, 3);
@@ -31,7 +34,18 @@ function mysite_metabox_data() {
 		'priority' => 'high',												// positioning: vertical order - if all have same priority, metaboxes are rendered in order they appear in somaMetaboxes::$data array
 		'restrict' => false,												// boolean for restricting display of this metabox for non-staff (a special somaticFramework permission class)
 		'save' => true,														// boolean for displaying a "save changes" button at the end of this metabox (can have multiple on the page)
+		'publish' => true,													// makes the save button always change post_status to publish (instead of keeping it on whatever it was, which means new items are saved as drafts)
 		'fields' => array(													// array of individual fields within this metabox
+			array(
+				'name' => 'Featured Image',
+				'id' => 'customid',
+				'type' => 'upload-featured',
+				'data' => 'featured',
+				'width' => 320,
+				'height' => 160,
+				'allowed' => array('png'),
+				'desc' => '',
+			),
 			array(
 				'name' => 'Actor Name',										// text displayed alongside field input
 				'id' => 'actors', 											// used when saving, should be the name of the post_meta (key) or taxonomy (exact slug) we're manipulating
@@ -71,6 +85,24 @@ function mysite_metabox_data() {
 				'data' => 'meta',
 				'desc' => 'Enter the URL of the image',
 			),
+			array(
+				'name' => 'Upload Stuff',
+				'id' => 'customid',											// html tag ID should be unique for each field on the edit page
+				'type' => 'upload-files',									// displays plUpload file uploader
+				'data' => 'none',											// indicates there is no saved data to be retrieved when displaying this field
+				'max' => 10,												// how many items should be allowed to be uploaded
+				'width' => 900,												// if indicated, image will be resized to max of this integer, but not cropped
+				'height' => 600,											// if indicated, image will be resized to max of this integer, but not cropped
+				'allowed' => array('jpg','png'),							// array of permitted file extensions for this instance (defaults to jpg, jpeg, gif, png, mp3)
+				'desc' => 'Photos must be 3:2 aspect ratio, in JPG or PNG format',
+			),
+			array(
+				'name' => 'Attached Files',
+				'id' => 'current-attachments',
+				'type' => 'gallery',
+				'data' => 'attachment',
+				'desc' => 'These are your currently attachmented files',
+			),
 		)
 	));
 
@@ -91,7 +123,7 @@ function mysite_metabox_data() {
     * @return $meta OBJECT
 	*/
 	function fetch_media_field($meta, $post, $field) {
-		// get attached media object for this post (only returns one)
+		// get attached media objects
 		if ($field['data'] == 'media') {
 			$meta = somaFunctions::fetch_attached_media($post->ID, $field['type']);
 		}

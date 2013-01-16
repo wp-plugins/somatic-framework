@@ -17,12 +17,16 @@ function mysite_type_data() {
 		"plural" => "Resources",												// used to build labels
 		"args" => array(														// optional argument overrides http://codex.wordpress.org/Function_Reference/register_post_type
 				'menu_position' => 5,											// where the admin menu item where sit
-				'supports' => array( 'title', 'thumbnail'),						// which features and core metaboxes to show
+				'supports' => array( 'title', 'thumbnail', 'post-formats'),		// which features and core metaboxes to show -- Don't forget to use add_theme_support( 'post-thumbnails' ) when required!
 				// non-wp args below
-				"sortable" => true,												// activates a Sort Order subpage for this type
+				'sort_by' => 'meta_value',										// how to filter the query when displaying this type - post_date (published), title (post_title), author, parent, modified, rand (random), meta_value, menu_order - which also causes the admin sorting menu to appear
+				'sort_key' => 'custommetakey',									// if "meta_value" is indicated for sort_by, must supply a post meta key (which will automatically have the site meta prefix added)
+				'sort_order' => 'ASC',											// sorting order (typically need to set this manually to ASC when using menu_order)
+				'hide_publish' => true,											// hides the Publish core metabox (make sure you include save buttons in your metabox field config)
 				"sort_group_type" => 'taxonomy',								// optional: group listings on the Sort Order subpage by an object type
-				"sort_group_slug" => 'format',									// required if sort_group_type is set - which object to group by (in this case, a specific taxonomy)		
+				"sort_group_slug" => 'format',									// required if sort_group_type is set - which object to group by (in this case, a specific taxonomy)
 				"create_nav_item"=> true,										// automatically generate a nav menu item for this type in Appearance->Menus which you can rearrange - NOTE: will re-create the nav item if you manually delete it!
+				"blank_slate" => true,											// disables all default metaboxes, so you'll have to declare custom ones. leave out the "supports" arg with this one, and use "hide_publish" if you want the edit page to be totally blank
 			),
 		"icons" => "http://mysite.com/mytheme/img/",							// set url path to where your custom icons are located
 		"columns" => array(														// custom columns for edit.php listing
@@ -46,13 +50,13 @@ function mysite_type_data() {
 	);
 
 
-	
+
 	// enables an existing (or built-in) taxonomy for our custom post type
 	register_taxonomy_for_object_type('category', 'resource');
-	
+
 
 	//
-	
+
 	soma_init_taxonomy( array(
 			"slug" => "format",												// primary identifier
 			"single" => "Format",											// used to build labels
@@ -73,7 +77,7 @@ function mysite_type_data() {
 			)
 		)
 	);
-	
+
 	soma_init_taxonomy( array(
 			"slug" => "content",
 			"single" => "Content Type",
@@ -92,37 +96,38 @@ function mysite_type_data() {
 	);
 
 
-	// establish relationships	
+	// establish relationships
 	if ( function_exists( 'p2p_register_connection_type' ) ) {
 		p2p_register_connection_type( array(
-			'id' => 'authors-works',
+			'id' => 'authors_to_works',
 			'from' => 'author',
-			'to' => array( 'resource','daily'),
+			'to' => array( 'books','articles'),
 			'sortable' => 'any',
+			'admin_column' => 'any',
 			'title' => array( 'to' => 'Authored By', 'from' => 'Works by this Author' )
 		) );
 	}
 }
 
 
-function custom_column_data($column, $post) {
+function custom_column_data($column, $pid) {
 	// output each column's content
 	switch ($column) {
 		// p2p connected column output
 		case "authors":
-			echo somaFunctions::fetch_connected_items($post->ID, 'authors-works');
+			echo somaFunctions::fetch_connected_items($pid, 'authors-works');
 		break;
 		// taxonomy column output
 		case "format":
-			echo somaFunctions::fetch_the_term_list( $post->ID, 'format','',', ');
+			echo somaFunctions::fetch_the_term_list( $pid, 'format','',', ');
 		break;
 		// post_meta column output
 		case "notes":
-			echo somaFunctions::asset_meta('get', $post->ID, 'notes');
+			echo somaFunctions::asset_meta('get', $pid, 'notes');
 		break;
 		// custom column output
 		case "email":
-			$email = somaFunctions::asset_meta('get', $post->ID, 'email');
+			$email = somaFunctions::asset_meta('get', $pid, 'email');
 			echo "<a href=\"mailto:$email\">$email</a>";
 		break;
 	}

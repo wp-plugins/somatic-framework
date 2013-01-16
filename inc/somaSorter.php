@@ -4,47 +4,15 @@ class somaSorter extends somaticFramework {
 	function __construct() {
 		add_action( 'admin_menu' , array( __CLASS__, 'soma_sort_menus' ) );
 		add_action( 'wp_ajax_custom_type_sort', array( __CLASS__, 'soma_save_custom_type_order' ) );
-		add_filter( 'parse_query', array(__CLASS__,'filter_current_query' ));
-	}
-
-	//** modifies the QUERY before output ------------------------------------------------------//
-	// list sortable post types by menu_order instead of date, so we can manually adjust order - note: this means the sorting by title in the edit listings won't do anything....
-	function filter_current_query($query) {
-		// abort if suppressing
-		if ($query->query_vars['suppress_filters']) return $query;
-		
-		$obj = $query->get_queried_object();
-
-		// if this is a custom post type
-		if ( $obj->sortable ) {
-			$query->set( 'orderby', 'menu_order' );
-			$query->set( 'order', 'ASC' );
-			return $query;
-		}
-		// if this is a taxonomy or term, extract the post types (if *any* of the associated post types are set to be sortable, they'll all display in order...)
-		if ($obj->taxonomy) {
-			$tax = get_taxonomy($obj->taxonomy);
-			foreach ($tax->object_type as $cpt) {
-				$cptobj = get_post_type_object($cpt);
-				if ($cptobj->sortable) {
-					$query->set( 'orderby', 'menu_order' );
-					$query->set( 'order', 'ASC' );
-					return $query;
-				}
-			}
-		}
-
-		// nothing matched, pass along unfiltered
-		return $query;
 	}
 
 
-	// generates sort order submenu page
+	// generates sort order submenu page if type has order defined manually
 	function soma_sort_menus() {
 		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
 		foreach ($types as $type) {
 			// only add sort pages to hierarchical post types, which support menu-order
-			if ( $type->sortable ) {
+			if ( $type->sort_by == 'menu_order' ) {
 				$menupage = add_submenu_page('edit.php?post_type='.$type->name, 'Sort '.$type->labels->name, 'Sort Order', 'edit_posts', 'sort-'. $type->name, array(__CLASS__,'soma_sort_page'));
 				add_action( 'admin_print_styles-'.$menupage, array( __CLASS__, 'soma_sorter_print_styles' ) );
 				add_action( 'admin_print_scripts-'.$menupage, array( __CLASS__, 'soma_sorter_print_scripts' ) );
@@ -59,7 +27,7 @@ class somaSorter extends somaticFramework {
 ?>
 	<div class="wrap">
 		<div id="icon-edit" class="icon32"></div>
-		<h2><?php echo $type_obj->labels->name ?> List Order</h2>
+		<h2><?php echo $type_obj->labels->singular_name ?> Sort Order</h2>
 <?php
 		// default query args
 		$query_args = array(
@@ -88,19 +56,11 @@ class somaSorter extends somaticFramework {
 					);
 					$query = new WP_Query($query_args); ?>
 					<h3><?php echo $term->name; ?></h3>
-					<?php while ( $query->have_posts() ) : $query->the_post(); ?>
-						<li id="<?php the_id(); ?>" class="type-sort-list-item">
-							<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
-							<?php the_post_thumbnail(array('50,50'));?>
-							<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" class="loading-animation" style="display:none;"/>
-							<div class="clearfix"></div>
-						</li>
-					<?php endwhile; ?>
-					<?php wp_reset_postdata(); ?>
+					<?php self::soma_sort_item($query); ?>
 					<?php
 				}
 			}
-			
+
 			// p2p group
 			if ($type_obj->sort_group_type == 'p2p') {
 				if (p2p_connection_exists($type_obj->sort_group_slug )) $p2ptype = p2p_type($type_obj->sort_group_slug );
@@ -109,33 +69,25 @@ class somaSorter extends somaticFramework {
 				$from = $p2ptype->side['from']->post_type[0];
 				$to = $p2ptype->side['to']->post_type[0];
 
-				$projects = get_posts(array('post_type' => $to, 'numberposts' => -1, 'orderby' => 'menu_order', 'order' => 'ASC'));
-				foreach ($projects as $project) {
+				$conns = get_posts(array('post_type' => $to, 'numberposts' => -1, 'orderby' => 'menu_order', 'order' => 'ASC'));
+				foreach ($conns as $conn) {
 					$query_args = array(
 						'connected_type' => $type_obj->sort_group_slug,
-						'connected_items' => $project,
+						'connected_items' => $conn,
 						'nopaging' => true,
 						'suppress_filters' => true,		// not sure why we have to do this... but order gets borked otherwise..
 						'orderby' => 'menu_order',
 						'order' => 'ASC'
 					);
 					$query = new WP_Query($query_args);
-					soma_dump($query->posts);
+					// soma_dump($query->posts);
 					if ($query->post_count == 0) continue;				// didn't find any connected, so skip
 					 ?>
-					<h3><?php echo $project->post_title; ?></h3>
-					<?php while ( $query->have_posts() ) : $query->the_post(); ?>
-						<li id="<?php the_id(); ?>" class="type-sort-list-item">
-							<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
-							<?php the_post_thumbnail(array('50,50'));?>
-							<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" class="loading-animation" style="display:none;"/>
-							<div class="clearfix"></div>
-						</li>
-					<?php endwhile; ?>
-					<?php wp_reset_postdata(); ?>
+					<h3><?php echo $conn->post_title; ?></h3>
+					<?php self::soma_sort_item($query); ?>
 					<?php
 				}
-				
+
 				// $groups = get_posts(array('post_type' => $type_obj->sort_group_slug ));
 				// foreach ($groups as $group) {
 				// 	$conn = p2p_get_connections( )
@@ -147,29 +99,40 @@ class somaSorter extends somaticFramework {
 		} else {
 			$query = new WP_Query($query_args); ?>
 			<ul id="type-sort-list">
-			<?php while ( $query->have_posts() ) : $query->the_post(); ?>
-				<li id="<?php the_id(); ?>" class="type-sort-list-item">
-					<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
-					<?php the_post_thumbnail(array('50,50'));?>
-					<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" class="loading-animation" style="display:none;"/>
-					<div class="clearfix"></div>
-				</li>
-			<?php endwhile; ?>
-			<?php wp_reset_postdata(); ?>
+				<?php self::soma_sort_item($query); ?>
 			</ul>
 			<?php
 		}
 	}
 
+	// outputs items for sorting lists
+	function soma_sort_item($query) { ?>
+		<?php while ( $query->have_posts() ) : $query->the_post(); ?>
+			<li id="<?php the_id(); ?>" class="type-sort-list-item">
+					<?php if (has_post_thumbnail($post->ID)) {
+						$loadingclass = "loading-animation thumb";		// give room if a thumbnail is being shown
+					} else {
+						$loadingclass = "loading-animation";
+					}?>
+				<a class="title" href="<?php echo get_edit_post_link($post->ID); ?>"><?php the_title(); ?></a>
+				<img src="<?php bloginfo('url'); ?>/wp-admin/images/loading.gif" class="<?php echo $loadingclass; ?>" style="display:none;"/>
+				<?php echo the_post_thumbnail(array('50,50')) . "\n";?>
+				<div class="clearfix"></div>
+			</li>
+		<?php endwhile; ?>
+		<?php wp_reset_postdata(); ?>
+<?php
+	}
+
 	// admin js
 	function soma_sorter_print_scripts() {
 		wp_enqueue_script('jquery-ui-sortable');
-		wp_enqueue_script('soma-sorter-js', SOMA_JS . 'soma-sorter.js');
+		wp_enqueue_script('soma-sorter-js');
 	}
 
 	// admin css
 	function soma_sorter_print_styles() {
-		wp_enqueue_style('soma-sorter', SOMA_CSS . 'soma-sorter.css');
+		wp_enqueue_style('soma-sorter');
 	}
 
 	// ajax callback function

@@ -273,9 +273,13 @@ class Kint
 			self::$_firstRun = TRUE;
 			return $ret;
 		}
-		ob_start('soma_dump_globals'); 	// >> MOD
+		if (!ini_get('output_buffering')) {
+			// Warning: PHP does not have Output Buffering enabled, outputting anything here will cause header errors
+			return;
+		}
+		ob_start('soma_dump_globals'); 		// >> MOD
 		echo $ret;
-		ob_end_flush();						// >> MOD
+		ob_end_flush();						// >> MOD  **** php must be configured with "output_buffering" set to ON (not a number like 4096), or you will see a bunch of "Cannot modify header information" warnings coming from Kint....
 	}
 
 

@@ -6,41 +6,21 @@ class somaFunctions extends somaticFramework {
 		add_action( 'init', array(__CLASS__,'init' ));
 		add_action( 'admin_init', array(__CLASS__,'check_plugin_dependency' ));
 		add_filter( 'query_vars', array(__CLASS__,'custom_query_vars' ));
-		add_filter( 'parse_query', array(__CLASS__,'filter_current_query' ));
+		add_filter( 'parse_query', array(__CLASS__,'filter_current_query' ));			// empty at the moment
 		add_filter( 'pre_get_posts', array(__CLASS__,'pre_get_posts'));
 		add_action( 'delete_post', array(__CLASS__, 'delete_attachments_when_parents_die' ));
-		add_filter( 'gettext',  array(__CLASS__, 'modify_core_language'  ));
-		add_filter( 'ngettext',  array(__CLASS__, 'modify_core_language'  ));
+		add_filter( 'gettext',  array(__CLASS__, 'modify_core_language'  ), 20, 3);
+		add_filter( 'ngettext',  array(__CLASS__, 'modify_core_language'  ), 20, 3);
 		// add_filter( 'login_redirect', array(__CLASS__, 'dashboard_redirect' ));
 		add_filter( 'add_menu_classes', array(__CLASS__, 'show_pending_number'));
 		// add_filter( 'wp_die_handler', array(__CLASS__, 'soma_wp_die_handler'),10,3);
-		// add_action( 'show_admin_bar', '__return_false' );
 		add_filter( 'editable_roles', array(__CLASS__, 'editable_roles'));
 		add_filter( 'map_meta_cap', array(__CLASS__, 'admin_map_meta_cap'), 10, 4);
-		remove_filter('check_comment_flood', 'check_comment_flood_db');	// deal with "posting too quickly" problem....
+		remove_filter('check_comment_flood', 'check_comment_flood_db');					// deal with "posting too quickly" problem....
 		add_filter( 'edit_posts_per_page', array(__CLASS__, 'edit_list_length'));
-		add_action( 'wp_ajax_unlink_file', array(__CLASS__, 'unlink_file'));
+		add_action( 'wp_ajax_unlink_file', array(__CLASS__, 'ajax_unlink_file'));
+		add_action( 'wp_ajax_delete_attachment', array(__CLASS__, 'ajax_delete_attachment'));
 		// add_action( 'admin_notices', array(__CLASS__,'soma_notices'));
-	}
-
-	function console_debug($stuff, $type = null) {
-		// var_dump(func_get_args());
-		// switch ($type) {
-		// 	case "warn" :
-		// 		ChromePhp::warn($stuff);
-		// 		FB::warn($stuff);
-		// 	break;
-		// 	case "error" :
-		// 		ChromePhp::error($stuff);	
-		// 		FB::error($stuff);	
-		// 	break;
-		// 	default:
-		// 		return $stuff;
-		// 		// ChromePhp::log($stuff);
-		// 		// FB::log($stuff);
-		// 	break;
-		// }
-		// return true;
 	}
 
 	function init() {
@@ -66,7 +46,7 @@ class somaFunctions extends somaticFramework {
 	function edit_list_length() {
 		return 40;
 	}
-	
+
 	// checks if something is truly empty (not set) or null, and not simply set to a valid but negative value, like false or - 0 (0 as an integer) - 0.0 (0 as a float) - "0" (0 as a string)
 	// NOTE: THIS DOESN'T AVOID THE PHP NOTICE ERROR IF SOMETHING DOESN'T EXIST (not set)
 	function is_blank( $value ) {
@@ -79,8 +59,8 @@ class somaFunctions extends somaticFramework {
 		return array_keys($arr) !== range(0, count($arr) - 1);
 	}
 
-	// returns URL to facebook image!
-	function fetch_facebook_pic($pid,$size = "square") {
+	// returns URL to facebook image from facebook ID stored in post_meta
+	function fetch_facebook_pic($pid, $size = "square") {
 		// sizes: square, small, normal, large
 
 		$fid = somaFunctions::asset_meta('get', $pid, 'facebook_id');
@@ -178,6 +158,7 @@ class somaFunctions extends somaticFramework {
 
 	// checks to see if $_GET or $_POST values are set, avoids Undefined index error
 	function fetch_index($array, $index) {
+		if (!is_array($array)) return null;
 		return isset($array[$index]) ? $array[$index] : null;
 	}
 
@@ -258,7 +239,8 @@ class somaFunctions extends somaticFramework {
 
 
 	//** clone of core get_the_term_list() - modifies the URL output if inside admin to stay in admin and to link to the edit post listing screen, also - can output comma separated string instead of links
-	function fetch_the_term_list( $id = 0, $taxonomy, $before = '', $sep = '', $after = '', $output = 'html' ) {
+	function fetch_the_term_list( $id = null, $taxonomy, $before = '', $sep = ', ', $after = '', $output = 'html' ) {
+		if (is_null($id)) return false;
 		$terms = get_the_terms( $id, $taxonomy );
 		$type = get_post_type($id);
 		if ( is_wp_error( $terms ) )
@@ -312,7 +294,15 @@ class somaFunctions extends somaticFramework {
 	}
 
 	// retrieves taxonomy terms that are used in a singular way (only one possible state, ie ON or OFF)
-	function fetch_the_singular_term( $pid, $taxonomy, $label = "slug" ) {
+	function fetch_the_singular_term( $post, $taxonomy, $label = "slug" ) {
+		if (is_wp_error($post)) return $post;
+		if (empty($post)) return new WP_Error('missing', "must pass a post argument!");
+		if (is_object($post)) {
+			$pid = $post->ID;
+		} else {
+			$pid = intval($post);
+		}
+
 		$term = wp_get_object_terms( $pid, $taxonomy );
 		if (is_wp_error($term)) return null;
 		if ($label == 'slug') {
@@ -320,6 +310,9 @@ class somaFunctions extends somaticFramework {
 		}
 		if ($label == 'name') {
 			$output = $term[0]->name;
+		}
+		if ($label == 'singular') {
+			$output = $term[0]->singular_name;
 		}
 		return $output;
 	}
@@ -392,6 +385,8 @@ class somaFunctions extends somaticFramework {
 				$item_list[] = '<a href="' . $link . '">' . $item->post_title . '</a>';
 			}
 			return $before . join( $sep, $item_list ) . $after;
+
+			// return p2p_list_posts( p2p_type( $p2pname )->get_connected( $post->ID ) );  // a helpful function from scribu to do the same thing ;-)
 		}
 
 		// create plain string of comma-separated names
@@ -465,21 +460,21 @@ class somaFunctions extends somaticFramework {
 			// if (is_admin()) {
 			// 	if ( $review ) {
 			// 		// add lightbox link to image
-			// 		$html .= "\t<li class=\"post-thumb\"><a class=\"lightbox\" rel=\"gallery\" href=\"{$img['large']['url']}\"><img src=\"{$img['thumb']['url']}\" /></a></li>\n";
+			// 		$html .= "\t<li class=\"post-thumb\"><a class=\"lightbox\" rel=\"gallery\" href=\"{$img['large']['url']}\"><img src=\"{$img['thumbnail']['url']}\" /></a></li>\n";
 			// 	} else {
 			// 		// add edit link to image
-			// 		$html .= "\t<li class=\"post-thumb\"><a href=\"". get_edit_post_link($item->ID) ."\"><img src=\"{$img['thumb']['url']}\" /></a></li>\n";
+			// 		$html .= "\t<li class=\"post-thumb\"><a href=\"". get_edit_post_link($item->ID) ."\"><img src=\"{$img['thumbnail']['url']}\" /></a></li>\n";
 			// 	}
 			// } else {
 			// 	// add view link to image
-			// 	$html .= "<li class=\"post-thumb\"><a href=\"". get_permalink($item->ID) . "\"><img src=\"{$img['thumb']['url']}\" /></a></li>\n";
+			// 	$html .= "<li class=\"post-thumb\"><a href=\"". get_permalink($item->ID) . "\"><img src=\"{$img['thumbnail']['url']}\" /></a></li>\n";
 			// }
 
 
 			$html .= "\t\t<li class=\"asset-thumb\">\n";
 
-			$html .= "\t\t\t<a href=\"$edit\"><div class=\"fb-thumb\"><img src=\"{$img['thumb']['url']}\"/></a></div>\n";
-			// $html .= "\t\t\t<a href=\"$edit\"><img src=\"{$img['thumb']['url']}\"/></a>\n";
+			$html .= "\t\t\t<a href=\"$edit\"><div class=\"fb-thumb\"><img src=\"{$img['thumbnail']['url']}\"/></a></div>\n";
+			// $html .= "\t\t\t<a href=\"$edit\"><img src=\"{$img['thumbnail']['url']}\"/></a>\n";
 			$html .= "\t\t</li>\n";
 
 			$html .= "\t\t<li class=\"title\"><strong><a href=\"$edit\">". get_the_title($item->ID). "</a></strong></li>\n";
@@ -607,12 +602,6 @@ class somaFunctions extends somaticFramework {
 
 	//** modifies the QUERY before output ------------------------------------------------------//
 	function filter_current_query($query) {
-		global $pagenow;
-		// sort edit lists by newest on top (default wp behavior is asc by post title)
-		if ($query->is_admin && $pagenow == 'edit.php' && !isset($_GET['orderby']) && !$query->query_vars['suppress_filters'])  {
-			$query->query_vars['orderby'] = 'date';
-			$query->query_vars['order'] = 'desc';
-		}
 		return $query;
 	}
 
@@ -644,32 +633,26 @@ class somaFunctions extends somaticFramework {
         return( array_merge( $wp_query->query, $new_params ) );
     }
 
-	//** retrieves featured image of a post and returns array of intermediate sizes, paths, urls ----------------------------------------------------------------------------------//
-	public function fetch_featured_image($pid = null, $specific = null) {
-		if (!$pid) {
-			return new WP_Error('missing', "must pass a post ID argument!");
+	//** retrieves featured image of a post, or an attachment itself and returns array of intermediate sizes, paths, urls ----------------------------------------------------------------------------------//
+	public function fetch_featured_image($post = null, $specific = null) {
+		if (is_wp_error($post)) return $post;
+		if (empty($post)) return new WP_Error('missing', "must pass a post argument!");
+		if (is_object($post)) {
+			$pid = $post->ID;
+		} else {
+			$pid = intval($post);
 		}
 
-		$img = array();	// to hold image variants
+		$img = array();	// container
 
-		if (has_post_thumbnail($pid)) {	// fetch id of featured image attachment
+		// fetch id of featured image attachment
+		if (has_post_thumbnail($pid)) {
 			$att_id = get_post_thumbnail_id($pid);
 		}
-		if (get_post_type($pid) == 'attachment') {	// post is already attachment - just pass ID
+
+		// post is already attachment - just pass ID
+		if (get_post_type($pid) == 'attachment') {
 			$att_id = $pid;
-		}
-		if (get_post_type($pid) == 'batches') {	// retrieve first of any attached images for batches
-			$attachments = get_children(
-				array(
-					'post_parent' => $pid,
-					'post_type' => 'attachment',
-					'post_mime_type' => 'image',
-				));
-			// if batch has attachments, it must still be pending (accepted batches have a featured image set already)
-			if ($attachments) {
-				$att_id = array_shift($attachments); 	// extract just the first one
-				$att_id = $att_id->ID;
-			}
 		}
 
 		// some attachment successfully found
@@ -693,30 +676,13 @@ class somaFunctions extends somaticFramework {
 
 			// 'sizes' key will only exist if the uploaded image was equal or larger than the site option for thumbnail size
 			if ( isset( $att_meta['sizes'] ) ) {
-				$img['icon']['file'] 	= 	$att_meta['sizes']['post-thumbnail']['file'];
-				$img['icon']['url'] 	= 	$media_url . $img['icon']['file'];
-				$img['icon']['path'] 	= 	$media_path . $img['icon']['file'];
-				// check if each size exists (which it won't if uploaded file was smaller than options sizes)
-				if ( isset($att_meta['sizes']['thumbnail'])) {
-					$img['thumb']['file'] 	= 	$att_meta['sizes']['thumbnail']['file'];
-					$img['thumb']['height'] = 	$att_meta['sizes']['thumbnail']['height'];
-					$img['thumb']['width'] 	= 	$att_meta['sizes']['thumbnail']['width'];
-					$img['thumb']['url'] 	= 	$media_url . $img['thumb']['file'];
-					$img['thumb']['path'] 	= 	$media_path . $img['thumb']['file'];
-				}
-				if ( isset($att_meta['sizes']['medium'])) {
-					$img['medium']['file'] 		= 	$att_meta['sizes']['medium']['file'];
-					$img['medium']['width'] 	= 	$att_meta['sizes']['medium']['width'];
-					$img['medium']['height'] 	= 	$att_meta['sizes']['medium']['height'];
-					$img['medium']['url'] 		= 	$media_url . $img['medium']['file'];
-					$img['medium']['path']		= 	$media_path . $img['medium']['file'];
-				}
-				if ( isset($att_meta['sizes']['large'])) {
-					$img['large']['file'] 	= 	$att_meta['sizes']['large']['file'];
-					$img['large']['width'] 	= 	$att_meta['sizes']['large']['width'];
-					$img['large']['height'] = 	$att_meta['sizes']['large']['height'];
-					$img['large']['url'] 	= 	$media_url . $img['large']['file'];
-					$img['large']['path'] 	= 	$media_path . $img['large']['file'];
+				// loop through all available image sizes, including any custom ones via add_image_size()
+				foreach ($att_meta['sizes'] as $size => $data) {
+					$img[$size]['file'] 	= 	$data['file'];
+					$img[$size]['height'] 	= 	$data['height'];
+					$img[$size]['width'] 	= 	$data['width'];
+					$img[$size]['url'] 		= 	$media_url . $img[$size]['file'];
+					$img[$size]['path'] 	= 	$media_path . $img[$size]['file'];
 				}
 				$img['full']['file'] 	= 	basename($att_meta['file']);	// $att_meta['file'] contains the entire server path, so extract just the name
 				$img['full']['url'] 	= 	$media_url . $img['full']['file'];
@@ -728,11 +694,11 @@ class somaFunctions extends somaticFramework {
 
 			// populate thumb data with the direct file info, as the uploaded image was smaller or equal to the site option for thumbnail size. Yes, the thumb and the full img info are the same in this case...
 			} else {
-				$img['thumb']['file'] 	= 	basename($att_meta['file']);
-				$img['thumb']['height'] = 	$att_meta['height'];
-				$img['thumb']['width'] 	= 	$att_meta['width'];
-				$img['thumb']['url'] 	= 	WP_MEDIA_URL . '/'. $att_meta['file']; 	// don't include subdir when building paths, as we're taking path directly from 'file', which already includes it...
-				$img['thumb']['path'] 	= 	WP_MEDIA_DIR . '/'. $att_meta['file'];
+				$img['thumbnail']['file'] 	= 	basename($att_meta['file']);
+				$img['thumbnail']['height'] = 	$att_meta['height'];
+				$img['thumbnail']['width'] 	= 	$att_meta['width'];
+				$img['thumbnail']['url'] 	= 	WP_MEDIA_URL . '/'. $att_meta['file']; 	// don't include subdir when building paths, as we're taking path directly from 'file', which already includes it...
+				$img['thumbnail']['path'] 	= 	WP_MEDIA_DIR . '/'. $att_meta['file'];
 				$img['full']['file'] 	= 	basename($att_meta['file']);
 				$img['full']['url'] 	= 	WP_MEDIA_URL . '/'. $att_meta['file'];
 				$img['full']['path'] 	= 	WP_MEDIA_DIR . '/'. $att_meta['file'];
@@ -744,32 +710,48 @@ class somaFunctions extends somaticFramework {
 				//** FUTURE NOTE: might be good when there isn't a medium or large version of the image to default to some kind of "missing" image that actually says "image was too small"
 			}
 
-			$img['mime']			= 	get_post_mime_type($att_id);	// mime-type of file
-			$img['orientation']		= 	$att_meta['orientation'];
-			$img['original']		= 	$att_meta['original'];
+			$img['mime']			= 	get_post_mime_type($att_id);											// mime-type of file
 			$img['date']			= 	get_the_date('M j, Y',$att_id) ." - ". get_the_time('h:iA',$att_id); 	// date attachment was created
+			$img['orientation']		= 	somaFunctions::fetch_index($att_meta, 'orientation');					// custom attribute, generated with ACME system
+			$img['original']		= 	somaFunctions::fetch_index($att_meta, 'original');						// custom attribute, generated with ACME system
+
+			// should we pass along? too confusing... use the typical meta fields below instead
+			// $img['image_meta'] = $att_meta['image_meta'];
+
+			// need to fetch the post from the table to get all the extra fields
+			$att_post = get_post($att_id);
+			$img['title'] = $att_post->post_title;
+			$img['description'] = $att_post->post_content;
+			$img['caption'] = $att_post->post_excerpt;
+			$img['alt'] = get_post_meta($att_id, '_wp_attachment_image_alt', true);
 
 		} else {
-		// nothing found, return error image
+		// nothing found, return generic placeholder image
 			$img['id'] = false;
-			$img['thumb']['url'] = SOMA_IMG . 'missing-image-thumb.png';
-			$img['medium']['url'] = SOMA_IMG . 'missing-image-medium.png';
-			$img['large']['url'] = SOMA_IMG . 'missing-image-large.png';
+			$sizes = get_intermediate_image_sizes();
+			foreach ($sizes as $size) {
+				$img[$size]['url'] = SOMA_IMG . 'placeholder-image.png';
+			}
+			$img['thumbnail']['width'] = SOMA_THUMB_WIDTH;
+			$img['thumbnail']['height'] = SOMA_THUMB_HEIGHT;
 			$img['full']['name'] = 'MISSING IMAGE';
-			$img['full']['url'] = SOMA_IMG . 'missing-image-large.png';
-			$img['file']['path'] = SOMA_DIR . 'images/missing-image-large.png';
-			$img['file']['file'] = 'missing-image-large.png';
+			$img['full']['url'] = SOMA_IMG . 'placeholder-image.png';
+			$img['file']['path'] = SOMA_DIR . 'images/placeholder-image.png';
+			$img['file']['file'] = 'placeholder-image.png';
 		}
-		// // output each item as full html <img> item
-		// if ($html) {
-		// 	foreach ($img as &$image){ // adding the "&" modfies each array element rather than copying out
-		// 		$image = '<img src="'.$image.'" />';
-		// 	}
-		// }
-		// return just the requested string
-		if (!empty($specific)) {
+
+		// return just the requested URL
+		if (!is_null($specific)) {
 			if ($specific == 'filename') return $img['full']['file'];
-			return $img[$specific]['url'];
+			if (isset($att_meta['sizes']) && is_array($att_meta['sizes'])) {
+				if (array_key_exists($specific, $img)) {
+					return $img[$specific]['url'];			// this allows for custom image sizes to be passed via $specific
+				} else {
+					return $img['full']['url'];			// couldn't find the size requested, so just give original file
+				}
+			} else {
+				return null;															// no sizes have been generated for this attachment
+			}
 		} else {
 			return $img;	// return array of variants
 		}
@@ -777,14 +759,19 @@ class somaFunctions extends somaticFramework {
 	}
 
 	// handles saving and retrieving post_meta via serialized arrays
-	public function asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null, $use_prefix = true ) {
-		if ( !$pid || !$action ) {
-			return new WP_Error('missing', "Must pass ID and action...");
+	public function asset_meta( $action = null, $post = null, $key = null, $value = null, $serialize = null, $use_prefix = true ) {
+		if (is_wp_error($post)) return $post;
+		if ( empty($post) || empty($action) ) return new WP_Error('missing', "Must pass ID and action...");
+		if (is_object($post)) {
+			$pid = $post->ID;
+		} else {
+			$pid = intval($post);
 		}
+
 
 		global $soma_options;										// fetch options
 		if ( $serialize === null ) {
-			$serialize = $soma_options['meta_serialize'];			// use default var if not passed in params
+			$serialize = somaFunctions::fetch_index($soma_options, 'meta_serialize');			// use default var if not passed in params
 			if ($serialize == 1) {									// explicit true if evaluates as true
 				$serialize = true;
 			} else {
@@ -812,7 +799,7 @@ class somaFunctions extends somaticFramework {
 				if (!$value) return new WP_Error('missing', "Missing a value for $key...");
 
 				$post_meta = get_post_meta( $pid, $meta_key, true);			// retrieve meta
-				if ($value == '') {
+				if (empty($value)) {
 					if ( $serialize ) {
 						unset($post_meta[$key]);							// remove key if value is empty (otherwise key will be saved with blank value)
 					} else {
@@ -861,28 +848,30 @@ class somaFunctions extends somaticFramework {
 	}
 
 
-	// returns object of first attached media -- should probably expand this to accomodate multiple attachments...
-	public function fetch_attached_media($pid, $type = null) {
+	// returns all attachments (except featured image)
+	public function fetch_attached_media($post = null, $mime = null, $include_featured = false) {
+		if (is_wp_error($post)) return $post;
+		if (empty($post)) return new WP_Error('missing', "must pass a post argument!");
+		if (is_object($post)) {
+			$pid = $post->ID;
+		} else {
+			$pid = intval($post);
+		}
+
 		$args = array(
 			'post_parent' => $pid,
 			'post_type' => 'attachment',
 			'numberposts' => -1,
 			'post_status' => 'any',
+			'exclude' => get_post_thumbnail_id($pid),
 		);
-		if (!empty($type)) :
-			// only return requested type (helpful when images may already be attached)
-			switch ($type) {
-				case 'audio' :
-					$args['post_mime_type'] = 'audio/mpeg';
-				break;
-				case 'video' :
-					$args['post_mime_type'] = 'video/mp4';
-				break;
-				default:
-					//
-				break;
-			}
-		endif;
+		if ($include_featured == true) {
+			unset($args['exclude']);
+		}
+		if (!empty($mime)) {
+			// only return requested media type (audio/mpeg, video/mp4, image/jpeg, application/pdf, application/zip)
+			$args['post_mime_type'] = $mime;
+		}
 		// fetch children (results in array of objects, even if only one exists)
 		$kids = get_posts($args);
 		// check if empty
@@ -906,8 +895,8 @@ class somaFunctions extends somaticFramework {
 	function check_plugin_dependency() {
 		// require scribu's p2p plugin
 		global $soma_options;
-		
-		if ( $soma_options['p2p'] && !function_exists('p2p_register_connection_type') ) {
+
+		if ( somaFunctions::fetch_index($soma_options, 'p2p') && !function_exists('p2p_register_connection_type') ) {
 			add_action( 'admin_notices', create_function('', "
 				echo '<div id=\"message\" class=\"error\" style=\"font-weight: bold\"><p>PLUGIN REQUIRED: \"Posts 2 Posts\" - please <a href=\"http://scribu.net/wordpress/posts-to-posts\" target=\"_blank\">download</a> and/or activate!</p></div>';
 			"));
@@ -1061,7 +1050,7 @@ SQL;
 	}
 
 	function fetch_end_timestamp($pid) {
-		$date = somaFunctions::asset_meta('get', $pid, 'start_date');
+		$date = somaFunctions::asset_meta('get', $pid, 'end_date');
 		$time = somaFunctions::asset_meta('get', $pid, 'end_time');
 		$end = strtotime($date . " " . $time);
 		return $end;
@@ -1230,13 +1219,43 @@ SQL;
 	}
 
 	// AJAX delete images on the fly.
-	function unlink_file() {
-		global $wpdb;
-		if ($_POST['data']) {
-			$att_id = $_POST['data'];
-			wp_delete_attachment($att_id, true);
+	// can't use nonce checking because the elements calling this function are dynamically created in javascript
+	function ajax_unlink_file() {
+		$file = somaFunctions::fetch_index($_POST, 'data');		// retrieve file from ajax post
+		if ($file && file_exists($file)) {						// make sure it's there
+			$delete = unlink($file);							// kill it
+			if ($delete) {
+				$response = array( 'success' => true, 'msg' => 'Successfully deleted the uploaded file!' );
+			} else {
+				$response = array( 'error' => true, 'msg' => 'Could not delete the uploaded file...' );
+			}
+		} else {
+			$response = array( 'error' => true, 'msg' => 'Could not find the file to delete...' );
 		}
+		echo json_encode( $response );
+		exit;
 	}
+
+	// AJAX delete attachments
+	function ajax_delete_attachment() {
+		$nonce = check_ajax_referer( 'soma-delete-attachment', 'nonce', false );
+		if (!$nonce) {
+			$response = array( 'error' => true, 'msg' => 'nonce verification failed...' );
+			echo json_encode( $response );
+			exit;
+		}
+		$att_id = somaFunctions::fetch_index($_POST, 'data');
+		if ($att_id) {
+			$result = wp_delete_attachment($att_id, true);
+			$response = array( 'success' => true, 'msg' => $result );
+		} else {
+			$response = array( 'error' => true, 'msg' => 'Could not find the attachment...' );
+		}
+		echo json_encode( $response );
+		exit;
+	}
+
+
 
 	// grabs metadata from public vimeo API, returns array
 	function fetch_vimeo_meta( $link = null ) {
@@ -1351,7 +1370,7 @@ SQL;
 					$media['direct']	= $meta['stream_url']."?client_id=006b3d9b3bbd5bd6cc7d27ab05d9a11b";
 					$media['iframe']	= "http://w.soundcloud.com/player/?url=".$meta['uri']."?auto_play=true&show_artwork=false&show_comments=false&color=000000&show_playcount=false&sharing=false&show_user=false&liking=false";				// http://developers.soundcloud.com/docs/oembed   --  https://github.com/soundcloud/Widget-JS-API/wiki/widget-options
 					$media['embed']		= '<iframe width="100%" height="166" scrolling="no" frameborder="no" src="'.$media['iframe'].'"></iframe>';
-					$media['format']	= $meta['original_format'];					
+					$media['format']	= $meta['original_format'];
 					$media['api']		= $meta;													// mp3 in this case
 				} else {
 					return new WP_Error('missing', "Can't extract ID from soundcloud URL...");
@@ -1494,6 +1513,92 @@ SQL;
 		return $att_id;
 	}
 
+	/**
+	* Gets the excerpt of a specific post ID or object - if one doesn't exist, it will create one dynamically
+	* @since 1.7.3
+	*
+	* @param - $post - object/int/string - the ID or object of the post to get the excerpt of
+	* @param - $length - int - the length of the excerpt in words
+	* @param - $tags - string - the allowed HTML tags. These will not be stripped out
+	* @param - $extra - string - text to append to the end of the excerpt
+	*/
+	function fetch_excerpt($post, $length = 30, $tags = '<a><em><strong>', $extra = '…') {
+
+		if (is_wp_error($post)) return $post;
+		if (empty($post)) return new WP_Error('missing', "must pass a post argument!");
+		if (!is_object($post)) {
+			$post = get_post(intval($post));
+		}
+		if (!is_object($post)) {
+			return new WP_Error('error', "Can't retrieve the requested post...");
+		}
+
+		if (has_excerpt($post->ID)) {
+			$the_excerpt = $post->post_excerpt;
+			return apply_filters('the_content', $the_excerpt);
+		} else {
+			$the_excerpt = $post->post_content;
+		}
+
+		$the_excerpt = strip_shortcodes(strip_tags($the_excerpt), $tags);
+		$the_excerpt = preg_split('/\b/', $the_excerpt, $length * 2+1);
+		$excerpt_waste = array_pop($the_excerpt);
+		$the_excerpt = implode($the_excerpt);
+		$the_excerpt .= $extra;
+
+		return apply_filters('the_content', $the_excerpt);
+	}
+
+	/**
+	* generates HTML link code in conjunction with the soma_go_redirect option
+	* won't work unless you've already hooked the soma_go_redirect_codes filter and added a slug/url pair
+	* @since 1.7.6
+	*
+	* @param - $slug - string - properly formatted slug for the url: /go/[slug]
+	* @param - $text - string - text to be wrapped inside the <a> tags
+	* @return - string - HTML link code
+	*/
+	function make_go_link($slug = null, $text = null) {
+		if (empty($slug) || empty($text)) return new WP_Error('missing', "must pass a slug and text argument!");
+		$slug = sanitize_title_with_dashes($slug);
+		$text = sanitize_title($text);
+		$codes = apply_filters('soma_go_redirect_codes', $codes);
+		if (array_key_exists($slug, $codes)) {
+			return "<a href='{$codes[$slug]}' rel='nofollow'>$text</a>";
+		} else {
+			return new WP_Error('error', "that slug hasn't been added yet, so I can't give you a URL ...");
+		}
+
+	}
+
+	// Return all sub pages of a given post
+	// -------------------------------------------------------------
+	function fetch_sub_pages($pid = null) {
+		if (empty($pid)) return null;
+		$post_type = get_post_type($pid);
+		$args = array(
+			'post_type' => $post_type,
+			'child_of' => $pid,
+			'parent' => $pid,
+			'sort_order' => 'ASC',
+			'sort_column' => 'menu_order',
+			'numberposts' => -1
+		);
+		return get_pages($args);
+	}
+
+	// Return all root (top-level) posts of any given post type
+	// -------------------------------------------------------------
+	function fetch_root_pages($post_type = 'page') {
+		$args = array(
+			'post_type' => $post_type,
+			'parent' => 0,
+			'order' => 'ASC',
+			'orderby' => 'menu_order',
+			'numberposts' => -1
+		);
+		return get_pages($args);
+	}
 }
 // --> END class somaFunctions
 // INIT

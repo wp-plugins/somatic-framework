@@ -3,8 +3,8 @@ Contributors: somatic
 Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
-Tested up to: 3.3.2
-Stable tag: 1.6.3
+Tested up to: 3.4.2
+Stable tag: 1.7.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Adds useful classes for getting the most out of Wordpress' advanced CMS features
 
 == Description ==
 
-This framework is a collection of classes and functions for handling advanced custom post types cases. With just a defined arrays, it can create custom post types, their labels, menus, metaboxes, save routines, and any custom taxonomies.
+This framework is a collection of classes and functions for handling advanced custom post types cases. With just a few defined arrays, it can create custom post types, taxonomies, their labels, menus, metaboxes, and save routines.
 
 NOTE: this began life as an internal development tool, and as such, does not have much (if any documentation) just yet. It's not really end-user friendly in its current state. So if you're not running a site I have built for you personally, you probably don't need it ;-)
 
@@ -20,20 +20,135 @@ NOTE: this began life as an internal development tool, and as such, does not hav
 
 Upload, activate, have a drink... but first, install and activate Scribu's excellent Posts 2 Posts plugin, which this framework requires!
 
-
 == Frequently Asked Questions ==
 
 = Do I need this plugin? =
 
 If you're using a theme or setting up a site I built for you, then very likely, yes...
 
-Otherwise, not yet ;-)
-
 = I updated my call to soma_init_taxonomy() and added new terms, but why aren't they appearing? =
 
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.7.7 =
+* NEW action hook: soma_init - allows hooking init but only after Somatic Framework loads. Otherwise other plugins trying to register custom types would fail if they loaded before this one.
+* FIX: major bug with hiearchical post types not supporting anything
+* NEW functions fetch_sub_pages() and fetch_root_pages() for dealing with hierarchical post types
+* fixed stray undefined indexes...
+* FIX: deep bug that caused hierarchical CPTs to return 404 on child pages
+
+= 1.7.6 =
+* NEW: option to enable custom link redirects via /go/[slug]. Use the filter 'soma_go_redirect_codes' to add a new slug/url pair. remember to flush rewrite rules
+* NEW: api soma_go_link(), returns HTML link code for an existing go code and link text
+* NEW: system for dynamically showing/hiding certain metabox field rows based on a list selection
+* field argument 'reveal-control' - should be assigned only to a 'radio' or 'select' field type (and only one per page)
+* field argument 'reveal-group' - array of names corresponding with the possible values of the reveal-control selector. If the current value is in the array, that field is shown, otherwise hidden
+* changes to table structure for metabox field rows - now descriptions and extra options are all within the main field row, so they can all be hidden together
+* FIX: taxonomy dropdown selectors can finally use "Create New" and have a new term created upon save! just use soma_select_taxonomy_terms('mytaxonomy', true) to generate the field 'options' array
+
+= 1.7.5 =
+* FIX: metabox field type 'checkbox-single' (now known as 'toggle') finally works as expected! You can uncheck things now :-P
+* NEW: soma_fetch_image(), soma_asset_meta(), soma_attachments(), soma_fetch_image(), soma_singular_term() now accept either a post object or post ID (integer or string)
+* improved the save hooks to fire only when dealing with our custom fields
+* thumbnail columns now automatically adjust width according to thumbnail options (max width 200px)
+* FIX: finally overhauled somaSave and somaMetaboxes classes to more accurately handle saving and retrieving multiple items vs. single items
+* NOTE: when checkboxes are desired (one or more), use the new field type "checkbox" and pass options array. the old 'checkbox-single' type is deprecated in favor of 'toggle' - but to be used only with meta data (not taxonomy, etc)
+
+= 1.7.4 =
+* NEW api soma_attachments(), wrapper for get_posts() returns array of attached post objects, minus the featured image (unless specified)
+* NEW api soma_fetch_image(), basically just renamed soma_featured_image() [still around for backwards compatibility] - reflects its ability to retrieve image data for any attachment, not just featured images
+* somaFunctions::fetch_attached_media() now takes mime-type argument and an optional argument to exclude the featured image
+* metabox field type "attachment" is now "gallery" (still with data of "attachment"). Shows all attached images or audio or video (via mediaelement)
+* metabox "gallery" field type now excludes the featured image automatically, allowing fully independent featured image and gallery attachment uploaders
+* metabox field argument for data of "attachment" can also include "mime-type" for filtering retrieved attachments by media type
+* NOTE: metabox field "upload-images" has been folded into "upload-files", which has abandoned the old html file selector input model, and now uses the hot new plUpload system.
+* NEW: metabox field "upload-files" can now handle audio as well as images!
+* old field type for featured image plUpload boxes, "upload-featured", is now deprecated: use "upload-files", with 'data' arg set to "featured"
+* FIX: multiple plUpload boxes on the same page now behave!
+* FIX: soma_fetch_image() was failing certain specific requests, now returns original full file URL if the requested size is not available (eg: original pic was smaller than site's "large" setting)
+* FIX: soma_fetch_image() now includes custom image sizes when available
+* NEW: soma_fetch_image() now returns title, description, caption, and alt text
+* NOTE: this means the key for the thumbnail image is now "thumbnail" (as returned by wp), and not "thumb", as it had been hardcoded before. Your old calls to soma_featured_image() for thumbs are likely broken now
+* NOTE: the missing image placeholder is now one single size image, so make sure you manually indicate the width and height in your image tags (or else they'll all display at 512px)
+* options to hide new Thesis 2.0 metaboxes
+* cleaned up all undefined index warnings
+* FIX: custom post type update messages were not being produced properly...
+* FIX: media uploader metabox field type works again
+* improvements to the styling and behavior of the sorting pages
+* improvements to the somaUploadField class
+* NOTE: any old metabox fields dealing with attachments should probably be revisited...
+
+= 1.7.3 =
+* FIX save routines on external media and images don't die anymore if empty
+* NEW metabox field: "link"
+* metabox CSS tweaks
+* cleaned up some deprecated junk in manage_posts_columns calls
+* NEW api function soma_get_excerpt() for fetching existing post_excerpt or manually creating one from post_content via post ID or object
+* fixed warning with lack of metabox definitions. Now, in soma_init_type args, you can declare blank_slate = true to remove all core wp metaboxes (in effect, declaring no post_type_support for title, editor, author, etc.). This replaces the old behavior of passing an empty array to the "supports" arg, which didn't work well when parsing default args. It also means the missing metabox warning will *only* appear if the post type doesn't support any core wp boxes.
+
+= 1.7.2 =
+* FIX default behavior to not always show the toolbar on the front end [facepalm]
+* NEW users have toolbar off by default
+* NEW option to force toolbar to show for everyone, everywhere
+* NEW soma_option for setting the Login page logo
+* custom login logos should be transparent PNG of 320x70 exactly, with content aligned bottom center for best results
+* stopped hiding user profile fields
+* now using transients with soma_set_option(), allowing caching, reducing DB load when calling soma_set_option() on every page load
+* option to force admin bar only applies to logged in users
+* $_GET and $_POST are now passed to JS via soma_vars
+
+= 1.7.1 =
+* fixed stripslashes problem with quotes in text fields
+* kint debug aborts if output buffering not on
+* login page indicator if WPEngine
+
+= 1.7 =
+* NEW image uploader metabox field type. Uses WP included plUpload for drag-n-drop, queued uploads, creates attachments upon saving. Can also be used for featured images.
+* new option to disable screen options tab
+
+= 1.6.9 =
+* disabled privileges check in save_asset() that conflicted with paypal digital goods checkout
+* fixed bug that output junk to the login screen
+* fixed column listing error when no columns are defined in a CPT
+* changed save_asset() to not fire when quickedit is used
+* changed save_asset() to not wipe out our custom defined metadata and taxonomies when other forms/plugins call save_post
+* fixed problem where quickedit would fail to complete because of jQuery error (when custom columns were in use) - NOTE: after quickedit save updates, it won't show the custom columns - refresh the list page to see custom columns again
+
+= 1.6.8 =
+* removed hook that fired on user profile update, as it got stuck in a fatal infinite loop with any other plugin that tried to update a user...
+* changed SOMA_URL constant (and all others built on it) to use https:// scheme when in use
+
+= 1.6.7 =
+* fixed error in disabling paging for custom taxonomies defined elsewhere...
+* updated placeholder images
+* added flag to custom post type definitions to identify which CPT's have been defined through this framework
+* Admin CSS improvements
+
+= 1.6.6 =
+* FIX: removed undefined metabox errors for built-in post types
+* NOTE: for soma_debug output, php.ini must be configured with "output_buffering" set to ON (not a number like 4096), or you will see a bunch of "Cannot modify header information" warnings coming from Kint....
+* NEW: option to enable Colorbox JS on front-end
+* metabox field save button can now be set to always change post status to "publish"
+* FIX: fatal SQL error in the posts_orderby filter when order_by wasn't defined (default was set to date instead of post_date)
+* NOTE: when defining sort_by values for CPT's, do not use the WP_Query values for 'orderby' - must use actual wp_posts column names (like post_title instead of just title)
+
+= 1.6.5 =
+* NEW: soma_init_type() arguments "sort_by" (post_date, post_title, post_author, menu_order, meta_value) and "sort_order" (asc, desc) to override the default query filters
+* REMOVED: soma_init_type() argument "sortable" is gone - replace with new "sort_by"
+* NOTE: must modify all calls to soma_init_type()!
+* moved all filtering of parse_query into somaTypes class
+* fixed various "missing index" errors
+* CHANGE: soma_select_items() second argument is now an array of any arguments you would pass to get_posts()
+
+= 1.6.4 =
+* soma_featured_image now handles custom image size labels (from add_image_size) via the $specific argument
+* new metabox field: p2p-select - allows assigning single p2p relationship via dropdown (warning: must hide the core p2p admin box if you use these fields! there's a conflict in the save routines)
+* new metabox field: p2p-multi - allows assigning multiple p2p relationships via checkboxes
+* can now use soma_metabox_data() with core post and page types
+* updated jqueryUI timepicker to 0.9.9
+* timepicker metabox type now actually works...
 
 = 1.6.3 =
 * new Sort Order grouping: p2p, give it a P2P connection type name (ex: sortable = true, sort_group_type = p2p, sort_group_slug = albums-tracks)
@@ -113,7 +228,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * fixed colorbox trigger play icon to be more reliable
 * mediaelement.js replaces jPlayer when displaying media attachments in admin metaboxes (though at the moment requires wp plugin http://wordpress.org/extend/plugins/media-element-html5-video-and-audio-player/)
 
-= 1.4 = 
+= 1.4 =
 * NEW metabox field type: external_media - Text field that accepts vimeo or youtube URLs, and fetches that video's metadata via each site's public API. Also saves that response in post_meta for quicker retrieval.
 * NEW metabox field type: external_image - Text field that accepts image URL, and can import the image as an attachment, also setting imported image as Featured Image
 * NEW API function: soma_external_media() - parses URL from either youtube or vimeo, returns an array with basic metadata, including ID, title, thumbnails - optionally imports source image to local library and sets the post_thumbnail!. NOTE: desired video must not be private, password-protected, or have embedding disabled by the owner!
@@ -211,12 +326,15 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * First release
 * added somaTypes class, handling generation of custom post types, taxonomies, and terms
 
-= 0.1 = 
+= 0.1 =
 * Code documentation is crude, with comments everywhere. Will standardize docs soon...
 * includes somaFunctions, somaMetaboxes, somaSave, and somaSorter classes
 
 
 == Upgrade Notice ==
+
+= 1.7.4 =
+Any metaboxes dealing with attachments should be revisited...
 
 = 1.1.1 =
 Nasty bugs squashed!

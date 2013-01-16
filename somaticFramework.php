@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.6.3
+Version: 1.7.7
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -34,10 +34,22 @@ if (!function_exists('is_admin')) {
 
 //** DECLARE CONSTANTS
 
+
+if ( ! function_exists( 'get_plugins' ) ) require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+$plugin_folder = get_plugins( '/' . plugin_basename( dirname( __FILE__ ) ) );
+$plugin_file = basename( ( __FILE__ ) );
+// current plugin version
+define( 'SOMA_VERSION', $plugin_folder[$plugin_file]['Version'] );
+
 // the server path to the plugin's directory
 define( 'SOMA_DIR', WP_PLUGIN_DIR . '/somatic-framework/' );
-// the URL path to the plugin's directory
-define( 'SOMA_URL', WP_PLUGIN_URL . '/somatic-framework/' );
+// the URL path to the plugin's directory - taking note of current scheme
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+	$wp_plugin_url = str_replace( 'http://' , 'https://' , WP_PLUGIN_URL );
+} else {
+	$wp_plugin_url = WP_PLUGIN_URL;
+}
+define( 'SOMA_URL', $wp_plugin_url . '/somatic-framework/' );
 // the URL path to the plugin's image directory
 define( 'SOMA_IMG', SOMA_URL . 'images/' );
 // the server path to the plugin's includes
@@ -57,6 +69,9 @@ define( 'WP_MEDIA_DIR', $wp_upload_dir['basedir'] );
 // the URL path to the media uploads directory
 define( 'WP_MEDIA_URL', $wp_upload_dir['baseurl'] );
 
+// retrieved from media settings
+define( 'SOMA_THUMB_WIDTH', get_option( 'thumbnail_size_w' ));
+define( 'SOMA_THUMB_HEIGHT', get_option( 'thumbnail_size_h' ));
 
 if (!class_exists("somaticFramework")) :
 
@@ -87,28 +102,37 @@ class somaticFramework {
 
 		add_filter( 'login_headerurl', array(__CLASS__,'login_headerurl') );
 		add_filter( 'login_headertitle', array(__CLASS__,'login_headertitle') );
-		add_action( 'login_enqueue_scripts', array(__CLASS__,'login_enqueue_scripts'));
-		add_action( 'login_footer', array(__CLASS__,'change_login_footer'));
+		add_action( 'login_enqueue_scripts', array(__CLASS__,'login_enqueue_scripts') );
+		add_action( 'login_head', array(__CLASS__, 'login_head') );
+		add_action( 'login_footer', array(__CLASS__,'change_login_footer') );
 
 		add_filter( 'query_vars', array(__CLASS__,'query_vars' ) );
 		add_action( 'parse_request', array(__CLASS__, 'parse_request' ) );
 
-		// framework scripts and styles
-		wp_register_script( 'soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
-		wp_register_style( 'soma-admin', SOMA_CSS.'soma-admin-styles.css', array(), '1.6', 'all' );
+		// admin scripts and styles
+		wp_register_script( 'soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), SOMA_VERSION, true);
+		wp_register_script( 'soma-metabox-jquery', SOMA_JS.'soma-metabox-jquery.js', array('jquery', 'jquery-ui-core'), SOMA_VERSION, true);
+		wp_register_script( 'soma-plupload', SOMA_JS.'soma-plupload.js', array('jquery', 'jquery-ui-core'), SOMA_VERSION, true);
+		wp_register_script( 'soma-sorter-js', SOMA_JS . 'soma-sorter.js', array('jquery', 'jquery-ui-core'), SOMA_VERSION, true);
+		wp_register_style( 'soma-admin-styles', SOMA_CSS.'soma-admin-styles.css', array(), SOMA_VERSION, 'all' );
+		wp_register_style( 'soma-metabox-styles', SOMA_CSS.'soma-metabox-styles.css', array(), SOMA_VERSION, 'all' );
+		wp_register_style( 'soma-sorter', SOMA_CSS . 'soma-sorter.css', array(), SOMA_VERSION, all);
 
-		wp_register_script( 'soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), '1.6', true);
-		wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), '1.6', 'all' );
-		wp_register_style( 'soma-login', SOMA_CSS.'soma-login-styles.css', array(), '1.6', 'all' );
+		// front-end scripts and styles
+		wp_register_script( 'soma-public-jquery', SOMA_JS.'soma-public-jquery.js', array('jquery', 'jquery-ui-core'), SOMA_VERSION, true);
+		// wp_register_style( 'soma-public', SOMA_CSS.'soma-public-styles.css', array(), SOMA_VERSION, 'all' );
+		wp_register_style( 'soma-login', SOMA_CSS.'soma-login-styles.css', array(), SOMA_VERSION, 'all' );
 
 
 		// jquery plugin lightbox functionality
 		wp_register_style( 'colorbox-theme', SOMA_JS.'colorbox/colorbox.css', array(), '1.3.19', 'screen' );
-		wp_register_script( 'colorbox', SOMA_JS.'colorbox/jquery.colorbox-min.js', array('jquery'), '1.3.19' );
+		wp_register_script( 'colorbox', SOMA_JS.'colorbox/jquery.colorbox-min.js', array('jquery'), '1.3.20.1' );
 
 		// jquery UI
 		wp_register_style( 'jquery-ui-theme', SOMA_JS. 'ui/smoothness/jquery-ui-1.8.17.custom.css', false, '1.8.17');
 		wp_register_script( 'jquery-ui-datepicker', SOMA_JS.'ui/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
+		wp_register_script( 'jquery-ui-timepicker', SOMA_JS.'ui/jquery-ui-timepicker-addon.min.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
+		wp_register_style( 'jquery-ui-timepicker', SOMA_JS. 'ui/jquery-ui-timepicker-addon.css', false, '1.8.17');
 
 		// autosize textareas  (not working quite right yet...)
 		// wp_register_script( 'autosize', SOMA_JS.'jquery.autosize-min.js', array('jquery'), '1.6' );
@@ -124,7 +148,11 @@ class somaticFramework {
 			wp_enqueue_script( 'soma-public-jquery' );
 			wp_enqueue_style( 'soma-public' );
 		}
-		// wp_enqueue_script('colorbox');
+		global $soma_options;
+		if (!is_null(somaFunctions::fetch_index($soma_options, 'colorbox'))) {
+			wp_enqueue_script( 'colorbox' );
+			wp_enqueue_style( 'colorbox-theme' );
+		}
 	}
 
 	// pass constants and vars to javascript to be available for jquery
@@ -143,7 +171,7 @@ class somaticFramework {
 		} else {
 			$admin = 'false';
 		}
-		if ($soma_options['debug']) {
+		if (!is_null(somaFunctions::fetch_index($soma_options, 'debug'))) {
 			$debug = 'true';
 		} else {
 			$debug = 'false';
@@ -155,9 +183,11 @@ class somaticFramework {
 		}
 		$params = array(
 			'SOMA_JS' => SOMA_JS,
-			'SOMA_DIR' => SOMA_IMG,
+			'SOMA_IMG' => SOMA_IMG,
 			'SOMA_URL' => SOMA_URL,
 			'SOMA_INC' => SOMA_INC,
+			'loading-spin' => admin_url('images/wpspin_light.gif'),
+			'loading-bar' => includes_url('js/thickbox/loadingAnimation.gif'),
 			'pid' => $pid,
 			'type' => $type,
 			'getsize' => 'thumb',
@@ -165,19 +195,30 @@ class somaticFramework {
 			'debug' => $debug,
 			'debug_panel' => $debug_panel,
 			'ajaxurl' => admin_url('admin-ajax.php'),	 						// need to define because ajaxurl isn't defined on front-end, only admin
+			'$_POST' => json_encode($_POST),
+			'$_GET' => json_encode($_GET)
 		);
 		wp_localize_script( 'jquery', 'soma_vars', $params); 	// will place in footer because of jquery registered in footer
 	}
 
 	// hooking admin for scripts and styles!
-	function admin_enqueue_scripts() {
+	function admin_enqueue_scripts($page) {
 		wp_enqueue_script( 'soma-admin-jquery' );
 		wp_enqueue_script( 'colorbox' );
 		// wp_enqueue_script( 'autosize' );
-		wp_enqueue_script( 'jquery-ui-datepicker' );
-		wp_enqueue_style( 'soma-admin' );
+		wp_enqueue_style( 'soma-admin-styles' );
 		wp_enqueue_style( 'colorbox-theme' );
-		wp_enqueue_style( 'jquery-ui-theme' );
+
+		// only on edit pages (custom metaboxes)
+		if ($page == 'post.php' || $page == 'post-new.php') {
+			wp_enqueue_script( 'soma-metabox-jquery' );
+			wp_enqueue_script( 'jquery-ui-datepicker' );
+			wp_enqueue_script( 'jquery-ui-timepicker' );
+			wp_enqueue_style( 'jquery-ui-theme' );
+			wp_enqueue_style( 'jquery-ui-timepicker' );
+			wp_enqueue_style( 'soma-metabox-styles' );
+		}
+
 	}
 
 	// hooking login for scripts and styles!
@@ -185,7 +226,7 @@ class somaticFramework {
 		wp_enqueue_style('soma-login');		// for some reason this is being output in the footer, instead of <head>...
 		global $soma_options;
 		if (!empty($soma_options['favicon'])) {
-			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";
+			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";		// show favicon even on login page
 		}
 	}
 
@@ -205,16 +246,18 @@ class somaticFramework {
 		if (!empty($soma_options['favicon'])) {
 			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";
 		}
-		if ($soma_options['bottom_admin_bar']) :
-			?><style type="text/css" media="screen">
-			* html body{margin-top:0 !important;}
-			body.admin-bar{margin-top:-28px;padding-bottom:28px;}
-			body.wp-admin #footer{padding-bottom:28px;}
-			#wpadminbar{top:auto !important;bottom:0;}
-			#wpadminbar .quicklinks .ab-sub-wrapper{bottom:28px;}
-			#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}
-			</style><?php
-		endif;
+
+		/* if (somaFunctions::fetch_index($soma_options, 'bottom_admin_bar')) :
+		// 	?><style type="text/css" media="screen">
+		// 	* html body{margin-top:0 !important;}
+		// 	body.admin-bar{margin-top:-28px;padding-bottom:28px;}
+		// 	body.wp-admin #footer{padding-bottom:28px;}
+		// 	#wpadminbar{top:auto !important;bottom:0;}
+		// 	#wpadminbar .quicklinks .ab-sub-wrapper{bottom:28px;}
+		// 	#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}
+		// 	</style><?php
+		// endif;
+		 */
 	}
 
 	function admin_footer() {
@@ -226,16 +269,17 @@ class somaticFramework {
 		if (!empty($soma_options['favicon'])) {
 			echo "<link rel=\"shortcut icon\" href=\"{$soma_options['favicon']}\">";
 		}
-		if ($soma_options['bottom_admin_bar']) :
-			?><style type="text/css" media="screen">
-			* html body{margin-top:0 !important;}
-			body.admin-bar{margin-top:-28px;padding-bottom:28px;}
-			body.wp-admin #footer{padding-bottom:28px;}
-			#wpadminbar{top:auto !important;bottom:0;}
-			#wpadminbar .quicklinks .ab-sub-wrapper{bottom:28px;}
-			#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}
-			</style><?php
-		endif;
+		/* if ($soma_options['bottom_admin_bar']) :
+		// 	?><style type="text/css" media="screen">
+		// 	* html body{margin-top:0 !important;}
+		// 	body.admin-bar{margin-top:-28px;padding-bottom:28px;}
+		// 	body.wp-admin #footer{padding-bottom:28px;}
+		// 	#wpadminbar{top:auto !important;bottom:0;}
+		// 	#wpadminbar .quicklinks .ab-sub-wrapper{bottom:28px;}
+		// 	#wpadminbar .quicklinks .ab-sub-wrapper ul .ab-sub-wrapper{bottom:-7px;}
+		// 	</style><?php
+		// endif;
+		 */
 
 		// inject html5shim if IE
 		global $is_IE;
@@ -248,7 +292,7 @@ class somaticFramework {
 
 	// custom admin footer credit
 	function admin_footer_text() {
-		echo 'Somatic Framework '. self::get_plugin_version() .'<br />';
+		echo 'Somatic Framework '. SOMA_VERSION .'<br />';
 		// echo 'Built by <a href="http://www.somaticstudios.com">Somatic Studios</a><br />';
 		echo get_num_queries() . " queries. " . timer_stop(0,3) . " seconds.";
 	}
@@ -271,15 +315,36 @@ class somaticFramework {
 		// get rid of custom user roles?
 	}
 
+	function login_head() {
+		global $soma_options;
+		if (!empty($soma_options['login_logo'])) {
+			echo '<style type="text/css">.login h1 a {
+					background-image: url('.$soma_options['login_logo'].') !important;
+					width: 320px !important;
+				    height: 80px !important;
+					background-size: auto auto !important;
+					background-position: bottom center !important;
+					background-repeat: no-repeat;
+				    padding-bottom: 0 !important;
+					margin-bottom: 15px;
+				}</style>';
+		}
+	}
+
 	function login_headerurl() {
-		echo bloginfo('url');
+		return get_bloginfo('url');
 	}
 
 	function login_headertitle() {
-		echo get_option('blogname');
+		return get_option('blogname');
 	}
 
 	function change_login_footer() {
+		if (class_exists('WpePlugin_common')) {
+			echo "<div id=\"wpengine-login-footer\">";
+			echo '<img src="'.SOMA_IMG.'wpengine.png" alt="Hosted by WP Engine"/>';
+			echo "</div>\n";
+		}
 		echo "<div id=\"soma-login-footer\">Somatic Framework</div>\n";
 	}
 
@@ -294,14 +359,6 @@ class somaticFramework {
 		if (array_key_exists('download', $wp->query_vars )) {
 			new somaDownload($wp->query_vars['download']);
 		}
-	}
-
-	function get_plugin_version() {
-		if ( ! function_exists( 'get_plugins' ) )
-			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-		$plugin_folder = get_plugins( '/' . plugin_basename( dirname( __FILE__ ) ) );
-		$plugin_file = basename( ( __FILE__ ) );
-		return $plugin_folder[$plugin_file]['Version'];
 	}
 
 	function requires_wordpress_version() {
@@ -335,7 +392,7 @@ class somaticFramework {
 endif;
 
 // initiate the primary class ------------------------------------------------------//
-if (class_exists("somaticFramework") && !$somaticFramework) {
+if (class_exists("somaticFramework") && !isset($somaticFramework)) {
 	$somaticFramework = new somaticFramework();
 }
 

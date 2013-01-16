@@ -169,7 +169,7 @@ function soma_select_taxonomy_terms($tax, $create = false) {
 		$terms = get_terms($tax,'hide_empty=0');
 		if (!empty($terms)) {
 			if ($create) {
-				$list[] = array('name' => 'Create New', 'value' => 'create');
+				$list[] = array('name' => '-- Create New --', 'value' => 'create');
 			}
 			foreach ($terms as $term) {
 				$list[] = array('name' => $term->name, 'value' => intval($term->term_id));
@@ -228,16 +228,17 @@ function soma_select_types() {
 }
 
 // retrieve list of posts, can narrow by author
-function soma_select_items( $type = null, $author_id = null ) {
+function soma_select_items( $type = null, $args = array() ) {
 	if (!$type) return null;
 	$items = array();
-	$args = array(
+	$defaults = array(
 		'suppress_filters' => false,
 		'post_type' => $type,
 		'post_status' => 'any',
-		'posts_per_page' => -1
+		'numberposts' => -1,
+		'order' => 'ASC'
 	);
-	if ($author_id != null) $args['post_author'] = $author_id;
+	$args = wp_parse_args( $args, $defaults );
 	$items = get_posts( $args );
 	if ( empty( $items ) ) {
 		return array(array('name' => '[nothing to select]', 'value' => '0'));	// no user role matches, output empty list
@@ -270,7 +271,7 @@ function soma_select_generic($items) {
  *
  * @since 1.3
  * @param $action (string) ["save", "get", "delete"]: what to do (required).
- * @param $pid (integer/string): the post ID to be manipulated (required).
+ * @param $post (object/integer/string): the post object or ID to be manipulated (required).
  * @param $key (string): name of the post_meta key to work on (required).
  * @param $value (string/array): what to save to this post_meta key (optional, unless saving).
  * @param $serialize (boolean): override the global option for serializing the data (optional)
@@ -279,26 +280,61 @@ function soma_select_generic($items) {
  * @return value of the post_meta key requested (when action = 'get')
  */
 
-function soma_asset_meta( $action = null, $pid = null, $key = null, $value = null, $serialize = null, $use_prefix = true ) {
-	return somaFunctions::asset_meta( $action, $pid, $key, $value, $serialize, $use_prefix );
+function soma_asset_meta( $action = null, $post = null, $key = null, $value = null, $serialize = null, $use_prefix = true ) {
+	return somaFunctions::asset_meta( $action, $post, $key, $value, $serialize, $use_prefix );
 }
 
 /**
- * Retrieves featured image of a post and returns array of intermediate sizes, paths, urls
+ * Retrieves data for the featured image of a post, or an attachment itself and returns array of intermediate sizes, paths, urls, metadata, etc
  * or if missing, returns image data for a "missing" placeholder
  *
  * @since 1.3
- * @param $pid - (string/integer) post ID to get the featured image of (required)
- * @param $size - (string) [icon,thumb,medium,large,full] (optional)
+ * @param $post - (object/string/integer) post object or ID - if the post has a featured image, that image will be returned. if this post ID is an attachment itself, its own data will be returned.
+ * @param $size - (string) [thumbnail,medium,large,full] (optional)
  * @return array - tons of data
  * @return string - just the url of the specified $size
  */
 
-function soma_featured_image( $pid = null, $size = null ) {
-	if (!$pid) {
-		return new WP_Error('missing', "Must pass a post ID argument!");
+function soma_featured_image( $post = null, $size = null ) {
+	if (empty($post)) {
+		return new WP_Error('missing', "Must pass a post argument!");
 	}
-	return somaFunctions::fetch_featured_image( $pid, $size );
+	return somaFunctions::fetch_featured_image( $post, $size );
+}
+
+
+/**
+ * Retrieves data for the featured image of a post, or an attachment itself and returns array of intermediate sizes, paths, urls, metadata, etc
+ * or if missing, returns image data for a "missing" placeholder
+ *
+ * @since 1.7.4
+ * @param $post - (object/string/integer) post object or ID - if the post has a featured image, that image will be returned. if this post ID is an attachment itself, its own data will be returned.
+ * @param $size - (string) [thumbnail,medium,large,full] (optional)
+ * @return array - tons of data
+ * @return string - just the url of the specified $size
+ */
+function soma_fetch_image( $post = null, $size = null ) {
+	if (empty($post)) {
+		return new WP_Error('missing', "Must pass a post argument!");
+	}
+	return somaFunctions::fetch_featured_image( $post, $size );
+}
+
+/**
+ * Retrieves an array of all attachments as post objects
+ *
+ * @since 1.7.4
+ * @param $post - (object/string/integer) post object or ID to get the featured image of (required)
+ * @param $mime - (string) [audio/mpeg, video/mp4, image/jpeg, application/pdf, application/zip] (optional) - filters for only that media type
+ * @param $include - (bool) include featured image when retrieving all attachments (optional)
+ * @return array - tons of data
+ */
+
+function soma_attachments($post = null, $mime = null, $include = false) {
+	if (empty($post)) {
+		return new WP_Error('missing', "Must pass a post argument!");
+	}
+	return somaFunctions::fetch_attached_media($post, $mime, $include);
 }
 
 
@@ -335,22 +371,38 @@ function soma_external_media( $url = null, $width = null, $height = null ) {
  * Useful for taxonomies that function like a "status"
  *
  * @since 1.3.1
- * @param $pid - (string/integer) post ID (required)
+ * @param $post - (object/string/integer) post ID (required)
  * @param $tax - (string) taxonomy slug to get the set term of (required)
+ * @param $label - (string) can be "name" or "slug"
  * @return string - the term's pretty name
  */
 
-function soma_singular_term( $pid = null, $tax = null ) {
-	if (!$pid || !$tax) {
+function soma_singular_term( $post = null, $tax = null, $label = "slug" ) {
+	if (empty($post) || !$tax) {
 		return new WP_Error('missing', "must pass a post ID and a taxonomy!");
 	}
-	return somaFunctions::fetch_the_singular_term( $pid, $tax );
+	return somaFunctions::fetch_the_singular_term( $post, $tax, $label );
+}
+
+/*
+* Gets the excerpt of a specific post ID or object
+* @since 1.7.3
+
+* @param - $post - object/int/string - the ID or object of the post to get the excerpt of
+* @param - $length - int - the length of the excerpt in words
+* @param - $tags - string - the allowed HTML tags. These will not be stripped out
+* @param - $extra - string - text to append to the end of the excerpt
+*/
+function soma_get_excerpt($post = null, $length = 30, $tags = '<a><em><strong>', $extra = ' …') {
+	if ( empty($post) ) return new WP_Error('missing', "must pass a post ID or post Object!");
+	return somaFunctions::fetch_excerpt( $post, $length, $tags, $extra );
 }
 
 /**
  * Outputs contents of variables for debugging purposes
  * Integrated with Debug Bar plugin (http://wordpress.org/extend/plugins/debug-bar/)
  * Depends on Kint class and the 'debug' option being true
+ * NOTE: php.ini must be configured with "output_buffering" set to ON, or you will see a bunch of "Cannot modify header information" warnings coming from Kint....
  *
  * @since 1.5
  * @param $data - variable to be rendered by Kint
@@ -360,7 +412,7 @@ function soma_singular_term( $pid = null, $tax = null ) {
 
 function soma_dump( $data, $inline = null ) {
 	global $soma_options;
-	if ( !$soma_options['debug'] ) return null;									// abort if debug option is off
+	if ( !$soma_options['debug'] ) return null;							// abort if debug option is off
 	if ( !class_exists('Kint') ) return null;							// abort if Kint doesn't exist
 	if ( !Kint::enabled() ) return null;								// abort if we don't have Kint to make output pretty
 	if ( $inline ) set_transient( 'debug_inline', true );				// make a note to force inline output
@@ -374,6 +426,7 @@ function soma_dump( $data, $inline = null ) {
  * Used by modified Kint class to avoid output buffer problems
  * And to store the buffer in a global variable to be fetched by the debug display functions
  * inspired by Kint Debugger https://wordpress.org/extend/plugins/kint-debugger/
+ * NOTE: php.ini must be configured with "output_buffering" set to ON, or you will see a bunch of "Cannot modify header information" warnings coming from Kint....
  *
  * @since 1.5
  * @param $buffer - incoming output buffer
@@ -410,7 +463,6 @@ $defaults = array(
 	"disable_metaboxes" => array('thesis_seo_meta', 'thesis_image_meta','thesis_multimedia_meta', 'thesis_javascript_meta'),									// hide metaboxes in post editor
 	"disable_drag_metabox" => 1,									// prevent users from dragging metaboxes (even dashboard widgets)
 	"reset_default_options" => 0,									// will reset options to defaults next time plugin is activated
-	"plugin_db_version" => self::get_plugin_version()
 );
 */
 
@@ -419,28 +471,42 @@ $defaults = array(
 // QUESTION: should all this be an action hook on init instead?
 
 function soma_set_option( $which = null, $new_value = null ) {
-	$soma_options = get_option('somatic_framework_options', null);
-	if (is_wp_error($soma_options) || is_null($soma_options)) return new WP_Error('missing', "Can't find somatic options to save into...");
+	$trans = get_transient( $which );
+	if ( $trans != false && $trans == $new_value ) {
+		// soma_dump("cached option: $which");													// debug
+		return true;																			// value hasn't changed, don't bother getting/setting options
+	} else {
+		$soma_options = get_option('somatic_framework_options', null);
+		if (is_wp_error($soma_options) || is_null($soma_options)) return new WP_Error('missing', "Can't find somatic options to save into...");
+		if (is_null($which) || is_null($new_value)) return new WP_Error('missing', "Must pass an option name and a value");				// make sure we've got something to save
+		if (is_array($which)) return new WP_Error('missing', "First argument should be a string name of option (call the function once for each option to be set)");		// right now, we're only handling single options at a time - could change to passing and merging whole array later
 
-	if (is_null($which) || is_null($new_value)) return new WP_Error('missing', "Must pass an option name and a value");				// make sure we've got something to save
-	if (is_array($which)) return new WP_Error('missing', "First argument should be a string name of option (call the function once for each option to be set)");		// right now, we're only handling single options at a time - could change to passing and merging whole array later
-		
-	if ($new_value === true || $new_value == "true") $new_value = '1';						// sanitize boolean input values
-	if ($new_value === false || $new_value == "false") $new_value = '0';					// sanitize boolean input values
+		if ($new_value === true || $new_value == "true") $new_value = '1';						// sanitize boolean input values
+		if ($new_value === false || $new_value == "false") $new_value = '0';					// sanitize boolean input values
 
-	// this option must stay an array!
-	if (is_array($soma_options[$which])) {
-		if (!is_array($new_value)) return new WP_Error('missing', "Must set this option with a simple array...");
-		$old_value = $soma_options[$which];													// store old array
-		$new_value = array_merge($old_value, $new_value);									// combine them
-		$new_value = array_unique($new_value);												// remove duplicates
-		$new_value = array_values($new_value);												// flatten the array keys
-	} 
+		// this option must stay an array!
+		if (is_array($soma_options[$which])) {
+			if (!is_array($new_value)) return new WP_Error('missing', "Must set this option with a simple array...");
+			$old_value = $soma_options[$which];													// store old array
+			$new_value = array_merge($old_value, $new_value);									// combine them
+			$new_value = array_unique($new_value);												// remove duplicates
+			$new_value = array_values($new_value);												// flatten the array keys
+		}
 
-	$soma_options[$which] = $new_value;														// mod or insert our array key's value
+		$soma_options[$which] = $new_value;														// mod or insert our array key's value
 
-	$update = update_option('somatic_framework_options', $soma_options);					// update with modified full array
-	return $update;																			// true if success, false if fail
+		$update = update_option('somatic_framework_options', $soma_options);					// update with modified full array
+		set_transient( $which, $new_value, 60*60*24 );											// cache it for 24 hours
+		// soma_dump("updated option: $which -- newvalue: $new_value");							// debug
+		return $update;																			// true if success, false if fail
+	}
+}
+
+// checks to see if $_GET or $_POST values are set, avoids Undefined index error
+function soma_fetch_index($array = null, $index = null) {
+	if (is_null($array) || is_null($index)) return new WP_Error('missing', "Must pass an array and an index");
+	$value = somaFunctions::fetch_index($array, $index);
+	return $value;
 }
 
 // incomplete effort to consolidate notice reporting and have it output in the right place (rather than before the page headers)
@@ -460,4 +526,8 @@ function soma_notices($type, $msg) {
 		break;
 	}
 	echo $output;
+}
+
+function soma_go_link($slug, $text) {
+	return somaFunctions::make_go_link($slug, $text);
 }
