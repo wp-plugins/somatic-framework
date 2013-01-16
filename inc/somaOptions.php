@@ -339,7 +339,7 @@ class somaOptions extends somaticFramework  {
 					<li><input type="submit" class="clicker" value="Save Text" /></li>
 				<?php
 
-		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
+		$types = get_post_types( array( '_builtin' => false, 'somatic' => true ), 'objects' );
 		$helptext = get_option( 'soma_help_text' );
 		foreach ( $types as $type ) {
 			echo "<h4>$type->label</h4>";
@@ -798,7 +798,7 @@ class somaOptions extends somaticFramework  {
 	//
 	function disable_admin_menus() {
 		global $soma_options;
-		if ( !is_array( $soma_options['disable_menus'] ) ) return false;    // abort to avoid PHP errors
+		if ( !is_array( soma_fetch_index($soma_options,'disable_menus') ) ) return false;    // abort to avoid PHP errors
 		if ( in_array( 'links', $soma_options['disable_menus'] ) )
 			remove_menu_page( 'link-manager.php' );
 		if ( in_array( 'comments', $soma_options['disable_menus'] ) )

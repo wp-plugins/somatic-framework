@@ -9,7 +9,7 @@ class somaSorter extends somaticFramework {
 
 	// generates sort order submenu page if type has order defined manually
 	function soma_sort_menus() {
-		$types = get_post_types( array( '_builtin' => false  ), 'objects' );
+		$types = get_post_types( array( '_builtin' => false , 'somatic' => true ), 'objects' );
 		foreach ($types as $type) {
 			// only add sort pages to hierarchical post types, which support menu-order
 			if ( $type->sort_by == 'menu_order' ) {
