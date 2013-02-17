@@ -32,9 +32,17 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.7.8 =
+* FIX: errors using wp_register_style
+* NOTE: for 'upload-files' field types, the ID string for that field cannot contain a dash, or it breaks plupload js
+* added more filetype icons
+* metabox css tweaks
+* finally defined default args for metabox data and field arrays
+* more undefined index cleanup...
+
 = 1.7.7 =
 * NEW action hook: soma_init - allows hooking init but only after Somatic Framework loads. Otherwise other plugins trying to register custom types would fail if they loaded before this one.
-* FIX: major bug with hiearchical post types not supporting anything
+* FIX: major bug with hierarchical post types not supporting anything
 * NEW functions fetch_sub_pages() and fetch_root_pages() for dealing with hierarchical post types
 * fixed stray undefined indexes...
 * FIX: deep bug that caused hierarchical CPTs to return 404 on child pages

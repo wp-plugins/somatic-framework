@@ -41,6 +41,24 @@ class somaMetaboxes extends somaticFramework {
 
 		// Generate meta box for each array
 		foreach ( self::$data as $meta_box ) {
+			// avoid undefined indexes and aborted metaboxes by setting defaults here
+			$default_box_args = array(
+				'types'				=> array(),				// REQUIRED! post types that will display this metabox. if empty, won't show
+				'title' 			=> "Meta Box",   		// title shown at top of metabox
+				'id' 				=> microtime(true),		// timestamp in microseconds, to ensure unique HTML ID for this container element
+				'context' 			=> 'normal',			// positioning: normal/side columns
+				'priority'			=> 'high',				// positioning: vertical order - if all have same priority, metaboxes are rendered in order they appear in somaMetaboxes::$data array
+				'restrict' 			=> false,				// boolean for restricting display of this metabox for non-staff (a special somaticFramework permission class)
+				'save' 				=> false,				// boolean for displaying a "save changes" button at the end of this metabox (can have multiple on the page)
+				'publish' 			=> false,				// makes the save button always change post_status to publish (instead of keeping it on whatever it was, which means new items are saved as drafts)
+				'always-publish' 	=> false,				// deprecated
+				'fields' 			=> array(),				// array of individual fields within this metabox
+			);
+
+			// merge with incoming metabox args
+			$meta_box = wp_parse_args( $meta_box, $default_box_args );
+
+
 			if ( in_array($post->post_type, $meta_box['types'] ) ) {										// check if current metabox is indicated for the current post type
 				if ( somaFunctions::fetch_index($meta_box, 'restrict') && SOMA_STAFF == false ) {					// don't show certain boxes for non-staff
 					continue;
@@ -106,6 +124,13 @@ class somaMetaboxes extends somaticFramework {
 	external_media (video)
 	external_image
 	embed
+ * DATA:
+ 	taxonomy
+ 	meta
+ 	core
+	attachment
+	featured
+	none
 */
 
 	// add_meta_box Callback function to display fields in meta box
@@ -126,6 +151,32 @@ class somaMetaboxes extends somaticFramework {
 
 		foreach ($meta_box['fields'] as $field) {
 			$meta = null;																			// reset the value of $meta each loop, otherwise an empty iteration can pass on $meta to the next one
+
+			// avoid undefined indexes by setting defaults here
+			$default_field_args = array(
+				'name' 					=> null,			// text displayed alongside field input
+				'id' 					=> null,			// used when saving, should be the name of the post_meta (key) or taxonomy (exact slug) we're manipulating
+				'type' 					=> null,			// field type (usually input: text, area, select, checkbox, radio), sometimes output (posts, other readonly data)
+				'data' 					=> 'none',			// what kind of data is being retrieved and saved for this post (meta [wp_postmeta table], core [wp_posts table], taxonomy, user, p2p, attachment, comment). NONE indicates there is no saved data to be retrieved when displaying this field
+				'options' 				=> array(),			// array of options to populate html form input objects (in this case, generated automatically from available taxonomy terms)
+				'once' 					=> null,			// only gets written once, then turns read-only
+				'multiple' 				=> false,			// can multiple values be selected? or must the saved value be singular?
+				'required' 				=> false,			// can this field be left empty or unselected? enables red styling to draw attention (validation functions to check completion don't exist yet)
+				'default' 				=> null,			// default value to show (in text fields or selectors)
+				'desc' 					=> null, 			// description line shown below field contents
+				'reveal-control' 		=> null,			// should be assigned only to a 'radio' or 'select' field type (and only one per page)
+				'reveal-group' 			=> null,			// array of names corresponding with the possible values of the reveal-control selector. If the current value is in the array, that field is shown, otherwise hidden
+				'allowed' 				=> array('jpg','jpeg','gif','png','mp3'),			// array of permitted file extensions for this instance
+				'width'					=> null,			// used with upload-files field types. if indicated, image will be resized to max of this integer, but not cropped
+				'height'				=> null,			// used with upload-files field types. if indicated, image will be resized to max of this integer, but not cropped
+				'max'					=> null,			// how many items should be allowed to be uploaded
+				'p2pname'				=> null,			// p2p connection ID
+				'dir'					=> null,			// p2p direction
+			);
+
+			// merge with incoming field args
+			$field = wp_parse_args( $field, $default_field_args );
+
 			// get current taxonomy data
 			if ($field['data'] == 'taxonomy') {
 				if (empty($field['options']) && $field['type'] != 'readonly') {
@@ -270,11 +321,13 @@ class somaMetaboxes extends somaticFramework {
 				$complete = true;
 			}
 
-			// for status taxonomies, indicate as "missing", even though $meta isn't empty, because a stauts of "incomplete" is the same as missing metadata
+			// for status taxonomies, indicate as "missing", even though $meta isn't empty, because a status of "incomplete" is the same as missing metadata
 			if ($field['data'] == 'taxonomy') {
 				$term = get_term($meta, $field['id']);
-				if ($term->slug == 'incomplete' || $term->slug == 'processing') {
-					$complete = false;
+				if ( !is_wp_error( $term ) && !is_null( $term )) {
+					if ( $term->slug == 'incomplete' || $term->slug == 'processing' ) {
+						$complete = false;
+					}
 				}
 			}
 
@@ -398,25 +451,26 @@ class somaMetaboxes extends somaticFramework {
 						echo '<li class="meta-attachment-item">';
 							switch ($att->post_mime_type) {
 								case "application/pdf" :
-									echo '<a href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" iframe="true"><img src="'. SOMA_IMG . 'pdf-doc.png" title="Click to view PDF file with Google Docs" /></a>';
+									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" iframe="true"><img src="'. SOMA_IMG . 'file_extension_pdf.png" title="Click to view PDF file with Google Docs" /></a>';
 								break;
 								case "application/msword" :
 								case "application/vnd.ms-word" :
 								case "application/vnd.openxmlformats-officedocument.wordprocessingml.document" :
-									echo '<a href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" iframe="true"><img src="'. SOMA_IMG . 'word-doc.png" title="Click to view Microsoft Word Doc with Google Docs" /></a>';
+									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" iframe="true"><img src="'. SOMA_IMG . 'file_extension_doc.png" title="Click to view Microsoft Word Doc with Google Docs" /></a>';
 								break;
 								case "application/msexcel" :
 								case "application/vnd.ms-excel" :
 								case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" :
-									echo '<a href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" iframe="true"><img src="'. SOMA_IMG . 'excel-doc.png" title="Click to view Microsoft Excel Spreadsheet with Google Docs" /></a>';
+									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" iframe="true"><img src="'. SOMA_IMG . 'file_extension_xls.png" title="Click to view Microsoft Excel Spreadsheet with Google Docs" /></a>';
 								break;
 								case "application/mspowerpoint" :
 								case "application/vnd.ms-powerpoint" :
 								case "application/vnd.openxmlformats-officedocument.presentationml.presentation" :
-									echo '<a href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" iframe="true"><img src="'. SOMA_IMG . 'point-doc.png" title="Click to view PowerPoint Presentation with Google Docs" /></a>';
+									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" iframe="true"><img src="'. SOMA_IMG . 'file_extension_ppt.png" title="Click to view PowerPoint Presentation with Google Docs" /></a>';
 								break;
 								case "application/zip" :
-									echo '<a href="'.wp_get_attachment_url($att->ID).'" target="blank"><img src="'. SOMA_IMG . 'zip-doc.png" /></a>';
+									echo '<a class="filetype-icon" href="'.wp_get_attachment_url($att->ID).'" target="blank"><img src="'. SOMA_IMG . 'file_extension_zip.png" /></a><br>';
+									echo basename(wp_get_attachment_url($att->ID));
 								break;
 								case "image/jpeg" :
 								case "image/jpg" :

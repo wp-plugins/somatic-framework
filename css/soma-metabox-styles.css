@@ -1,4 +1,3 @@
-
 /* metabox fields */
 
 .metabox-holder td.field-label,
@@ -174,6 +173,13 @@ li.meta-attachment-item {
 	display: block;
 }
 
+li.meta-attachment-item .filetype-icon {
+	display: inline-block;
+}
+li.meta-attachment-item img {
+	display: block;
+}
+
 li.meta-attachment-item .pic {
 	border: 1px solid #ddd;
 }
@@ -186,14 +192,14 @@ li.meta-attachment-item .videoplayer {
 	width: 800px;
 }
 
-
-.meta-attachment-actions {
+#poststuff .meta-attachment-actions {
+	margin-top: 4px;
 	position: relative;
 }
-.meta-attachment-actions li {
+#poststuff .meta-attachment-actions li {
 	margin: 0;
 	padding: 0;
-	line-height: 1.3em;
+	line-height: 1.4em;
 }
 .meta-attachment-actions li a {
 	display: inline-block;

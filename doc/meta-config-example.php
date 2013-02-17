@@ -27,9 +27,9 @@ function mysite_metabox_data() {
 
 	// call the framework function for each individual metabox to be rendered
 	soma_metabox_data( array(
-		'id' => 'track-meta-box',
+		'types' => array('tracks'),											// REQUIRED! which post types this metabox is output for
+		'id' => 'track-meta-box',											// HTML ID for this container element
 		'title' => 'Track Info',											// text displayed in title of metabox
-		'types' => array('tracks'),											// which post types this metabox is output for
 		'context' => 'normal',												// positioning: normal/side columns
 		'priority' => 'high',												// positioning: vertical order - if all have same priority, metaboxes are rendered in order they appear in somaMetaboxes::$data array
 		'restrict' => false,												// boolean for restricting display of this metabox for non-staff (a special somaticFramework permission class)
