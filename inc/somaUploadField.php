@@ -127,7 +127,7 @@ class somaUploadField extends somaticFramework {
 		</div>
 		<?php echo $this->field['desc'] ? "<div class=\"field-desc\">". $this->field['desc'] : null, '</div></tr>';
 		 ?>
-		<tr id="<?php echo $this->field['id']; ?>_pending-thumbs" class="hidden"><td class="field-label"><?php echo $pendinglabel; ?></td><td class="field-data">
+		<tr id="<?php echo $this->field['id']; ?>_pending-thumbs" style="display:none;"><td class="field-label"><?php echo $pendinglabel; ?></td><td class="field-data">
 			<div class="plupload-thumbs<? echo $this->is_featured ? " plupload-featured" : null; ?>" id="<?php echo $this->field['id']; ?>_plupload-thumbs"></div>
 			<div class="clear"></div>
 		</td></tr>

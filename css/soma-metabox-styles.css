@@ -323,6 +323,17 @@ input:disabled {
 	background-size: 100%;
 }
 
+.plupload-thumbs .thumb.file .icon {
+    width: 32px;
+    height: 32px;
+	display: block;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	background-position-x: left;
+	background-position-y: top;
+	background-size: 100%;
+}
+
 
 .dropzone {
 	text-align: center;

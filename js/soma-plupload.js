@@ -87,25 +87,30 @@ jQuery(document).ready(function($) {
 				}
 				$('#' + file.id).fadeOut();
 
-				// create new hidden inputs in the #post form to store wp_handle_upload data
+
+				// grab the input id from the settings
+				// retrieve the form element that this input is embedded in
+				var thisform = document.getElementById(uploader.settings.browse_button).form;
+
+				// create new hidden inputs and append to this form, to store wp_handle_upload data
 				$('<input>').attr({
 					'type': 'hidden',
 					'name': fieldID+'['+index+'][file]',
 					'value': data.file,
 					'class': 'storage-file'
-				}).appendTo('#post');
+					}).appendTo(thisform);
 				$('<input>').attr({
 					'type': 'hidden',
 					'name': fieldID+'['+index+'][url]',
 					'value': data.url,
 					'class': 'storage-url'
-				}).appendTo('#post');
+					}).appendTo(thisform);
 				$('<input>').attr({
 					'type': 'hidden',
 					'name': fieldID+'['+index+'][type]',
 					'value': data.type,
 					'class': 'storage-type'
-				}).appendTo('#post');
+					}).appendTo(thisform);
 
 
 				// show thumbs
@@ -145,14 +150,26 @@ function plu_add_thumbs(fieldID, index, max) {
 	var thumbsContainer = $("#" + fieldID + "_plupload-thumbs");					// div container for generated thumbs
 	var url = $('input[name="'+ fieldID +'['+ index +'][url]"]').val();
 	var type = $('input[name="'+ fieldID +'['+ index +'][type]"]').val();
+	// extract file extension from url
+	var filename = basename(url);
+	var extension = filename.split('.').pop();
 	switch (type) {
+		case "application/pdf" :
 		case "audio/mpeg" :
-			var newthumb = $('<div class="thumb audio" id="' + fieldID + '_thumb' + index + '"><div class="icon"></div>'+basename(url)+'<br/><div class="pendinginfo"><a class="kill" data-field="' + fieldID +'" data-index="' + index + '" href="#">Remove File</a><img src="'+soma_vars['loading-spin']+'" class="kill-animation" style="display:none;" alt="" /></div><div class="clear"></div></div>');
-		break;
+		case "audio/wav" :
+		case "audio/x-aiff" :
 		case "video/mp4" :
-			var newthumb = $('<div class="thumb video" id="' + fieldID + '_thumb' + index + '"><div class="icon"></div>'+basename(url)+'<br/><div class="pendinginfo"><a class="kill" data-field="' + fieldID +'" data-index="' + index + '" href="#">Remove File</a><img src="'+soma_vars['loading-spin']+'" class="kill-animation" style="display:none;" alt="" /></div><div class="clear"></div></div>');
+		case "application/zip" :
+		case "application/msword":
+		case "application/vnd.ms-word" :
+		case "application/msexcel" :
+		case "application/vnd.ms-excel" :
+		case "application/mspowerpoint" :
+		case "application/vnd.ms-powerpoint" :
+			var newthumb = $('<div class="thumb file" id="' + fieldID + '_thumb' + index + '"><div class="icon" style="background-image: url(\''+soma_vars["SOMA_IMG"]+'file_extension_'+extension+'.png\');"></div>'+filename+'<br/><div class="pendinginfo"><a class="kill" data-field="' + fieldID +'" data-index="' + index + '" href="#">Remove File</a><img src="'+soma_vars['loading-spin']+'" class="kill-animation" style="display:none;" alt="" /></div><div class="clear"></div></div>');
 		break;
 		case "image/jpeg" :
+		case "image/png" :
 			var newthumb = $('<div class="thumb image" id="' + fieldID + '_thumb' + index + '"><a href="'+url+'" class="colorbox" rel="pending-gallery" title="'+basename(url)+'"><img src="' + url + '" alt="" /></a><div class="thumbinfo"><a class="kill" data-field="' + fieldID +'" data-index="' + index + '" href="#">Remove File</a><img src="'+soma_vars['loading-spin']+'" class="kill-animation" style="display:none;" alt="" /></div><div class="clear"></div></div>');
 		break;
 		default:

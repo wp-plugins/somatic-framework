@@ -39,6 +39,11 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * metabox css tweaks
 * finally defined default args for metabox data and field arrays
 * more undefined index cleanup...
+* NEW: each metabox field can have "restrict" parameter to hide from non-staff level users
+* FIX: metabox jquery errors
+* started moving soma_metabox_generator() to be useful outside of post editor
+* modified soma_plupload.js to be useful outside of the post editor
+* NEW: can specify (per customposttype args or via post_meta key) "delete_attachments_upon_deletion" - to have all media attachments (and their files) specifically attached to a post deleted when that post gets deleted. I call it the "ritual suicide" option...
 
 = 1.7.7 =
 * NEW action hook: soma_init - allows hooking init but only after Somatic Framework loads. Otherwise other plugins trying to register custom types would fail if they loaded before this one.

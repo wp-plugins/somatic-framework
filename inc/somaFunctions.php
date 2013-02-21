@@ -8,7 +8,7 @@ class somaFunctions extends somaticFramework {
 		add_filter( 'query_vars', array(__CLASS__,'custom_query_vars' ));
 		add_filter( 'parse_query', array(__CLASS__,'filter_current_query' ));			// empty at the moment
 		add_filter( 'pre_get_posts', array(__CLASS__,'pre_get_posts'));
-		add_action( 'delete_post', array(__CLASS__, 'delete_attachments_when_parents_die' ));
+		add_action( 'before_delete_post', array(__CLASS__, 'delete_attachments_when_parents_die' ));		// have to do this "before", as wp_delete_post detaches all attachments before the 'delete_post' action, which left us unable to retrieve connected attachments...
 		add_filter( 'gettext',  array(__CLASS__, 'modify_core_language'  ), 20, 3);
 		add_filter( 'ngettext',  array(__CLASS__, 'modify_core_language'  ), 20, 3);
 		// add_filter( 'login_redirect', array(__CLASS__, 'dashboard_redirect' ));
@@ -583,12 +583,18 @@ class somaFunctions extends somaticFramework {
 	     return $translated;
 	}
 
-	// deletes all attachments (including the actual files on server) when a post is deleted -- DO WE REALLY WANT TO DO THIS????? (they do go to the trash first...)
+	// deletes all attachments (including the actual files on server) when a post is deleted -- custom post type args or this post's post_meta must be set for this to happen, so its not universal
 	function delete_attachments_when_parents_die($post_id) {
-		global $wpdb;
-		$ids = $wpdb->get_col("SELECT ID FROM {$wpdb->posts} WHERE post_parent = $post_id AND post_type = 'attachment'");
-		foreach ( $ids as $id ) {
-			wp_delete_attachment($id);
+		$metakill = somaFunctions::asset_meta('get', $post_id, 'delete_attachments_upon_deletion');
+		$ptype = get_post_type($post_id);
+		$ptobj = get_post_type_object($ptype);
+		$typekill = $ptobj->delete_attachments_upon_deletion;
+		if ( $metakill || $typekill ) {
+			global $wpdb;
+			$attids = $wpdb->get_col($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_type = %s", $post_id, 'attachment')); // properly prepared safe query
+			foreach ( $attids as $attid ) {
+				wp_delete_attachment($attid);
+			}
 		}
 	}
 

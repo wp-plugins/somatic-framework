@@ -43,23 +43,25 @@ jQuery(document).ready(function($) {
 	});
 
 	// jquery UI datepicker for metaboxes
-	$( ".timepicker" ).timepicker({
-		// timeFormat: 'hh:mm:ss',	// matches php format H:i:s
-		timeFormat: 'h:mm TT',	// matches php format H:i:s
-		ampm: true,
-		stepHour: 1,
-		stepMinute: 5,
-		hourMin: 1,
-		hourMax: 23,
-		hourGrid: 4,
-		minuteGrid: 10,
-		showOn: 'button',
-		showSecond: false,
-		buttonImage: soma_vars.SOMA_JS + '/ui/clock-icon.png',
-		buttonImageOnly: true,
-		buttonText: 'Click to Select'
-		// altField: $(this).next('.timemirror'),	// display human-readable date in dummy field
-		// altFormat: "h:mm TT"
+	$( ".timepicker" ).each(function(){
+			$(this).timepicker({
+			// timeFormat: 'hh:mm:ss',	// matches php format H:i:s
+			timeFormat: 'h:mm TT',	// matches php format H:i:s
+			ampm: true,
+			stepHour: 1,
+			stepMinute: 5,
+			hourMin: 1,
+			hourMax: 23,
+			hourGrid: 4,
+			minuteGrid: 10,
+			showOn: 'button',
+			showSecond: false,
+			buttonImage: soma_vars.SOMA_JS + '/ui/clock-icon.png',
+			buttonImageOnly: true,
+			buttonText: 'Click to Select'
+			// altField: $(this).next('.timemirror'),	// display human-readable date in dummy field
+			// altFormat: "h:mm TT"
+		});
 	});
 
 	// mirror contents of hidden time input field to #humantime field - needed as the "altField" option doesn't seem to work with timepicker extension of datepicker...

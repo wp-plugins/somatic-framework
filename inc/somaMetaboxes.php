@@ -41,7 +41,6 @@ class somaMetaboxes extends somaticFramework {
 
 		// Generate meta box for each array
 		foreach ( self::$data as $meta_box ) {
-			// avoid undefined indexes and aborted metaboxes by setting defaults here
 			$default_box_args = array(
 				'types'				=> array(),				// REQUIRED! post types that will display this metabox. if empty, won't show
 				'title' 			=> "Meta Box",   		// title shown at top of metabox
@@ -49,15 +48,9 @@ class somaMetaboxes extends somaticFramework {
 				'context' 			=> 'normal',			// positioning: normal/side columns
 				'priority'			=> 'high',				// positioning: vertical order - if all have same priority, metaboxes are rendered in order they appear in somaMetaboxes::$data array
 				'restrict' 			=> false,				// boolean for restricting display of this metabox for non-staff (a special somaticFramework permission class)
-				'save' 				=> false,				// boolean for displaying a "save changes" button at the end of this metabox (can have multiple on the page)
-				'publish' 			=> false,				// makes the save button always change post_status to publish (instead of keeping it on whatever it was, which means new items are saved as drafts)
-				'always-publish' 	=> false,				// deprecated
-				'fields' 			=> array(),				// array of individual fields within this metabox
 			);
 
-			// merge with incoming metabox args
 			$meta_box = wp_parse_args( $meta_box, $default_box_args );
-
 
 			if ( in_array($post->post_type, $meta_box['types'] ) ) {										// check if current metabox is indicated for the current post type
 				if ( somaFunctions::fetch_index($meta_box, 'restrict') && SOMA_STAFF == false ) {					// don't show certain boxes for non-staff
@@ -123,7 +116,7 @@ class somaMetaboxes extends somaticFramework {
 	media (uses old thickbox dialog media manager)
 	external_media (video)
 	external_image
-	embed
+	oEmbed (upcoming)
  * DATA:
  	taxonomy
  	meta
@@ -134,8 +127,24 @@ class somaMetaboxes extends somaticFramework {
 */
 
 	// add_meta_box Callback function to display fields in meta box
-	function soma_metabox_generator($post,$box) {
-		$meta_box = $box['args']['box'];
+	function soma_metabox_generator($post,$box, $add_meta_box = true) {
+		// avoid undefined indexes and aborted metaboxes by setting defaults here (some are repeated from add boxes, in case this function is called directly)
+			$default_box_args = array(
+				'types'				=> array(),				// REQUIRED! post types that will display this metabox. if empty, won't show
+				'title' 			=> "Meta Box",   		// title shown at top of metabox
+				'id' 				=> microtime(true),		// timestamp in microseconds, to ensure unique HTML ID for this container element
+				'save' 				=> false,				// boolean for displaying a "save changes" button at the end of this metabox (can have multiple on the page)
+				'publish' 			=> false,				// makes the save button always change post_status to publish (instead of keeping it on whatever it was, which means new items are saved as drafts)
+				'always-publish' 	=> false,				// deprecated
+				'fields' 			=> array(),				// array of individual fields within this metabox
+			);
+
+		if ($add_meta_box) {
+			// merge with incoming metabox args
+			$meta_box = wp_parse_args( $box['args']['box'], $default_box_args );
+		} else {
+			$meta_box = wp_parse_args( $box, $default_box_args );
+		}
 
 		// hook for insertion before this box content
 		do_action('before_'.$box['id'], $post, $box['id']);
@@ -172,10 +181,15 @@ class somaMetaboxes extends somaticFramework {
 				'max'					=> null,			// how many items should be allowed to be uploaded
 				'p2pname'				=> null,			// p2p connection ID
 				'dir'					=> null,			// p2p direction
+				'restrict' 				=> false,				// boolean for restricting display of this metabox for non-staff (a special somaticFramework permission class)
 			);
 
 			// merge with incoming field args
 			$field = wp_parse_args( $field, $default_field_args );
+
+			if ( $field['restrict'] && SOMA_STAFF == false ) {					// don't show certain fields for non-staff
+				continue;
+			}
 
 			// get current taxonomy data
 			if ($field['data'] == 'taxonomy') {
@@ -233,7 +247,7 @@ class somaMetaboxes extends somaticFramework {
 			if ($field['data'] == 'user') {
 				if ($field['type'] == 'readonly') {
 					// retrieve name only
-					$meta = somaFunctions::fetch_author($post->ID, null, true);
+					$meta = somaFunctions::fetch_post_author($post->ID, 'link');
 				} else {
 					// retrive ID of author user
 					$meta = $post->post_author;
@@ -531,7 +545,7 @@ class somaMetaboxes extends somaticFramework {
 						echo '<option value="', $option['value'], '"' , selected($select), '>', $option['name'],'</option>';
 					}
 					echo '</select>';
-					echo '<input type="text" name="', $field['id'], '-create" id="', $field['id'], '-create" value="" class="meta-select-input" disabled="disabled" />';
+					echo '<input type="text" name="', $field['id'], '-create" id="', $field['id'], '-create" value="" class="meta-select-input" style="display:none;" disabled="disabled" />';
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'radio':
