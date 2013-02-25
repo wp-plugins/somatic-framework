@@ -241,7 +241,7 @@ class somaFunctions extends somaticFramework {
 	//** clone of core get_the_term_list() - modifies the URL output if inside admin to stay in admin and to link to the edit post listing screen, also - can output comma separated string instead of links
 	function fetch_the_term_list( $id = null, $taxonomy, $before = '', $sep = ', ', $after = '', $output = 'html' ) {
 		if (is_null($id)) return false;
-		$terms = get_the_terms( $id, $taxonomy );
+		$terms = wp_get_object_terms( $id, $taxonomy );
 		$type = get_post_type($id);
 		if ( is_wp_error( $terms ) )
 			return $terms->get_error_message();
