@@ -27,7 +27,6 @@ class somaOptions extends somaticFramework  {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'disable_autosave' ) );    // optional disable autosave
 		add_action( 'init', array( __CLASS__, 'disable_revisions' ), 50 );       // optional disable revisions
 		add_filter( 'parse_query', array( __CLASS__, 'disable_paging' ) );        // optional disable auto-paging
-		add_action( 'admin_init', array( __CLASS__, 'disable_drag_metabox' ) );      // disable dragging of any metaboxes (including dashboard widgets)
 		add_action( 'do_meta_boxes', array( __CLASS__, 'disable_metaboxes' ), 10, 3 );     // removes metaboxes from post editor
 		add_filter( 'sanitize_option_somatic_framework_options', array( __CLASS__, 'sanitize_soma_options' ), 10, 2 );  // hooks into core update_option function to allow sanitizing before saving
 		add_action( 'wp_before_admin_bar_render', array( __CLASS__, 'disable_admin_bar_links' ) ); // removes admin bar items
@@ -41,6 +40,7 @@ class somaOptions extends somaticFramework  {
 		// add_action( 'personal_options_update', array(__CLASS__, 'save_extra_profile_fields') ); // unused
 		// add_action( 'admin_action_purge', array(__CLASS__,'purge_all_data' ) );     // dynamically generated hook created by the ID on forms POSTed from admin.php
 		// add_action( 'profile_update', array(__CLASS__, 'full_display_name') );      // automatically populate display name with fullname ** NOTE DISABLED THIS BECAUSE OF INFINITE LOOP CONFLICT WITH ANY OTHER PLUGIN THAT MODIFIES USER DATA
+		// add_action( 'admin_init', array( __CLASS__, 'disable_drag_metabox' ) );      // disable dragging of any metaboxes (including dashboard widgets) didn't really work?
 	}
 
 	//** sets somatic framework options defaults on Activation of plugin
@@ -64,7 +64,8 @@ class somaOptions extends somaticFramework  {
 			"disable_dashboard" => array( 'quick_press', 'recent_drafts', 'recent_comments', 'incoming_links', 'plugins', 'primary', 'secondary', 'thesis_news_widget' ),  // hide dashboard widgets from everyone
 			"disable_metaboxes" => array( 'thesis_seo_meta', 'thesis_image_meta', 'thesis_multimedia_meta', 'thesis_javascript_meta', 'tb_page_options' ),         // hide metaboxes in post editor from everyone
 			"disable_drag_metabox" => 0,         // prevent users from dragging/rearranging metaboxes (even dashboard widgets)
-			"go_redirect" => "0",
+			"go_redirect" => 0,
+			"fulldisplayname" => 1,
 			// "disable_screen_options" => 0,         // hide the screen options tab
 			"reset_default_options" => 0,         // will reset options to defaults next time plugin is activated
 			"plugin_db_version" => SOMA_VERSION,
@@ -433,10 +434,10 @@ class somaOptions extends somaticFramework  {
 							General Options</th>
 						<td>
 							<label><input name="somatic_framework_options[debug]" type="checkbox" value="1" <?php if ( isset( $soma_options['debug'] ) ) { checked( '1', $soma_options['debug'] ); } ?> /> Debug Mode</label><br />
-							<label><input name="somatic_framework_options[disable_drag_metabox]" type="checkbox" value="1" <?php if ( isset( $soma_options['disable_drag_metabox'] ) ) { checked( '1', $soma_options['disable_drag_metabox'] ); } ?> /> Disable dragging of metaboxes</label><br />
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if ( isset( $soma_options['p2p'] ) ) { checked( '1', $soma_options['p2p'] ); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
 							<label><input name="somatic_framework_options[colorbox]" type="checkbox" value="1" <?php if ( isset( $soma_options['colorbox'] ) ) { checked( '1', $soma_options['colorbox'] ); } ?> /> Enable Colorbox JS lightbox plugin on front-end</label><br />
 							<label><input name="somatic_framework_options[go_redirect]" type="checkbox" value="1" <?php if ( isset( $soma_options['go_redirect'] ) ) { checked( '1', $soma_options['go_redirect'] ); } ?> /> Enable custom redirects via go/[code]</label><br />
+							<label><input name="somatic_framework_options[fulldisplayname]" type="checkbox" value="1" <?php if ( isset( $soma_options['fulldisplayname'] ) ) { checked( '1', $soma_options['fulldisplayname'] ); } ?> /> Force display name to be Firstname Lastname (wp default is the username)</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 					</tr>
@@ -746,12 +747,15 @@ class somaOptions extends somaticFramework  {
 
 	// automatically populates the display name field with the First Last name (wp defaults to the username)
 	function full_display_name( $user_id ) {
-		$user = get_userdata( $user_id );
-		$fullname = $_POST['first_name'] . " " . $_POST['last_name'];
-		if ( $user->display_name != $fullname ) {
-			wp_update_user( array( 'ID' => $user_id, 'display_name' => $fullname ) );
-		}
+		global $soma_options;
+		if ( somaFunctions::fetch_index( $soma_options, 'fulldisplayname' ) ) {
+			$user = get_userdata( $user_id );
+			$fullname = $_POST['first_name'] . " " . $_POST['last_name'];
+			if ( $user->display_name != $fullname ) {
+				wp_update_user( array( 'ID' => $user_id, 'display_name' => $fullname ) );
+			}
 		return null;
+		}
 	}
 
 	// modifies the user profile page fields
@@ -920,7 +924,7 @@ class somaOptions extends somaticFramework  {
 		*/
 	}
 
-
+	// don't think this works, so disabled...
 	function disable_drag_metabox() {
 		global $soma_options;
 		if ( somaFunctions::fetch_index( $soma_options, 'disable_drag_metabox' ) )
