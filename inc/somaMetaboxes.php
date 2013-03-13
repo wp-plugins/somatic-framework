@@ -240,7 +240,7 @@ class somaMetaboxes extends somaticFramework {
 
 			// get current post core database fields
 			if ($field['data'] == 'core') {
-				if ($field['id'] == 'post_author') {
+				if ($field['id'] == 'post_author' && $field['type'] == 'readonly') {
 					// show author linked name
 					$meta = somaFunctions::fetch_post_author($post->ID, 'link');
 				} else {
