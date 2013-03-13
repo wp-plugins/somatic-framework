@@ -33,6 +33,7 @@ class somaOptions extends somaticFramework  {
 		add_action( 'get_header', array( __CLASS__, 'enable_threaded_comments' ) );     // enables threaded comments
 		// add_filter( 'screen_options_show_screen', array( __CLASS__, 'disable_screen_options' ), 10, 2 );  // optional disable screen options tab NOT WORKING
 		add_action( "user_register", array( __CLASS__, "user_admin_bar_false_by_default" ), 10, 1 ); // force option off when new user created
+		add_filter( 'the_content', array( __CLASS__, 'always_colorbox'), 50);
 
 		// add_action( 'show_user_profile', array(__CLASS__, 'show_extra_profile_fields') );  // unused
 		// add_action( 'edit_user_profile', array(__CLASS__, 'show_extra_profile_fields') );  // unused
@@ -435,7 +436,7 @@ class somaOptions extends somaticFramework  {
 						<td>
 							<label><input name="somatic_framework_options[debug]" type="checkbox" value="1" <?php if ( isset( $soma_options['debug'] ) ) { checked( '1', $soma_options['debug'] ); } ?> /> Debug Mode</label><br />
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if ( isset( $soma_options['p2p'] ) ) { checked( '1', $soma_options['p2p'] ); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
-							<label><input name="somatic_framework_options[colorbox]" type="checkbox" value="1" <?php if ( isset( $soma_options['colorbox'] ) ) { checked( '1', $soma_options['colorbox'] ); } ?> /> Enable Colorbox JS lightbox plugin on front-end</label><br />
+							<label><input name="somatic_framework_options[colorbox]" type="checkbox" value="1" <?php if ( isset( $soma_options['colorbox'] ) ) { checked( '1', $soma_options['colorbox'] ); } ?> /> Enable Colorbox JS lightbox for front-end content image links (not just admin)</label><br />
 							<label><input name="somatic_framework_options[go_redirect]" type="checkbox" value="1" <?php if ( isset( $soma_options['go_redirect'] ) ) { checked( '1', $soma_options['go_redirect'] ); } ?> /> Enable custom redirects via go/[code]</label><br />
 							<label><input name="somatic_framework_options[fulldisplayname]" type="checkbox" value="1" <?php if ( isset( $soma_options['fulldisplayname'] ) ) { checked( '1', $soma_options['fulldisplayname'] ); } ?> /> Force display name to be Firstname Lastname (wp default is the username)</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
@@ -992,6 +993,19 @@ class somaOptions extends somaticFramework  {
 		return $codes;
 	}
 
+
+	function always_colorbox($content) {
+		global $soma_options;
+		if ( somaFunctions::fetch_index( $soma_options, 'colorbox' ) ) {
+			global $post;
+			$pattern ="/<a(.*?)href=('|\")(.*?).(bmp|gif|jpeg|jpg|png)('|\")(.*?)>/i";
+			$replacement = '<a$1href=$2$3.$4$5 rel="colorbox" $6>';
+			$content = preg_replace($pattern, $replacement, $content);
+		}
+		return $content;
+	}
+
+	/////////////// END CLASS
 }
 
 $somaOptions = new somaOptions();

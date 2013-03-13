@@ -44,6 +44,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * started moving soma_metabox_generator() to be useful outside of post editor
 * modified soma_plupload.js to be useful outside of the post editor
 * metabox field data type "user" is gone. Use "core" instead and "post_author" as the field ID
+* framework option for enabling Colorbox on front-end posts now automatically makes image links lightboxed
 * NEW: can specify (per customposttype args or via post_meta key) "delete_attachments_upon_deletion" - to have all media attachments (and their files) specifically attached to a post deleted when that post gets deleted. I call it the "ritual suicide" option...
 
 = 1.7.7 =
