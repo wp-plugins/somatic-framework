@@ -80,7 +80,7 @@ class somaMetaboxes extends somaticFramework {
 	name 		- text shown in left column of field row
 	id 			- (when data is taxonomy, this id must match the taxonomy slug!)
 	type 		- (see below)
-	data 		- meta, taxonomy, core, user, p2p, attachment
+	data 		- meta, taxonomy, core, p2p, attachment
 	options 	- array of name => value pairs
 	once 		- only allows data to be set one time, then becomes readonly
 	multiple 	- set to false to prevent more than one selection being saved
@@ -166,7 +166,7 @@ class somaMetaboxes extends somaticFramework {
 				'name' 					=> null,			// text displayed alongside field input
 				'id' 					=> null,			// used when saving, should be the name of the post_meta (key) or taxonomy (exact slug) we're manipulating
 				'type' 					=> null,			// field type (usually input: text, area, select, checkbox, radio), sometimes output (posts, other readonly data)
-				'data' 					=> 'none',			// what kind of data is being retrieved and saved for this post (meta [wp_postmeta table], core [wp_posts table], taxonomy, user, p2p, attachment, comment). NONE indicates there is no saved data to be retrieved when displaying this field
+				'data' 					=> 'none',			// what kind of data is being retrieved and saved for this post (meta [wp_postmeta table], core [wp_posts table], taxonomy, p2p, attachment, comment). NONE indicates there is no saved data to be retrieved when displaying this field
 				'options' 				=> array(),			// array of options to populate html form input objects (in this case, generated automatically from available taxonomy terms)
 				'once' 					=> null,			// only gets written once, then turns read-only
 				'multiple' 				=> false,			// can multiple values be selected? or must the saved value be singular?
@@ -240,17 +240,11 @@ class somaMetaboxes extends somaticFramework {
 
 			// get current post core database fields
 			if ($field['data'] == 'core') {
-				$meta = $post->$field['id'];
-			}
-
-			// get current author
-			if ($field['data'] == 'user') {
-				if ($field['type'] == 'readonly') {
-					// retrieve name only
+				if ($field['id'] == 'post_author') {
+					// show author linked name
 					$meta = somaFunctions::fetch_post_author($post->ID, 'link');
 				} else {
-					// retrive ID of author user
-					$meta = $post->post_author;
+					$meta = $post->$field['id'];
 				}
 			}
 

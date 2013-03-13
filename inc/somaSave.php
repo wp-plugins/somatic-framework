@@ -210,11 +210,6 @@ class somaSave extends somaticFramework {
 					}
 
 					//
-					if ($field['data'] == 'user') {
-						$old = $post->post_author;
-					}
-
-					//
 					if ($field['data'] == 'p2p') {
 						$p2pargs = array(
 							'direction' => 'any',
@@ -601,10 +596,6 @@ class somaSave extends somaticFramework {
 
 						if ($field['data'] == 'meta') {
 							somaFunctions::asset_meta('save', $pid, $field['id'], $new);
-						}
-
-						if ($field['data'] == 'user') {
-							$wpdb->update( $wpdb->posts, array( $field['id'] => $new ), array( 'ID' => $pid ));
 						}
 
 						if ($field['data'] == 'core') {
