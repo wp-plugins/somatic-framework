@@ -105,6 +105,7 @@ class somaMetaboxes extends somaticFramework {
 	upload-files (upload-images) [uses plupload]
 	select
 	radio
+	radio-horizontal
 	toggle
 	checkbox
 	select-multi (does that work??)
@@ -543,11 +544,12 @@ class somaMetaboxes extends somaticFramework {
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'radio':
+				case 'radio-horizontal':
 					$radioclass = "meta-radio";
 					if (!$complete) $radioclass .= $missing;
-					if (soma_fetch_index($field, 'reveal-control')) {
-						$radioclass .= " reveal-control";
-					}
+					if ($field['type'] == 'radio-horizontal') $radioclass .= " radio-horizontal";
+					if (soma_fetch_index($field, 'reveal-control')) $radioclass .= " reveal-control";
+
 					echo "<ul class='$radioclass' >";
 					if (is_array($meta)) $meta = array_shift($meta);		// existing data might be an array, especially if taxonomy. But since this is a single-value selector, extract just the one value
 					$opts = soma_fetch_index($field, 'options');

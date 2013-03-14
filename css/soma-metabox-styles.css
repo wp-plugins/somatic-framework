@@ -74,7 +74,7 @@
 	height: auto;
 }
 
-.metabox-holder td.field-data audio {	
+.metabox-holder td.field-data audio {
 	width:100%;
 	display: block;
 }
@@ -139,7 +139,7 @@ label.missing {
 
 input[type='text'],
 textarea {
-	
+
 }
 
 textarea {
@@ -230,6 +230,11 @@ li.meta-attachment-item .videoplayer {
 input.meta-checkbox-single,
 .meta-radio label input {
 	margin-right: 6px;
+}
+
+.radio-horizontal li {
+	float: left;
+	margin-right: 1.2em;
 }
 
 #normal-sortables .meta-link {
@@ -368,7 +373,7 @@ input:disabled {
 }
 
 /* remove post editor metabox columns on tiny screens */
-@media only screen and (max-width: 640px) { 
+@media only screen and (max-width: 640px) {
 	.inner-sidebar{float:none;clear:right;display:none;width:281px;position:relative;}
 	#post-body-content{margin-right:0px !important;}
 }
