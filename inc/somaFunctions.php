@@ -311,8 +311,8 @@ class somaFunctions extends somaticFramework {
 		if ($label == 'name') {
 			$output = $term[0]->name;
 		}
-		if ($label == 'singular') {
-			$output = $term[0]->singular_name;
+		if ($label == 'id') {
+			$output = $term[0]->term_id;
 		}
 		return $output;
 	}
