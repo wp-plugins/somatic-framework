@@ -306,15 +306,15 @@ class somaFunctions extends somaticFramework {
 		$term = wp_get_object_terms( $pid, $taxonomy );
 		if (is_wp_error($term)) return null;
 		if ($label == 'slug') {
-			$output = $term[0]->slug;
+			return $term[0]->slug;
 		}
 		if ($label == 'name') {
-			$output = $term[0]->name;
+			return $term[0]->name;
 		}
-		if ($label == 'id') {
-			$output = $term[0]->term_id;
+		if ($label == 'id' || $label == 'term_id') {
+			return $term[0]->term_id;
 		}
-		return $output;
+		return null;
 	}
 
 

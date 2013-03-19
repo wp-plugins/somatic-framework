@@ -373,13 +373,13 @@ function soma_external_media( $url = null, $width = null, $height = null ) {
  * @since 1.3.1
  * @param $post - (object/string/integer) post ID (required)
  * @param $tax - (string) taxonomy slug to get the set term of (required)
- * @param $label - (string) can be "name" or "slug"
+ * @param $label - (string) can be "name", "slug", or "term_id"
  * @return string - the term's pretty name
  */
 
 function soma_singular_term( $post = null, $tax = null, $label = "slug" ) {
 	if (empty($post) || !$tax) {
-		return new WP_Error('missing', "must pass a post ID and a taxonomy!");
+		return new WP_Error('missing', "must pass a post ID and a taxonomy slug!");
 	}
 	return somaFunctions::fetch_the_singular_term( $post, $tax, $label );
 }
