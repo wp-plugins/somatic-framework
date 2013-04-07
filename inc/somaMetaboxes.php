@@ -977,7 +977,7 @@ class somaMetaboxes extends somaticFramework {
 			}
 
 			// outputs generic submit button with $text, $class, $id
-			submit_button( 'Save Changes', 'clicker save-changes', $box['id'].'-save', false);
+			submit_button( 'Save Changes', 'clicker', $box['id'].'-save', false);
 
 			// // core save draft button
 			// echo '<input type="submit" name="save" id="save-post" value="Save Draft" class="button button-highlighted" />';
