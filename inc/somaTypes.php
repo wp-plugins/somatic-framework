@@ -90,9 +90,10 @@ class somaTypes extends somaticFramework {
 		}
 
 		// in order to take advantage of hierarchical post types, need to be able to select parent, thus we need the attributes metabox...
-		if ( somaFunctions::fetch_index( $data['args'], 'hierarchical' ) == true ) {
-			$args['supports'][] = 'page-attributes';
-		}
+		// ACTUALLY, don't always want to do this, as we could be using a custom field and "simple page ordering" instead of the attributes metabox...
+		// if ( somaFunctions::fetch_index( $data['args'], 'hierarchical' ) == true ) {
+		// 	$args['supports'][] = 'page-attributes';
+		// }
 
 		// create the post-type
 		$result = register_post_type( $slug, $args );

@@ -70,7 +70,7 @@ class somaFunctions extends somaticFramework {
 		// $user = json_decode(file_get_contents($userurl));
 		// $feedurl = "http://graph.facebook.com/$fid/feed";
 		// $feed = json_decode(file_get_contents($feedurl));
-		return "http://graph.facebook.com/$fid/picture?type=$size";
+		return "https://graph.facebook.com/$fid/picture?type=$size";
 	}
 
 	// since our postmeta is serialized, to query posts by postmeta requires retrieving a set of posts and then checking each entry against the desired postmeta for matches
