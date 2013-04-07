@@ -525,8 +525,8 @@ class somaMetaboxes extends somaticFramework {
 						break;
 					}
 
-					// if meta is empty (never been set), and there's no default specified, display a 'none' option
-					if (empty($meta) && !$field['default']) {
+					// if meta is empty (never been set), and there's no default specified, display a 'none' option -- UNLESS this is post_parent, which could legitimately be set to 0
+					if (empty($meta) && empty($field['default']) && $field['id'] != 'post_parent' && $field['data'] != 'core') {
 						echo '<option value="" selected="selected">[Select One]</option>';
 					}
 					// list values and match
@@ -810,7 +810,7 @@ class somaMetaboxes extends somaticFramework {
 					echo '<select name="', $field['id'], '" id="', $field['id'], '"', $disable ? ' disabled="disabled"' : null, ' class="meta-select', $complete ? null : $missing, '" >';
 					if (is_array($field['options'])) {		// must check if array exists or foreach will throw error
 						// if meta is empty (never been set), and there's no default specified, display a 'none' option
-						if (!$meta && !$field['default']) {
+						if (empty($meta) && empty($field['default'])) {
 							echo '<option value="" selected="selected">[Select One]</option>';
 						}
 						// list values and match
