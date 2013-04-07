@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.7.7
+Version: 1.7.8
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -129,10 +129,9 @@ class somaticFramework {
 		wp_register_script( 'colorbox', SOMA_JS.'colorbox/jquery.colorbox-min.js', array('jquery'), '1.3.20.1' );
 
 		// jquery UI
-		wp_register_style( 'jquery-ui-theme', SOMA_JS. 'ui/smoothness/jquery-ui-1.8.17.custom.css', false, '1.8.17');
-		wp_register_script( 'jquery-ui-datepicker', SOMA_JS.'ui/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
-		wp_register_script( 'jquery-ui-timepicker', SOMA_JS.'ui/jquery-ui-timepicker-addon.min.js', array('jquery', 'jquery-ui-core'), '1.8.17', true);
-		wp_register_style( 'jquery-ui-timepicker', SOMA_JS. 'ui/jquery-ui-timepicker-addon.css', false, '1.8.17');
+		wp_register_style( 'jquery-ui-theme', SOMA_JS. 'ui/smoothness/jquery-ui.css', false, '1.9.2');
+		wp_register_script( 'jquery-ui-timepicker', SOMA_JS.'ui/jquery-ui-timepicker-addon.min.js', array('jquery', 'jquery-ui-core'), '1.2.1', true);
+		wp_register_style( 'jquery-ui-timepicker', SOMA_JS. 'ui/jquery-ui-timepicker-addon.css', false, '1.2.1');
 
 		// autosize textareas  (not working quite right yet...)
 		// wp_register_script( 'autosize', SOMA_JS.'jquery.autosize-min.js', array('jquery'), '1.6' );

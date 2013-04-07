@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 1.7.7
+Stable tag: 1.7.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,9 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 = 1.7.8 =
 * FIX: errors using wp_register_style
+* FIX: broken styling of save-changes buttons
+* UPDATE: jquery UI smoothness theme updated to 1.9.2, removed local jQuery UI datepicker, as it's in wp-core
+* UPDATE: jquery UI timepicker addon to 1.2.1
 * NOTE: for 'upload-files' field types, the ID string for that field cannot contain a dash, or it breaks plupload js
 * added more filetype icons
 * metabox css tweaks
@@ -47,7 +50,6 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * metabox select fields now don't consider 0 to be "empty" if referring to post_parent
 * framework option for enabling Colorbox on front-end posts now automatically makes image links lightboxed
 * page-attributes metabox is no longer forced to show when post type is hierarchical (might want to use custom fields instead)
-
 * FIX: soma_singular_term() parameters fixed, can also fetch term_id
 * NEW: metabox field type "radio-horizontal" displays radio buttons... horizontally
 * NEW: can specify (per customposttype args or via post_meta key) "delete_attachments_upon_deletion" - to have all media attachments (and their files) specifically attached to a post deleted when that post gets deleted. I call it the "ritual suicide" option...
