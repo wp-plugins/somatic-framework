@@ -408,8 +408,8 @@ class somaOptions extends somaticFramework  {
 		echo "<style>#wpbody-content .icon32 { background: transparent url(\"".SOMA_IMG."soma-options.png\") no-repeat; !important }</style>";
 
 		// retrieve custom post types
-		$custom_types = get_post_types( array( "_builtin" => false ) );
-		$custom_taxes = get_taxonomies( array( "_builtin" => false ) );
+		$custom_types = get_post_types( array( "_builtin" => false, "somatic" => true ) );
+		$custom_taxes = get_taxonomies( array( "_builtin" => false, "somatic" => true ) );
 
 ?>
 		<div class="wrap somatic-options">

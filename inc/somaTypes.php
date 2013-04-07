@@ -239,7 +239,8 @@ class somaTypes extends somaticFramework {
 				'choose_from_most_used' => 'Choose from most used '.strtolower( $plural ),
 				'add_or_remove_items' => 'Add or remove '.strtolower( $plural ),
 				'separate_items_with_commas' => 'Separate '.strtolower( $plural ).' with commas'
-			)
+			),
+			'somatic' => true,			//soma - flag that this taxonomy was created with this framework
 		);
 
 		// option to obscure the taxonomy slug in the permalink structure by changing it's slug to be the same as the custom post type it's registered for. NOTE: this only works if the taxonomy has only been assigned to ONE post type
@@ -427,7 +428,8 @@ class somaTypes extends somaticFramework {
 	function custom_types_rightnow() {
 		$args = array(
 			'public' => true ,
-			'_builtin' => false
+			'somatic' => true,			// only return custom types and taxonomies declared by somatic framework
+			'_builtin' => false,
 		);
 		$output = 'object';
 		$operator = 'and';
