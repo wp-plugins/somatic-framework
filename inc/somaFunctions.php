@@ -681,7 +681,7 @@ class somaFunctions extends somaticFramework {
 			$img['id'] = $att_id;
 
 			// 'sizes' key will only exist if the uploaded image was equal or larger than the site option for thumbnail size
-			if ( isset( $att_meta['sizes'] ) ) {
+			if ( !is_null( somaFunctions::fetch_index( $att_meta, 'sizes' ) ) && !empty( $att_meta[ 'sizes' ] ) ) {
 				// loop through all available image sizes, including any custom ones via add_image_size()
 				foreach ($att_meta['sizes'] as $size => $data) {
 					$img[$size]['file'] 	= 	$data['file'];

@@ -81,7 +81,7 @@ jQuery(document).ready(function($) {
 					trace('there was a problem with the ajax callback...');
 					return;															// abort if callback fails
 				}
-				if ('error' in data ) {
+				if ( data === null || 'error' in data ) {
 					trace('there was a problem with wp_handle_upload...');
 					return;															// abort if wp_handle_upload returned error
 				}
