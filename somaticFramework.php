@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.7.9
+Version: 1.7.9.1
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -175,6 +175,11 @@ class somaticFramework {
 		} else {
 			$debug = 'false';
 		}
+		if (!is_null(somaFunctions::fetch_index($soma_options, 'colorbox'))) {
+			$colorbox = 'true';
+		} else {
+			$colorbox = 'false';
+		}
 		if (class_exists('Debug_Bar') && $debug == 'true') {
 			$debug_panel = 'true';
 		} else {
@@ -193,6 +198,7 @@ class somaticFramework {
 			'is_admin' => $admin,
 			'debug' => $debug,
 			'debug_panel' => $debug_panel,
+			'colorbox' => $colorbox,
 			'ajaxurl' => admin_url('admin-ajax.php'),	 						// need to define because ajaxurl isn't defined on front-end, only admin
 			'$_POST' => json_encode($_POST),
 			'$_GET' => json_encode($_GET)

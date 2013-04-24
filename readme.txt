@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 1.7.9
+Stable tag: 1.7.9.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,9 @@ If you're using a theme or setting up a site I built for you, then very likely, 
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.7.9.1 =
+* FIX: soma-public-jquery.js was failing when front-end colorbox was not enabled
 
 = 1.7.9 =
 * FIX: soma_fetch_image was failing to return image sizes if none were generated because original was too small
