@@ -43,6 +43,19 @@ class somaSorter extends somaticFramework {
 			// container for all the custom type items
 			echo '<ul id="type-sort-list">';
 
+			// ancestors group (only deals with top-level parentage)
+			if ($type_obj->sort_group_type == 'ancestors') {
+				$parents = get_posts(array('post_type' => $type, 'post_parent' => 0, 'numberposts' => -1, 'orderby' => 'menu_order', 'order' => 'ASC'));
+				foreach ($parents as $parent) {
+					$query_args['post_parent'] = $parent->ID;
+					$kids = new WP_Query($query_args);
+					 ?>
+					<h3><?php echo $parent->post_title; ?></h3>
+					<?php self::soma_sort_item($kids); ?>
+					<?php
+				}
+			}
+
 			// tax group
 			if ($type_obj->sort_group_type == 'taxonomy') {
 				$terms = get_terms($type_obj->sort_group_slug);

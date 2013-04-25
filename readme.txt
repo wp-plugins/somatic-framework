@@ -36,6 +36,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * NEW: gallery field of attachments now supports editing of each attachment's title, caption, description and changing sort order!
 * FIX: colorbox overlays in admin have maxheight and maxwidth set
 * FIX: soma-public-jquery.js was failing and halting js when front-end colorbox was not enabled
+* NEW: sort_group_type -> ancestors allows Sort Order page via post_parent grouping (only deals with top-level parents)
 
 = 1.7.9 =
 * FIX: soma_fetch_image was failing to return image sizes if none were generated because original was too small
