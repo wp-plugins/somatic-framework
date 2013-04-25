@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 1.7.9.1
+Stable tag: 1.7.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,9 +35,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 = 1.7.10 =
 * NEW: gallery field of attachments now supports editing of each attachment's title, caption, description
 * FIX: colorbox overlays in admin have maxheight and maxwidth set
-
-= 1.7.9.1 =
-* FIX: soma-public-jquery.js was failing when front-end colorbox was not enabled
+* FIX: soma-public-jquery.js was failing and halting js when front-end colorbox was not enabled
 
 = 1.7.9 =
 * FIX: soma_fetch_image was failing to return image sizes if none were generated because original was too small
