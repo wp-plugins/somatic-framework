@@ -604,6 +604,8 @@ class somaSave extends somaticFramework {
 									$atts[] = $entry;
 									$c++;
 								}
+
+								$i = 1;
 								foreach ($atts as $att) {
 									$slug = sanitize_title( $att['title'] );
 									$push = $wpdb->update(
@@ -612,11 +614,13 @@ class somaSave extends somaticFramework {
 											'post_title' => $att['title'],
 											'post_content' => $att['description'],
 											'post_excerpt' => $att['caption'],
-											'post_name' => $slug
+											'menu_order' => $i,						// gallery order determined by order they appear in the $_POST data
+											'post_name' => $slug,
 										),
 										array( 'ID' => $att['id'] )
 									);
 									if ($push === false) wp_die('wpdb update had a problem with the attachments...');
+									$i++;
 								}
 							}
 

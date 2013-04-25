@@ -869,6 +869,8 @@ class somaFunctions extends somaticFramework {
 			'post_type' => 'attachment',
 			'numberposts' => -1,
 			'post_status' => 'any',
+			'orderby' => 'menu_order',
+			'order' => 'ASC',
 			'exclude' => get_post_thumbnail_id($pid),
 		);
 		if ($include_featured == true) {

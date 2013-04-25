@@ -127,6 +127,15 @@ jQuery(document).ready(function($) {
 		$(this).next('textarea').toggle();
 	});
 
+	// draggable metabox attachment items
+	$(".meta-attachment-gallery").sortable({
+    	opacity: 0.6,
+    	distance: 15,
+    	revert: true,
+    	containment: "parent",
+    	cursor: 'move',
+	});
+
 	// ajax attachment killer
 	$("a.delete-attachment").on("click", function () {
 		if (confirm('Are you sure you want to delete this attachment?')) {
