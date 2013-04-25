@@ -114,7 +114,7 @@ class somaUploadField extends somaticFramework {
 			$pendinglabel = "Pending ".$this->field['name'];
 			$help = "Or drag and drop a file here";
 		} else {
-			$pendinglabel = "Pending Uploads";
+			$pendinglabel = "Pending Uploads <br/><span style='font-weight:normal;font-style:italic'>(save changes to commit)</span>";
  			$help = "Or drag and drop files here (". $this->max . " " . _n( 'item', 'items' , $this->max ) . " max)";
 		}
 		?>

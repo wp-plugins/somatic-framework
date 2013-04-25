@@ -121,6 +121,13 @@ jQuery(document).ready(function($) {
 	});
 
 	// ajax attachment killer
+	$(".att-text > a").on("click", function (e) {
+		e.preventDefault();
+		$(this).next('input').toggle();
+		$(this).next('textarea').toggle();
+	});
+
+	// ajax attachment killer
 	$("a.delete-attachment").on("click", function () {
 		if (confirm('Are you sure you want to delete this attachment?')) {
 			var container = $(this).parent().parent().parent();					// this is clunky...

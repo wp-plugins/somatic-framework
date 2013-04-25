@@ -209,6 +209,10 @@ class somaSave extends somaticFramework {
 						$old = $post->$field['id'];
 					}
 
+					if ($field['data'] == 'attachment') {
+						$old = array();						// just need a placeholder
+					}
+
 					//
 					if ($field['data'] == 'p2p') {
 						$p2pargs = array(
@@ -269,7 +273,6 @@ class somaSave extends somaticFramework {
 
 					// default $new
 					$new = $_POST[$field['id']];
-
 
 					// taxonomy data has to be sanitized first  --------------------------------------------------------------//
 					if ($field['data'] == 'taxonomy') {
@@ -587,6 +590,36 @@ class somaSave extends somaticFramework {
 									) );
 								}
 							}
+
+							// updating attachments own meta
+							if ($field['data'] == 'attachment') {
+								$atts = array();
+								$count = count($new["id"]);	// how many attachments are we processing?
+								$c = 0;
+								while ( $c < $count) {
+									$entry = array();
+									foreach ($new as $key => $list) {
+										$entry[$key] = $list[$c];
+									}
+									$atts[] = $entry;
+									$c++;
+								}
+								foreach ($atts as $att) {
+									$slug = sanitize_title( $att['title'] );
+									$push = $wpdb->update(
+										$wpdb->posts,
+										array(
+											'post_title' => $att['title'],
+											'post_content' => $att['description'],
+											'post_excerpt' => $att['caption'],
+											'post_name' => $slug
+										),
+										array( 'ID' => $att['id'] )
+									);
+									if ($push === false) wp_die('wpdb update had a problem with the attachments...');
+								}
+							}
+
 						}
 					} elseif (!empty($new) && $new != $old) {									// non-array data
 
@@ -627,6 +660,7 @@ class somaSave extends somaticFramework {
 							);
 							$comment_id = wp_new_comment($data);
 						}
+
 					}
 
 

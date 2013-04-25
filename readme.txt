@@ -32,6 +32,10 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.7.10 =
+* NEW: gallery field of attachments now supports editing of each attachment's title, caption, description
+* FIX: colorbox overlays in admin have maxheight and maxwidth set
+
 = 1.7.9.1 =
 * FIX: soma-public-jquery.js was failing when front-end colorbox was not enabled
 

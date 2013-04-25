@@ -27,11 +27,15 @@ jQuery(document).ready(function($) {
 		maxWidth: function(){
 			if ($(this).attr('maxWidth') !== undefined) {
 				return $(this).attr('maxWidth');
+			} else {
+				return "95%";
 			}
 		},
 		maxHeight: function(){
 			if ($(this).attr('maxHeight') !== undefined) {
 				return $(this).attr('maxHeight');
+			} else {
+				return "95%";
 			}
 		},
 		innerWidth: function(){

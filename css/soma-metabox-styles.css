@@ -1,3 +1,6 @@
+/* @override 
+	http://plenty.wpengine.com/wp-content/plugins/somatic-framework/css/soma-metabox-styles.css?ver=1.7.9 */
+
 /* metabox fields */
 
 .metabox-holder td.field-label,
@@ -162,10 +165,36 @@ ul.featured-image {
 	margin: 0;
 }
 li.meta-attachment-item {
-	margin: 0 10px 10px 0;
+	margin: 0 1em 2em 0;
 	vertical-align: top;
 	list-style-type: none;
 	display: inline-block;
+	padding: 1em;
+	position: relative;
+	background: #eee;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	line-height: 1.5em;
+}
+
+li.meta-attachment-item .att-text a {
+	text-transform: uppercase;
+	color: #bbb;
+	font-weight: bold;
+	min-width: 60px;
+	display: inline-block;
+	text-decoration: none;
+	background: transparent url('../images/bullet_toggle_plus.png') no-repeat left top;
+	padding-left: 16px;
+}
+li.meta-attachment-item .att-text a:hover {
+	color: #666;
+}
+li.meta-attachment-item input,
+li.meta-attachment-item textarea {
+	margin-top: 6px;
+	display: none;
+	margin-left: 0;
 }
 .featured-image .meta-attachment-item {
 	margin-right: 0;
@@ -184,6 +213,12 @@ li.meta-attachment-item .pic {
 	border: 1px solid #ddd;
 }
 
+li.meta-attachment-item .imageviewer {
+	width: 150px;
+}
+li.meta-attachment-item .imageviewer img {
+	margin-bottom: 1em;
+}
 li.meta-attachment-item .audioplayer {
 	width: 300px;
 }
@@ -198,8 +233,6 @@ li.meta-attachment-item .videoplayer {
 }
 #poststuff .meta-attachment-actions li {
 	margin: 0;
-	padding: 0;
-	line-height: 1.4em;
 }
 .meta-attachment-actions li a {
 	display: inline-block;
@@ -207,6 +240,15 @@ li.meta-attachment-item .videoplayer {
 .meta-attachment-actions .kill-animation {
 	margin-left: 4px;
 	position: absolute;
+}
+
+.meta-attachment-actions .download-attachment {
+	background: transparent url('../images/bullet_down.png') no-repeat left top;
+	padding-left: 16px;
+}
+.meta-attachment-actions .delete-attachment {
+	background: transparent url('../images/bullet_delete.png') no-repeat left top;
+	padding-left: 16px;
 }
 
 .meta-checkbox-multi {

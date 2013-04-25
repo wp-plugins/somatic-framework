@@ -457,25 +457,26 @@ class somaMetaboxes extends somaticFramework {
 					// really need to incorporate dragdrop sorting here.... also ability to edit title/caption
 					echo '<ul class="meta-attachment-gallery">';
 					foreach ($meta as $att) :
+						$i = 0;
 						echo '<li class="meta-attachment-item">';
 							switch ($att->post_mime_type) {
 								case "application/pdf" :
-									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" iframe="true"><img src="'. SOMA_IMG . 'file_extension_pdf.png" title="Click to view PDF file with Google Docs" /></a>';
+									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. SOMA_IMG . 'file_extension_pdf.png" title="Click to view PDF file with Google Docs" /></a>';
 								break;
 								case "application/msword" :
 								case "application/vnd.ms-word" :
 								case "application/vnd.openxmlformats-officedocument.wordprocessingml.document" :
-									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" iframe="true"><img src="'. SOMA_IMG . 'file_extension_doc.png" title="Click to view Microsoft Word Doc with Google Docs" /></a>';
+									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. SOMA_IMG . 'file_extension_doc.png" title="Click to view Microsoft Word Doc with Google Docs" /></a>';
 								break;
 								case "application/msexcel" :
 								case "application/vnd.ms-excel" :
 								case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" :
-									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" iframe="true"><img src="'. SOMA_IMG . 'file_extension_xls.png" title="Click to view Microsoft Excel Spreadsheet with Google Docs" /></a>';
+									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. SOMA_IMG . 'file_extension_xls.png" title="Click to view Microsoft Excel Spreadsheet with Google Docs" /></a>';
 								break;
 								case "application/mspowerpoint" :
 								case "application/vnd.ms-powerpoint" :
 								case "application/vnd.openxmlformats-officedocument.presentationml.presentation" :
-									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" iframe="true"><img src="'. SOMA_IMG . 'file_extension_ppt.png" title="Click to view PowerPoint Presentation with Google Docs" /></a>';
+									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. SOMA_IMG . 'file_extension_ppt.png" title="Click to view PowerPoint Presentation with Google Docs" /></a>';
 								break;
 								case "application/zip" :
 									echo '<a class="filetype-icon" href="'.wp_get_attachment_url($att->ID).'" target="blank"><img src="'. SOMA_IMG . 'file_extension_zip.png" /></a><br>';
@@ -484,7 +485,13 @@ class somaMetaboxes extends somaticFramework {
 								case "image/jpeg" :
 								case "image/jpg" :
 								case "image/png" :
-									echo '<a href="'.wp_get_attachment_url($att->ID).'" class="colorbox" rel="attachment-gallery">'. wp_get_attachment_image($att->ID, 'thumbnail', false, array('title'=>'Click to Zoom', 'class' => 'pic')) . '</a>';
+									echo "<div class='imageviewer'>";
+									$img = soma_fetch_image($att->ID);
+									echo '<a href="'.wp_get_attachment_url($att->ID).'" class="colorbox" rel="gallery-'.$field['id'].'" title="'.$img['title'].'">';
+									echo "<img src=\"{$img['thumbnail']['url']}\" title=\"{$img['title']}\" class=\"pic\" />";
+									// echo wp_get_attachment_image($att->ID, 'thumbnail', false, array('title'=>'Click to Zoom', 'class' => 'pic'));
+									echo '</a>';
+									echo "</div>";
 								break;
 								case 'audio/mpeg':
 									echo "<div class='audioplayer'>";
@@ -499,13 +506,22 @@ class somaMetaboxes extends somaticFramework {
 									echo "</div>";
 								break;
 							}
-						echo '<br />';
+						echo '<ul class="meta-attachment-text">';
+							echo "<input type='hidden' name='{$field['id']}[id][]' value='{$att->ID}' >";
+							echo "<li class='att-text'><a href='#'>Title</a>";
+							echo "<input type='text' name='{$field['id']}[title][]' id='attachmenttext[$i][title]' value='{$img['title']}' /></li>";
+							echo "<li class='att-text'><a href='#'>Caption</a>";
+							echo "<textarea rows='3' name='{$field['id']}[caption][]' id='attachmenttext[$i][caption]' >{$img['caption']}</textarea></li>";
+							echo "<li class='att-text'><a href='#'>Description</a>";
+							echo "<textarea rows='3' name='{$field['id']}[description][]' id='attachmenttext[$i][description]' >{$img['description']}</textarea></li>";
+						echo "</ul>";
 						echo '<ul class="meta-attachment-actions">';
 							$dl_url = get_option('siteurl') . "?download={$att->ID}&security=" . wp_create_nonce( "soma-download" );
-							echo "<li><a href=\"$dl_url\" title=\"Download this file\">Download File</a></li>";
+							echo "<li><a class=\"download-attachment\" href=\"$dl_url\" title=\"Download this file\">Download File</a></li>";
 							echo '<li><a class="delete-attachment" href="#" rel="'.$att->ID.'" title="Delete this file" data-nonce="'.wp_create_nonce("soma-delete-attachment").'">Delete File</a><img src="'.admin_url('images/wpspin_light.gif').'" class="kill-animation" style="display:none;" alt="" /></li>';
 						echo '</ul>';
 						echo '</li>';
+						$i++;
 					endforeach;
 					echo '</ul>';
 				break;
@@ -976,8 +992,8 @@ class somaMetaboxes extends somaticFramework {
 				echo '<input type="hidden" name="post_status" id="post_status" value="publish" />';
 			}
 
-			// outputs generic submit button with $text, $class, $id
-			submit_button( 'Save Changes', 'clicker', $box['id'].'-save', false);
+			// outputs generic submit button
+			submit_button( 'Save Changes', 'clicker', 'save', false, array( 'id' => $field["id"]));
 
 			// // core save draft button
 			// echo '<input type="submit" name="save" id="save-post" value="Save Draft" class="button button-highlighted" />';
