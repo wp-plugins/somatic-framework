@@ -5,7 +5,7 @@ jQuery(document).ready(function($) {
 	if (typeof soma_vars != 'undefined') console.log(soma_vars);								// array of vars passed from admin.php
 
 	// key commands for toggling the debug bar panels
-	if (soma_vars['debug_panel']) {
+	if (soma_vars['debug_panel'] === 'true') {
 		$(document).keydown(function(event) {
 			switch (true) {
 				// backslash (mini-panel)
@@ -30,7 +30,8 @@ jQuery(document).ready(function($) {
 			}
 		});
 	}
-	if (soma_vars['colorbox']) {
+
+	if (soma_vars['colorbox'] === 'true') {
 		// colorbox activation
 		$("a[rel=colorbox]").colorbox();
 		$(".colorbox").colorbox({
