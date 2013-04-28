@@ -1,4 +1,4 @@
-/* @override 
+/* @override
 	http://plenty.wpengine.com/wp-content/plugins/somatic-framework/css/soma-metabox-styles.css?ver=1.7.9 */
 
 /* metabox fields */
@@ -26,6 +26,10 @@
 .metabox-holder td.field-data ul {
 	margin-top: 0;
 	margin-bottom: 0;
+}
+
+.metabox-holder td.field-data #post_title {
+	font-size: 2em;
 }
 
 .metabox-holder td.field-data img,
