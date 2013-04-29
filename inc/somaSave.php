@@ -551,6 +551,14 @@ class somaSave extends somaticFramework {
 						continue;
 					}
 
+
+					// special case for post titles, as normally wp has already updated it, and it wouldn't trigger our save routines
+					if ($field['data'] == 'core' && $field['id'] == 'post_title') {
+						$slug = sanitize_title( $new );												// build new post slug if title changes
+						$wpdb->update( $wpdb->posts, array( 'post_name' => $slug ), array( 'ID' => $pid ));
+					}
+
+
 					// ---- field isn't blank and it's changed from old ---- //
 
 					if (is_array($new) && is_array($old)) {											// array data
@@ -636,9 +644,7 @@ class somaSave extends somaticFramework {
 						}
 
 						if ($field['data'] == 'core') {
-							if ($field['type'] == "richtext" || $field['type'] == "textarea" || $field['type'] == "text") {
-								$new = stripslashes($new);										// because tinymce adds them.... even though we're using the_editor()...
-							}
+							// NOTE: none of this is happening because wp has already updated the DB, so the old data matches new data...
 							$wpdb->update( $wpdb->posts, array( $field['id'] => $new ), array( 'ID' => $pid ));
 						}
 
