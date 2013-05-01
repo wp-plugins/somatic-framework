@@ -38,6 +38,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * FIX: soma-public-jquery.js was failing and halting js when front-end colorbox was not enabled
 * NEW: sort_group_type -> ancestors allows Sort Order page via post_parent grouping (only deals with top-level parents)
 * FIX: saving post_title fields now also updates the post slug to match
+* FIX: more accurate use of wp_localize_script
 
 = 1.7.9 =
 * FIX: soma_fetch_image was failing to return image sizes if none were generated because original was too small
