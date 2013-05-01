@@ -1,10 +1,12 @@
 jQuery(document).ready(function($) {
-	// debug
-	if (soma_vars['debug'] == 'true') {
-		console.log("jquery version: "+$().jquery);	// jquery version
-		console.log("jqueryUI version: "+$.ui.version);	// jquery version
-		console.log(soma_vars);	// array of vars passed over by wp_localize_script()
+
+	// debug output
+	if (typeof soma_vars != 'undefined' && soma_vars['debug'] == 'true') {
+		if ($().jquery != 'undefined') console.log("jquery version: "+$().jquery);			// jquery version
+		if ($.ui.version != 'undefined') console.log("jqueryUI version: "+$.ui.version);	// jqueryUI version
+		console.log(soma_vars);																// array of vars passed from admin.php
 	}
+
 
 	// colorbox activation through manual class assignment
 	$(".colorbox").colorbox({
@@ -64,7 +66,7 @@ jQuery(document).ready(function($) {
 
 
 	// key commands for toggling the debug bar panels
-	if (soma_vars['debug_panel'] == 'true') {
+	if (typeof soma_vars != 'undefined' && soma_vars['debug_panel'] == 'true') {
 		$(document).keydown(function(event) {
 			switch (true) {
 				// backslash (mini-panel)

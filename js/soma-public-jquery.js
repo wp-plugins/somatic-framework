@@ -1,11 +1,15 @@
 jQuery(document).ready(function($) {
-	// debug
-	if ($().jquery != 'undefined') console.log("jquery version: "+$().jquery);			// jquery version
-	if ($.ui.version != 'undefined') console.log("jqueryUI version: "+$.ui.version);	// jqueryUI version
-	if (typeof soma_vars != 'undefined') console.log(soma_vars);								// array of vars passed from admin.php
+
+	// debug output
+	if (typeof soma_vars != 'undefined' && soma_vars['debug'] == 'true') {
+		if ($().jquery != 'undefined') console.log("jquery version: "+$().jquery);			// jquery version
+		if ($.ui.version != 'undefined') console.log("jqueryUI version: "+$.ui.version);	// jqueryUI version
+		console.log(soma_vars);																// array of vars passed from admin.php
+	}
+
 
 	// key commands for toggling the debug bar panels
-	if (soma_vars['debug_panel'] === 'true') {
+	if (typeof soma_vars != 'undefined' && soma_vars['debug_panel'] === 'true') {
 		$(document).keydown(function(event) {
 			switch (true) {
 				// backslash (mini-panel)
@@ -31,7 +35,7 @@ jQuery(document).ready(function($) {
 		});
 	}
 
-	if (soma_vars['colorbox'] === 'true') {
+	if (typeof soma_vars != 'undefined' && soma_vars['colorbox'] === 'true') {
 		// colorbox activation
 		$("a[rel=colorbox]").colorbox();
 		$(".colorbox").colorbox({
