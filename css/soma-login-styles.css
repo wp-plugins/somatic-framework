@@ -1,0 +1,88 @@
+/* @override 
+	http://sleepthiefmusic.com/wp-content/plugins/somatic-framework/css/soma-login-styles.css?ver=1.6 */
+
+#login {
+	z-index: 100;
+}
+
+body.login { background-color: #e6e8ea;
+position: relative;
+}
+
+body.login #login {
+    width: 320px;
+    padding: 114px 0 0;
+    margin: auto;
+    position: relative;
+}
+
+
+body.login #loginform {
+    margin: 0;
+    border-color: #c3c7cc;
+}
+
+body.login #nav {
+	position: absolute;
+	right: 0;
+    padding-right: 0;
+}
+
+body.login #backtoblog {
+	position: absolute;
+	left: 0;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+body.login #nav a { text-decoration: none }
+
+body.login #backtoblog a { text-decoration: none }
+
+body.login #nav a:hover { color: #000 !important }
+
+body.login #backtoblog a:hover { color: #000 !important }
+
+
+#soma-login-footer {
+	position: fixed;
+	width: 100%;
+	bottom: 50px;
+	display: block;
+	color: #d4d7d9;
+	text-transform: uppercase;
+	letter-spacing: 10px;
+	text-shadow: 1px 1px 0 #f6f6f6;
+	text-align: center;
+	font: bold 14px "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+}
+
+#wpengine-login-footer {
+	position: fixed;
+	width: 100%;
+	bottom: 80px;
+	display: block;
+	text-align: center;
+	opacity: .6;
+}
+
+
+/* all the elements for reference */
+body.login {}
+body.login div#login {}
+body.login div#login h1 {}
+body.login div#login h1 a {}
+body.login div#login form#loginform {}
+body.login div#login form#loginform p {}
+body.login div#login form#loginform p label {}
+body.login div#login form#loginform input {}
+body.login div#login form#loginform input#user_login {}
+body.login div#login form#loginform input#user_pass {}
+body.login div#login form#loginform p.forgetmenot {}
+body.login div#login form#loginform p.forgetmenot input#rememberme {}
+body.login div#login form#loginform p.submit {}
+body.login div#login form#loginform p.submit input#wp-submit {}
+body.login div#login p#nav {}
+body.login div#login p#nav a {}
+body.login div#login p#backtoblog {}
+body.login div#login p#backtoblog a {}
