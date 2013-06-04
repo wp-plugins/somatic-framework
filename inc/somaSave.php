@@ -644,6 +644,7 @@ class somaSave extends somaticFramework {
 
 								$i = 1;
 								foreach ($atts as $att) {
+									if (wp_is_post_revision( $pid )) continue;
 									// unhook this function so it doesn't loop infinitely
 									remove_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
 									$slug = sanitize_title( $att['title'] );
@@ -666,15 +667,15 @@ class somaSave extends somaticFramework {
 
 						}
 					} elseif (!empty($new) && $new != $old) {									// non-array data
-						if ($field['data'] == 'taxonomy') {
+						if ( $field['data'] == 'taxonomy' ) {
 							wp_set_object_terms($pid, $new, $field['id'], false);
 						}
 
-						if ($field['data'] == 'meta') {
+						if ( $field['data'] == 'meta' ) {
 							somaFunctions::asset_meta('save', $pid, $field['id'], $new);
 						}
 
-						if ($field['data'] == 'core') {
+						if ( $field['data'] == 'core' && !wp_is_post_revision( $pid ) ) {
 
 							// unhook this function so it doesn't loop infinitely
 							remove_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
