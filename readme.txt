@@ -32,6 +32,12 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.8 =
+* FIX: finally using wp_update_post() instead of $wpdb->update for core data, so now text gets sanitized and filtered as normal before saving.
+* FIX: major bugs in metabox text saving, resulting in escaped backslash quotes and more issues.
+* FIX: safe ID's now generated when using wp_editor(), as it's pretty fussy about ID's. You can use anything you want now without setting it off
+* FIX: finally isolated saving of core metabox data types thru custom ID's, so they don't get hijacked by core save routines
+
 = 1.7.10 =
 * NEW: gallery field of attachments now supports editing of each attachment's title, caption, description and changing sort order!
 * FIX: colorbox overlays in admin have maxheight and maxwidth set

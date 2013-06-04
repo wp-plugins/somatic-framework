@@ -247,6 +247,8 @@ class somaMetaboxes extends somaticFramework {
 				} else {
 					$meta = $post->$field['id'];
 				}
+				// gotta make our own field ID that won't conflict with core ID's, which otherwise might get hijacked (confused for the actual core metabox data) during save
+				$field['id'] = "core_".$field['id'];
 			}
 
 			// get all media attachments (minus featured image)
@@ -412,25 +414,27 @@ class somaMetaboxes extends somaticFramework {
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// custom richtext/HTML editor  http://codex.wordpress.org/Function_Reference/wp_editor
 				case 'richtext':
-					$args = array();
+					$args = array('wpautop' => false);
 					if (!empty($field['rows'])) {
-						$args['textarea_rows'] = intval($field['rows']);		// override system defaults for visual editor rows
+						$args['textarea_rows'] = intval($field['rows']);				// override system defaults for visual editor rows
 					}
 					if ($field['hide_buttons']) {
-						$args['media_buttons'] = false;							// hides the media upload buttons
+						$args['media_buttons'] = false;									// hides the media upload buttons
 					}
-					wp_editor( $meta, $field['id'], $args );					// Note that the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction.
+					$sanitizedID = preg_replace('/[^a-z]+/', '', $field['id']);			// This is BIZARRE, but the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction. So we create a sanitized version to be given to wp_editor()
+					wp_editor( $meta, $sanitizedID, $args );
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				// HTML only editor
 				case 'html':
-					$args = array();
+					$args = array('wpautop' => false);
 					if (!empty($field['rows'])) {
-						$args['textarea_rows'] = intval($field['rows']);		// override system defaults for visual editor rows
+						$args['textarea_rows'] = intval($field['rows']);				// override system defaults for visual editor rows
 					}
-					$args['tinymce'] = false;									// disable visual editor tab
-					$args['media_buttons'] = false;								// hide media upload buttons
-					wp_editor( $meta, $field['id'], $args );					// Note that the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction.
+					$args['tinymce'] = false;											// disable visual editor tab
+					$args['media_buttons'] = false;										// hide media upload buttons
+					$sanitizedID = preg_replace('/[^a-z]+/', '', $field['id']);			// This is BIZARRE, but the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction. So we create a sanitized version to be given to wp_editor()
+					wp_editor( $meta, $sanitizedID, $args );
 				break;
 
 				// ----------------------------------------------------------------------------------------------------------------------------- //

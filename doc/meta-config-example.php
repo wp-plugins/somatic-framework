@@ -57,6 +57,12 @@ function mysite_metabox_data() {
 				'required' => true											// can this field be left empty or unselected? enables red styling to draw attention (validation functions to check completion don't exist yet)
 			),
 			array(
+				'name' => 'Content',
+				'id' => 'post_content',
+				'type' => 'richtext',
+				'data' => 'core',
+			),
+			array(
 				'name' => 'Description',
 				'id' => 'desc',
 				'type' => 'text',

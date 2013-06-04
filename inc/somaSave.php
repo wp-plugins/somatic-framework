@@ -206,7 +206,25 @@ class somaSave extends somaticFramework {
 					}
 					//
 					if ($field['data'] == 'core') {
-						$old = $post->$field['id'];
+						if ($field['type'] == 'richtext') {
+							// restore core table ids that had underscores stripped
+							switch ($field['id']) {
+								case 'postcontent':
+									$old = $post->post_content;
+									break;
+								case 'postexcerpt':
+									$old = $post->post_excerpt;
+									break;
+								case 'posttitle':
+									$old = $post->post_title;
+									break;
+								default:
+									$old = $post->$field['id'];
+									break;
+							}
+						} else {
+							$old = $post->$field['id'];
+						}
 					}
 
 					if ($field['data'] == 'attachment') {
@@ -273,6 +291,16 @@ class somaSave extends somaticFramework {
 
 					// default $new
 					$new = $_POST[$field['id']];
+
+					// the ID for fields that use wp_editor() have to be sanitized, so we have to fetch their altered ID
+					if ( $field['data'] == 'core' ) {
+						$new = $_POST["core_".$field['id']];
+						if ( $field['type'] == 'richtext' || $field['type'] == 'html' ) {
+							$sanitizedID = preg_replace('/[^a-z]+/', '', 'core_'.$field['id']);
+							$new = $_POST[$sanitizedID];
+						}
+					}
+
 
 					// taxonomy data has to be sanitized first  --------------------------------------------------------------//
 					if ($field['data'] == 'taxonomy') {
@@ -529,6 +557,7 @@ class somaSave extends somaticFramework {
 					//** ----------------------- COMMIT CHANGES TO DB ------------------------- **//
 					//
 
+
 					// ---- if field is empty, nuke saved values ---- //
 
 					if ($new == '' || $new == null || (is_array($new) && empty($new))) {
@@ -615,26 +644,28 @@ class somaSave extends somaticFramework {
 
 								$i = 1;
 								foreach ($atts as $att) {
+									// unhook this function so it doesn't loop infinitely
+									remove_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
 									$slug = sanitize_title( $att['title'] );
-									$push = $wpdb->update(
-										$wpdb->posts,
-										array(
+									$attpost = array(
+											'ID' => $att['id'],
 											'post_title' => $att['title'],
 											'post_content' => $att['description'],
 											'post_excerpt' => $att['caption'],
 											'menu_order' => $i,						// gallery order determined by order they appear in the $_POST data
 											'post_name' => $slug,
-										),
-										array( 'ID' => $att['id'] )
-									);
-									if ($push === false) wp_die('wpdb update had a problem with the attachments...');
+										);
+									$push = wp_update_post( $attpost );
+									// re-hook this function
+									add_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
+									if ($push === 0) wp_die('wpdb update had a problem with the attachments...');
+
 									$i++;
 								}
 							}
 
 						}
 					} elseif (!empty($new) && $new != $old) {									// non-array data
-
 						if ($field['data'] == 'taxonomy') {
 							wp_set_object_terms($pid, $new, $field['id'], false);
 						}
@@ -644,8 +675,18 @@ class somaSave extends somaticFramework {
 						}
 
 						if ($field['data'] == 'core') {
-							// NOTE: none of this is happening because wp has already updated the DB, so the old data matches new data...
-							$wpdb->update( $wpdb->posts, array( $field['id'] => $new ), array( 'ID' => $pid ));
+
+							// unhook this function so it doesn't loop infinitely
+							remove_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
+
+							// update the post, which calls save_post again
+							$new_post = array();
+							$new_post['ID'] = $pid;
+							$new_post[$field['id']] = $new;
+							wp_update_post( $new_post );
+
+							// re-hook this function
+							add_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
 						}
 
 						if ($field['data'] == 'p2p' && $field['type'] == 'p2p-select') {
