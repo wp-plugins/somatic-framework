@@ -422,7 +422,7 @@ class somaMetaboxes extends somaticFramework {
 						$args['media_buttons'] = false;									// hides the media upload buttons
 					}
 					$args['wpautop'] = false;
-					$sanitizedID = preg_replace('/[^a-z]+/', '', $field['id']);			// This is BIZARRE, but the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction. So we create a sanitized version to be given to wp_editor()
+					$sanitizedID = somaFunctions::sanitize_wpeditor_id($field['id']);	// This is BIZARRE, but the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction. So we create a sanitized version to be given to wp_editor()
 					wp_editor( $meta, $sanitizedID, $args );
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
@@ -435,7 +435,7 @@ class somaMetaboxes extends somaticFramework {
 					$args['wpautop'] = false;
 					$args['tinymce'] = false;											// disable visual editor tab
 					$args['media_buttons'] = false;										// hide media upload buttons
-					$sanitizedID = preg_replace('/[^a-z]+/', '', $field['id']);			// This is BIZARRE, but the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction. So we create a sanitized version to be given to wp_editor()
+					$sanitizedID = somaFunctions::sanitize_wpeditor_id($field['id']);	// This is BIZARRE, but the ID that is passed to the wp_editor() function can only be comprised of lower-case letters. No underscores, no hyphens. Anything else will cause the WYSIWYG editor to malfunction. So we create a sanitized version to be given to wp_editor()
 					wp_editor( $meta, $sanitizedID, $args );
 				break;
 

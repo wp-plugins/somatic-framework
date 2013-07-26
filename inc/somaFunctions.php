@@ -1607,6 +1607,29 @@ SQL;
 		);
 		return get_pages($args);
 	}
+
+	/**
+	* Helps in use of dash and underscore in field ID's of richtext field types (dealing with wp_editor() finicky rules)
+	* @since 1.8.1
+	*
+	* @param - $id - string - user defined ID for this field, anything that's not a lowercase letter or a dash or underscore will get trashed!!
+	* @return - $sanID - string - safe ID with obfuscations
+	*/
+
+	function sanitize_wpeditor_id($id) {
+		$sanID = preg_replace('/_+/', 'uuuuu', $id);			// to preserve some backwards compatibility, we'll make special replacements for dashes and underscores, so they'll get preserved
+		$sanID = preg_replace('/-+/', 'ddddd', $sanID);
+		$sanID = preg_replace('/[^a-z]+/', '', $sanID);			// final pass to eliminate all non-alpha characters
+		return $sanID;
+	}
+
+
+	function unsanitize_wpeditor_id($id) {
+		$unsanID = preg_replace('/uuuuu+/', '_', $id);			// to preserve some backwards compatibility, we'll make special replacements for dashes and underscores, so they'll get preserved
+		$unsanID = preg_replace('/ddddd+/', '-', $unsanID);
+		return $unsanID;
+	}
+
 }
 // --> END class somaFunctions
 // INIT

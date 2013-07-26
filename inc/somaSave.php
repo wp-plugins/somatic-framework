@@ -190,6 +190,7 @@ class somaSave extends somaticFramework {
 					//** ---------------------- RETRIEVE EXISTING DATA -------------------- **//
 					//
 
+
 					if ($field['data'] == 'meta') {
 						$old = somaFunctions::asset_meta('get', $pid, $field['id']);
 					}
@@ -206,25 +207,7 @@ class somaSave extends somaticFramework {
 					}
 					//
 					if ($field['data'] == 'core') {
-						if ($field['type'] == 'richtext') {
-							// restore core table ids that had underscores stripped
-							switch ($field['id']) {
-								case 'postcontent':
-									$old = $post->post_content;
-									break;
-								case 'postexcerpt':
-									$old = $post->post_excerpt;
-									break;
-								case 'posttitle':
-									$old = $post->post_title;
-									break;
-								default:
-									$old = $post->$field['id'];
-									break;
-							}
-						} else {
-							$old = $post->$field['id'];
-						}
+						$old = $post->$field['id'];
 					}
 
 					if ($field['data'] == 'attachment') {
@@ -289,16 +272,18 @@ class somaSave extends somaticFramework {
 					//** -------- RETRIEVE AND ASSEMBLE $NEW DATA FROM CURRENT FIELD STATES -------- **//
 					//
 
-					// default $new
+					// match obfuscated ID's to accomodate wp_editor() finicky ID rules
+					if ($field['type'] == 'richtext' || $field['type'] == 'html') {
+						$field['id'] = somaFunctions::sanitize_wpeditor_id($field['id']);
+					}
+
+					// default source of $new data
 					$new = $_POST[$field['id']];
+
 
 					// the ID for fields that use wp_editor() have to be sanitized, so we have to fetch their altered ID
 					if ( $field['data'] == 'core' ) {
 						$new = $_POST["core_".$field['id']];
-						if ( $field['type'] == 'richtext' || $field['type'] == 'html' ) {
-							$sanitizedID = preg_replace('/[^a-z]+/', '', 'core_'.$field['id']);
-							$new = $_POST[$sanitizedID];
-						}
 					}
 
 
@@ -578,6 +563,12 @@ class somaSave extends somaticFramework {
 						}
 						// move on - no additional save routines needed
 						continue;
+					}
+
+
+					// ---- restore obfuscated ID's to match original data source ID's before saving ---- //
+					if ($field['type'] == 'richtext' || $field['type'] == 'html') {
+						$field['id'] = somaFunctions::unsanitize_wpeditor_id($field['id']);
 					}
 
 

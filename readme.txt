@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 1.8
+Stable tag: 1.8.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,10 @@ If you're using a theme or setting up a site I built for you, then very likely, 
 deactivate and reactivate your theme/plugin that contains the function call, as term generation only happens upon activation...
 
 == Changelog ==
+
+= 1.8.1 =
+* FIX: severe bug that prevented saving any changes from a wp_editor() richtext field or core post data columns
+* NOTE: when you spawn a richtext or html field type, the ID you give should only consist of lowercase letters, nothing else. A function has been included to provide backwards compatibility with older configs where underscores or dashes were used in the ID.
 
 = 1.8 =
 * FIX: finally using wp_update_post() instead of $wpdb->update for core data, so now text gets sanitized and filtered as normal before saving.
