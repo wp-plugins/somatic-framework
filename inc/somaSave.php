@@ -134,9 +134,9 @@ class somaSave extends somaticFramework {
 		// AJAX? Not used here
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) return;
 		// Check user permissions
-		if ( ! current_user_can( 'edit_post', $post_id ) ) return;
+		if ( ! current_user_can( 'edit_post', $pid ) ) return;
 		// Return if it's a post revision
-		if ( false !== wp_is_post_revision( $post_id ) ) return;
+		if ( false !== wp_is_post_revision( $pid ) ) return;
 
 		if ( $post->post_status == 'auto-draft' ) return;
 		if ( somaFunctions::fetch_index($_GET,'action') == 'trash' ) return;
@@ -176,7 +176,7 @@ class somaSave extends somaticFramework {
 		//
 		foreach (somaMetaboxes::$data as $meta_box) {
 			// don't process metaboxes which are hidden for non-staff (otherwise saving will complain the item is incomplete... )
-			if ($meta_box['restrict'] && !SOMA_STAFF) continue;
+			if (soma_fetch_index($meta_box, 'restrict') && !SOMA_STAFF) continue;
 			// only fire for meta boxes whose post-type is set to the current post object
 			if (in_array($type, $meta_box['types'])) {
 
@@ -277,7 +277,7 @@ class somaSave extends somaticFramework {
 					}
 
 					// skip saving one-time fields that already have data
-					if ($old && $field['once']) continue;
+					if ($old && soma_fetch_index($field,'once')) continue;
 
 
 					//
@@ -681,7 +681,7 @@ class somaSave extends somaticFramework {
 							somaFunctions::asset_meta('save', $pid, $field['id'], $new);
 						}
 
-						if ( $field['data'] == 'core' && !wp_is_post_revision( $pid ) ) {
+						if ( $field['data'] == 'core' ) {
 
 							// unhook this function so it doesn't loop infinitely
 							remove_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
