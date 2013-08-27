@@ -418,7 +418,7 @@ class somaMetaboxes extends somaticFramework {
 					if (!empty($field['rows'])) {
 						$args['textarea_rows'] = intval($field['rows']);				// override system defaults for visual editor rows
 					}
-					if ($field['hide_buttons']) {
+					if (soma_fetch_index($field, 'hide_buttons')) {
 						$args['media_buttons'] = false;									// hides the media upload buttons
 					}
 					$args['wpautop'] = false;

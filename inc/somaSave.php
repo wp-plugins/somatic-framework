@@ -3,7 +3,7 @@ class somaSave extends somaticFramework {
 
 	function __construct() {
 		add_action('admin_notices', array(__CLASS__,'save_notices'));
-		add_action('save_post', array(__CLASS__, 'save_asset'), 11, 2);
+		add_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
 		// add_action('save_post', array(__CLASS__, 'completion_validator'), 70, 2); // must fire after metadata and doc completion is determined
 		// add_action('pending_to_publish', 'example'); // could be useful to only execute certain things once it's been approved? like stuff that should only happen after editors have finalized?
 	}
@@ -284,6 +284,12 @@ class somaSave extends somaticFramework {
 					//** -------- RETRIEVE AND ASSEMBLE $NEW DATA FROM CURRENT FIELD STATES -------- **//
 					//
 
+
+					// add prefix to match ID's in $_POST
+					if ( $field['data'] == 'core' ) {
+						$field['id'] = "core_" . $field['id'];
+					}
+
 					// match obfuscated ID's to accomodate wp_editor() finicky ID rules
 					if ($field['type'] == 'richtext' || $field['type'] == 'html') {
 						$field['id'] = somaFunctions::sanitize_wpeditor_id($field['id']);
@@ -291,11 +297,6 @@ class somaSave extends somaticFramework {
 
 					// default source of $new data
 					$new = $_POST[$field['id']];
-
-					// the ID for fields that use wp_editor() have to be sanitized, so we have to fetch their altered ID
-					if ( $field['data'] == 'core' ) {
-						$new = $_POST["core_".$field['id']];
-					}
 
 
 					// taxonomy data has to be sanitized first  --------------------------------------------------------------//
@@ -553,6 +554,17 @@ class somaSave extends somaticFramework {
 					//** ----------------------- COMMIT CHANGES TO DB ------------------------- **//
 					//
 
+
+					// ---- restore obfuscated ID's to match original data source ID's before saving ---- //
+					if ($field['type'] == 'richtext' || $field['type'] == 'html') {
+						$field['id'] = somaFunctions::unsanitize_wpeditor_id($field['id']);
+					}
+
+					// ---- strip core prefix from ID
+					if ($field['data'] == 'core') {
+						$field['id'] = substr($field['id'], strlen("core_"));
+					}
+
 					// ---- if field is empty, nuke saved values ---- //
 					if ($new == '' || $new == null || (is_array($new) && empty($new))) {
 
@@ -566,20 +578,13 @@ class somaSave extends somaticFramework {
 
 						// only do this if meta field is required
 						// comments are optional, so don't tag as missing
-						if ($field['required'] === true && $field['data'] != 'comment') {
+						if (soma_fetch_index($field, 'required') && $field['data'] != 'comment') {
 							// set missing state at least this once for assigning incomplete metadata later
 							$missing = true;
 						}
 						// move on - no additional save routines needed
 						continue;
 					}
-
-
-					// ---- restore obfuscated ID's to match original data source ID's before saving ---- //
-					if ($field['type'] == 'richtext' || $field['type'] == 'html') {
-						$field['id'] = somaFunctions::unsanitize_wpeditor_id($field['id']);
-					}
-
 
 					// special case for post titles, as normally wp has already updated it, and it wouldn't trigger our save routines
 					if ($field['data'] == 'core' && $field['id'] == 'post_title') {
@@ -687,10 +692,10 @@ class somaSave extends somaticFramework {
 							remove_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
 
 							// update the post, which calls save_post again
-							$new_post = array();
-							$new_post['ID'] = $pid;
-							$new_post[$field['id']] = $new;
-							wp_update_post( $new_post );
+							$update_post = array();
+							$update_post['ID'] = $pid;
+							$update_post[$field['id']] = $new;
+							wp_update_post( $update_post );
 
 							// re-hook this function
 							add_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);

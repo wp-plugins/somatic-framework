@@ -35,6 +35,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 = 1.8.2 =
 * FIX: action and filter hooks in somaSave class with same name resulted in nuked data upon save
 * NEW: filter hook to construct save data in special field cases: "soma_field_new_save_data"
+* FIX: finally cracked the issue of custom fields saving core column data and dealing with the quirks of tinymce ID limitations
 * cleaned up undefined indexes and variables
 
 = 1.8.1 =
