@@ -32,6 +32,10 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.8.2 =
+* FIX: action and filter hooks in somaSave class with same name resulted in nuked data upon save
+* NEW: filter hook to construct save data in special field cases: "soma_field_new_save_data"
+
 = 1.8.1 =
 * FIX: severe bug that prevented saving any changes from a wp_editor() richtext field or core post data columns
 * NOTE: when you spawn a richtext or html field type, the ID you give should only consist of lowercase letters, nothing else. A function has been included to provide backwards compatibility with older configs where underscores or dashes were used in the ID.

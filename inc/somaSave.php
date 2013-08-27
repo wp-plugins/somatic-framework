@@ -3,7 +3,7 @@ class somaSave extends somaticFramework {
 
 	function __construct() {
 		add_action('admin_notices', array(__CLASS__,'save_notices'));
-		add_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
+		add_action('save_post', array(__CLASS__, 'save_asset'), 11, 2);
 		// add_action('save_post', array(__CLASS__, 'completion_validator'), 70, 2); // must fire after metadata and doc completion is determined
 		// add_action('pending_to_publish', 'example'); // could be useful to only execute certain things once it's been approved? like stuff that should only happen after editors have finalized?
 	}
@@ -123,15 +123,33 @@ class somaSave extends somaticFramework {
 	//** Collect and save data from meta box fields -----------------------------------------------------------------------------------------------------------------------------------------------//
 	// NOTE: debugging any values within this function must be done with wp_die() not var_dump() otherwise won't show
 	function save_asset($pid, $post = null) {
+
+		global $wpdb, $hook_suffix;
+
 		// don't do on autosave or for new post creation or when trashing post or when using quick edit
 		if ( somaFunctions::fetch_index($_POST, 'action') == "inline-save" ) return;	//  NOTE: REMOVE THIS ONE IF GOING TO DISPLAY CUSTOM COLUMN BOXES IN QUICK EDIT
-		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) return;
+
+		// Autosave, do nothing
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+		// AJAX? Not used here
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) return;
+		// Check user permissions
+		if ( ! current_user_can( 'edit_post', $post_id ) ) return;
+		// Return if it's a post revision
+		if ( false !== wp_is_post_revision( $post_id ) ) return;
+
 		if ( $post->post_status == 'auto-draft' ) return;
 		if ( somaFunctions::fetch_index($_GET,'action') == 'trash' ) return;
-		if ( is_null(somaFunctions::fetch_index($_POST, 'somatic'))) return;						// don't fire unless this form has our signature on it (and thus contains our custom fields to save)
 
-		global $wpdb;
-		global $hook_suffix;
+		// don't fire unless this form has our signature on it (and thus contains our custom fields to save)
+		if ( is_null(somaFunctions::fetch_index($_POST, 'somatic'))) return;
+
+		// only run our custom save routines if custom metabox data has been defined
+		if (empty(somaMetaboxes::$data) || !somaMetaboxes::$data) return;
+			// wp_die('missing custom metabox data...', 'Save Error!', array('back_link' => true));
+
+
+		// let's go!
 
 		$type = get_post_type($pid);
 		$type_obj = get_post_type_object($type);
@@ -139,12 +157,6 @@ class somaSave extends somaticFramework {
 		// if ($hook_suffix != 'post.php' || $type == 'post' || $type == 'page' ) { 	// only execute these functions when saving from an individual post edit page for custom types. (allows quick edit on edit.php to work)
 		// 	return $pid;
 		// }
-
-		// only run our custom save routines if custom metabox data has been defined
-		if (empty(somaMetaboxes::$data) || !somaMetaboxes::$data) {
-			return $pid;
-			// wp_die('missing custom metabox data...', 'Save Error!', array('back_link' => true));
-		}
 
 		// verify nonce
 		if (!wp_verify_nonce($_POST['soma_meta_box_nonce'], 'soma-save-asset')) {
@@ -156,7 +168,7 @@ class somaSave extends somaticFramework {
 			// wp_die('You are not allowed to edit '.$type, 'Save Error!', array('back_link' => true));		/// DISABLED - this was breaking woocommerce paypal digital goods checkout... maybe move this where it only executes when post type matches
 		}
 
-		// reset var for determining if fields are empty
+		// reset holding var for determining if fields are empty
 		$missing = false;
 
 		//
@@ -279,7 +291,6 @@ class somaSave extends somaticFramework {
 
 					// default source of $new data
 					$new = $_POST[$field['id']];
-
 
 					// the ID for fields that use wp_editor() have to be sanitized, so we have to fetch their altered ID
 					if ( $field['data'] == 'core' ) {
@@ -535,16 +546,14 @@ class somaSave extends somaticFramework {
 
 					// hook additional field type conditionals to save custom metadata
 					// must return $new unmodified if conditionals don't match!
-					$new = apply_filters('soma_field_save_meta', $new, $field, $pid, $post);
+					$new = apply_filters('soma_field_new_save_data', $new, $field, $pid, $post);
 
 
 					//
 					//** ----------------------- COMMIT CHANGES TO DB ------------------------- **//
 					//
 
-
 					// ---- if field is empty, nuke saved values ---- //
-
 					if ($new == '' || $new == null || (is_array($new) && empty($new))) {
 
 						if ($field['data'] == 'taxonomy') {
@@ -581,7 +590,9 @@ class somaSave extends somaticFramework {
 
 					// ---- field isn't blank and it's changed from old ---- //
 
-					if (is_array($new) && is_array($old)) {											// array data
+					// array data
+
+					if (is_array($new) && is_array($old)) {
 						$diffo = array_diff($old, $new);
 						$diffn = array_diff($new, $old);
 						// wp_die(var_dump($new, $old, $diffn, $diffo));	// debug
@@ -657,7 +668,11 @@ class somaSave extends somaticFramework {
 							}
 
 						}
-					} elseif (!empty($new) && $new != $old) {									// non-array data
+
+					// non-array data
+
+					} elseif (!empty($new) && $new != $old) {
+
 						if ( $field['data'] == 'taxonomy' ) {
 							wp_set_object_terms($pid, $new, $field['id'], false);
 						}

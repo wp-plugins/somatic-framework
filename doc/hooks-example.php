@@ -7,7 +7,7 @@
 // this hooks into the somatic framework save routine, altering the $new data value for this special case
 // IMPORTANT: you must return $new **unchanged** if your conditionals don't match. Otherwise you will override the saved data for *every* other case!!
 
-add_filter( 'soma_field_save_meta', 'default_enrol_dates', 10, 4 );
+add_filter( 'soma_field_new_save_data', 'default_enrol_dates', 10, 4 );
 function default_enrol_dates($new, $field, $pid, $post) {
 	if ($field['id'] == "enrol_start_date") {			// only fire for this specific field
 		if ( empty( $_POST["enrol_start_date"] ) ) {	// if no date has been set
