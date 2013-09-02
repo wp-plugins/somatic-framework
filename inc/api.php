@@ -253,7 +253,7 @@ function soma_select_items( $type = null, $args = array() ) {
 function soma_select_generic($items) {
 	$list = array();
 	foreach ($items as $item) {
-		$list[] = array('name' => $item, 'value' => sanitize_title($item));
+		$list[] = array('name' => $item, 'value' => sanitize_text_field($item));
 	}
 	return $list;
 }
