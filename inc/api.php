@@ -531,3 +531,16 @@ function soma_notices($type, $msg) {
 function soma_go_link($slug, $text) {
 	return somaFunctions::make_go_link($slug, $text);
 }
+
+/**
+ * Grabs useful details about a file (only works on attachments)
+ *
+ * @since 1.8.3
+ * @param $id [int] valid attachment ID
+ * @return $file [array] containing: dirname, basename, extension, filename, mime type, url, secure (nonced download request)
+ */
+
+function soma_fetch_file( $id = null ) {
+	$file = somaFunctions::fetch_file( $id );
+	return $file;
+}

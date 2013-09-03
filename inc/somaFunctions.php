@@ -1579,6 +1579,27 @@ SQL;
 
 	}
 
+	// Returns array of details about a file (only works on attachments)
+	// -------------------------------------------------------------
+	function fetch_file($pid = null) {
+		if ( empty( $pid ) ) return false;
+		$type = get_post_type( intval( $pid ) );
+		if ( $type != "attachment" ) return false;
+
+		$file_path = get_attached_file( $pid );
+		$file = pathinfo( $file_path );  							// returns array of dirname, basename, extension, filename
+		$file['mime'] = get_post_mime_type( $pid );					// returns mime type
+		$file['url'] = wp_get_attachment_url( $pid );				// returns full URL for downloading
+		$file['secure'] = get_option('siteurl') . "?download=".$pid."&security=" . wp_create_nonce( "soma-download" );		// returns secure download URL
+		if ( is_file( SOMA_DIR . "images/file-icons/" . $file['extension'] . ".png" ) ) {
+			$file['icon'] = SOMA_IMG . 'file-icons/'. $file['extension'].'.png';
+		} else {
+			$file['icon'] = SOMA_IMG . 'file-icons/bin.png';
+		}
+
+		return $file;
+	}
+
 	// Return all sub pages of a given post
 	// -------------------------------------------------------------
 	function fetch_sub_pages($pid = null) {
