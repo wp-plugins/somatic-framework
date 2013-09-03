@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 1.8.3
+Stable tag: 1.8.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,10 +32,12 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.8.4 =
+* NEW: api function soma_fetch_file() returns bunch of really handy info about an attachment's file
+
 = 1.8.3 =
 * NEW: custom post type icons integrated - can now be picked with the arg "icon_set" (makes it easier to place soma-config.php in mu-plugins folder, as no additional images have to be included)
 * CHANGE: soma_init_type arg "icons" is now "custom_icon_path", to differentiate from built-in icon sets (all old configs will need to be updated, or use the new integrated sets)
-* NEW: api function soma_fetch_file() returns bunch of really handy info about an attachment's file
 * gallery field items now show less attachment meta fields for filetypes other than images
 * sanitizing form field values less, allowing for decimals
 * better handling of mime-type file icons
