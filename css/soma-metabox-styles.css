@@ -5,7 +5,7 @@
 
 .metabox-holder td.field-label,
 .metabox-holder td.field-data {
-	margin-bottom: 0px;
+	margin-bottom: 0;
 	padding: 14px 0;
 	line-height: 20px;
 	font-size: 1em;
@@ -146,7 +146,7 @@ label.missing {
 
 input[type='text'],
 textarea {
-
+	background: inherit;;
 }
 
 textarea {
@@ -203,7 +203,7 @@ li.meta-attachment-item textarea {
 .featured-image .meta-attachment-item {
 	margin-right: 0;
 	margin-bottom: 0;
-	display: block;
+	display: inline-block;
 }
 
 li.meta-attachment-item .filetype-icon {
@@ -266,11 +266,11 @@ li.meta-attachment-item .videoplayer {
 
 #side-sortables .meta-checkbox-multi {
 	-moz-column-count: 1;
-	-moz-column-gap: 0px;
+	-moz-column-gap: 0;
 	-webkit-column-count: 1;
-	-webkit-column-gap: 0px;
+	-webkit-column-gap: 0;
 	column-count: 1;
-	column-gap: 0px;
+	column-gap: 0;
 }
 .meta-checkbox-multi label input,
 input.meta-checkbox-single,
