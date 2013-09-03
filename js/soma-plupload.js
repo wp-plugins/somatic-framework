@@ -166,14 +166,15 @@ function plu_add_thumbs(fieldID, index, max) {
 		case "application/vnd.ms-excel" :
 		case "application/mspowerpoint" :
 		case "application/vnd.ms-powerpoint" :
-			var newthumb = $('<div class="thumb file" id="' + fieldID + '_thumb' + index + '"><div class="icon" style="background-image: url(\''+soma_vars["SOMA_IMG"]+'file_extension_'+extension+'.png\');"></div>'+filename+'<br/><div class="pendinginfo"><a class="kill" data-field="' + fieldID +'" data-index="' + index + '" href="#">Remove File</a><img src="'+soma_vars['loading-spin']+'" class="kill-animation" style="display:none;" alt="" /></div><div class="clear"></div></div>');
+		case "application/octet-stream" :
+			var newthumb = $('<div class="thumb file" id="' + fieldID + '_thumb' + index + '"><div class="icon" style="background-image: url(\''+soma_vars["SOMA_IMG"]+'file-icons/'+extension+'.png\');"></div>'+filename+'<br/><div class="pendinginfo"><a class="kill" data-field="' + fieldID +'" data-index="' + index + '" href="#">Remove File</a><img src="'+soma_vars['loading-spin']+'" class="kill-animation" style="display:none;" alt="" /></div><div class="clear"></div></div>');
 		break;
 		case "image/jpeg" :
 		case "image/png" :
 			var newthumb = $('<div class="thumb image" id="' + fieldID + '_thumb' + index + '"><a href="'+url+'" class="colorbox" rel="pending-gallery" title="'+basename(url)+'"><img src="' + url + '" alt="" /></a><div class="thumbinfo"><a class="kill" data-field="' + fieldID +'" data-index="' + index + '" href="#">Remove File</a><img src="'+soma_vars['loading-spin']+'" class="kill-animation" style="display:none;" alt="" /></div><div class="clear"></div></div>');
 		break;
 		default:
-			var newthumb = $('<div class="thumb">Can\'t tell what kind of file this is!</div>');
+			var newthumb = $('<div class="thumb file" id="' + fieldID + '_thumb' + index + '"><div class="icon" style="background-image: url(\''+soma_vars["SOMA_IMG"]+'file-icons/bin.png\');"></div>'+filename+'<br/><em>Can\'t tell what kind of file this is!</em><div class="pendinginfo"><a class="kill" data-field="' + fieldID +'" data-index="' + index + '" href="#">Remove File</a><img src="'+soma_vars['loading-spin']+'" class="kill-animation" style="display:none;" alt="" /></div><div class="clear"></div></div>');
 	}
 
 	thumbsContainer.append(newthumb);

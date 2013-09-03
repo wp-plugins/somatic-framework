@@ -37,6 +37,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * CHANGE: soma_init_type arg "icons" is now "custom_icon_path", to differentiate from built-in icon sets (all old configs will need to be updated, or use the new integrated sets)
 * gallery field items now show less attachment meta fields for filetypes other than images
 * sanitizing form field values less, allowing for decimals
+* better handling of mime-type file icons
 
 = 1.8.2 =
 * FIX: action and filter hooks in somaSave class with same name resulted in nuked data upon save

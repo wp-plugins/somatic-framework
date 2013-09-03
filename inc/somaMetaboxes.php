@@ -467,25 +467,25 @@ class somaMetaboxes extends somaticFramework {
 						echo '<li class="meta-attachment-item">';
 							switch ($att->post_mime_type) {
 								case "application/pdf" :
-									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. SOMA_IMG . 'file_extension_pdf.png" title="Click to view PDF file with Google Docs" /></a>';
+									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. SOMA_IMG . 'file-icons/pdf.png" title="Click to view PDF file with Google Docs" /></a>';
 								break;
 								case "application/msword" :
 								case "application/vnd.ms-word" :
 								case "application/vnd.openxmlformats-officedocument.wordprocessingml.document" :
-									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. SOMA_IMG . 'file_extension_doc.png" title="Click to view Microsoft Word Doc with Google Docs" /></a>';
+									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. SOMA_IMG . 'file-icons/doc.png" title="Click to view Microsoft Word Doc with Google Docs" /></a>';
 								break;
 								case "application/msexcel" :
 								case "application/vnd.ms-excel" :
 								case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" :
-									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. SOMA_IMG . 'file_extension_xls.png" title="Click to view Microsoft Excel Spreadsheet with Google Docs" /></a>';
+									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. SOMA_IMG . 'file-icons/xls.png" title="Click to view Microsoft Excel Spreadsheet with Google Docs" /></a>';
 								break;
 								case "application/mspowerpoint" :
 								case "application/vnd.ms-powerpoint" :
 								case "application/vnd.openxmlformats-officedocument.presentationml.presentation" :
-									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. SOMA_IMG . 'file_extension_ppt.png" title="Click to view PowerPoint Presentation with Google Docs" /></a>';
+									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode(wp_get_attachment_url($att->ID)).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. SOMA_IMG . 'file-icons/ppt.png" title="Click to view PowerPoint Presentation with Google Docs" /></a>';
 								break;
 								case "application/zip" :
-									echo '<a class="filetype-icon" href="'.wp_get_attachment_url($att->ID).'" target="blank"><img src="'. SOMA_IMG . 'file_extension_zip.png" /></a><br>';
+									echo '<a class="filetype-icon" href="'.wp_get_attachment_url($att->ID).'" target="blank"><img src="'. SOMA_IMG . 'file-icons/zip.png" /></a><br>';
 									echo basename(wp_get_attachment_url($att->ID));
 								break;
 								case "image/jpeg" :
@@ -511,6 +511,13 @@ class somaMetaboxes extends somaticFramework {
 									echo "<input type='text' value='{$att->post_title}' /><br />";
 									echo do_shortcode('[video src="'.wp_get_attachment_url($att->ID).'"]');		// output html5 tags (handled by mediaelement.js - separate plugin)
 									echo "</div>";
+								break;
+								default :
+									$file_path = get_attached_file( $att->ID );
+									$file_ext = pathinfo($file_path, PATHINFO_EXTENSION);
+									if ( !is_file( SOMA_DIR . "images/file-icons/" . $file_ext . ".png" ) ) $file_ext = 'bin';			// default to bin.png if there isn't a matching icon for this extension
+									echo '<div class="filetype-icon"><img src="'. SOMA_IMG . 'file-icons/'. $file_ext .'.png" /></div><br>';
+									echo basename($file_path);
 								break;
 							}
 						// collapsed meta fields
