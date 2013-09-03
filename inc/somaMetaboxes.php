@@ -498,6 +498,7 @@ class somaMetaboxes extends somaticFramework {
 									// echo wp_get_attachment_image($att->ID, 'thumbnail', false, array('title'=>'Click to Zoom', 'class' => 'pic'));
 									echo '</a>';
 									echo "</div>";
+									$showmetafields = true;
 								break;
 								case 'audio/mpeg':
 									echo "<div class='audioplayer'>";
@@ -512,15 +513,19 @@ class somaMetaboxes extends somaticFramework {
 									echo "</div>";
 								break;
 							}
-						echo '<ul class="meta-attachment-text">';
-							echo "<input type='hidden' name='{$field['id']}[id][]' value='{$att->ID}' >";
-							echo "<li class='att-text'><a href='#'>Title</a>";
-							echo "<input type='text' name='{$field['id']}[title][]' id='attachmenttext[$i][title]' value='{$img['title']}' /></li>";
-							echo "<li class='att-text'><a href='#'>Caption</a>";
-							echo "<textarea rows='3' name='{$field['id']}[caption][]' id='attachmenttext[$i][caption]' >{$img['caption']}</textarea></li>";
-							echo "<li class='att-text'><a href='#'>Description</a>";
-							echo "<textarea rows='3' name='{$field['id']}[description][]' id='attachmenttext[$i][description]' >{$img['description']}</textarea></li>";
-						echo "</ul>";
+						// collapsed meta fields
+						if ($showmetafields == true) {
+							echo '<ul class="meta-attachment-text">';
+								echo "<input type='hidden' name='{$field['id']}[id][]' value='{$att->ID}' >";
+								echo "<li class='att-text'><a href='#'>Title</a>";
+								echo "<input type='text' name='{$field['id']}[title][]' id='attachmenttext[$i][title]' value='{$img['title']}' /></li>";
+								echo "<li class='att-text'><a href='#'>Caption</a>";
+								echo "<textarea rows='3' name='{$field['id']}[caption][]' id='attachmenttext[$i][caption]' >{$img['caption']}</textarea></li>";
+								echo "<li class='att-text'><a href='#'>Description</a>";
+								echo "<textarea rows='3' name='{$field['id']}[description][]' id='attachmenttext[$i][description]' >{$img['description']}</textarea></li>";
+							echo "</ul>";
+						}
+						// action buttons
 						echo '<ul class="meta-attachment-actions">';
 							$dl_url = get_option('siteurl') . "?download={$att->ID}&security=" . wp_create_nonce( "soma-download" );
 							echo "<li><a class=\"download-attachment\" href=\"$dl_url\" title=\"Download this file\">Download File</a></li>";

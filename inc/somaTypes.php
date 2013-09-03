@@ -55,6 +55,8 @@ class somaTypes extends somaticFramework {
 			'not_found_in_trash' => __( 'No '.$plural.' found in Trash' ),
 			'view' =>  __( 'View '.$single )
 		);
+
+
 		// generate args
 		$default_args = array(
 			'public' 				=> true,            //wp
@@ -68,7 +70,8 @@ class somaTypes extends somaticFramework {
 			'rewrite' 				=> array( 'slug' => $slug, 'with_front' => false ), //wp
 			'register_meta_box_cb' 	=> array( 'somaMetaBoxes', 'add_boxes' ), //wp
 			'labels' 				=> $labels,			//wp
-			'menu_icon' 			=> $data['icons'] . $slug . '-menu-icon.png',  //wp - use custom menu icon if defined
+			'menu_icon' 			=> null,  			//wp - defaults to posts icon
+
 			// non-core args (but get stored in the post type object)
 			'somatic' 				=> true,			//soma - flag that this CPT was created with this framework (helps when dealing with mixed sources of CPTs)
 			'sort_by' 				=> 'post_date',		//soma - how to filter the query when displaying this type - post_date, post_title, post_author, meta_value, menu_order - which also causes the admin sorting menu to appear
@@ -79,10 +82,20 @@ class somaTypes extends somaticFramework {
 			'create_nav_item' 		=> true,			//soma - automatically generate a nav menu item for this type - NOTE: will re-create it if you manually delete the nav item!
 			'hide_publish' 			=> false,			//soma - hide the Publish core metabox (make sure you include save buttons on in your metabox field config!)
 			'blank_slate' 			=> false,			//soma - disable all the core wp metaboxes. better make sure to declare some custom ones, or the edit page will be empty...
+			'icon_set'				=> 'document',		//soma - loads set of icons for menu, page headers
 		);
 
 		// merge with incoming register cpt args
 		$args = wp_parse_args( $data['args'], $default_args );
+
+
+		// menu icon from built-in set or custom path
+		if ( !somaFunctions::fetch_index($data, 'custom_icon_path') ) {
+			$args['menu_icon'] = SOMA_IMG . "cpt-icons/" . $args['icon_set'] . '-menu-icon.png';
+		} else {
+			$args['menu_icon'] = $data['custom_icon_path'] . $slug . '-menu-icon.png';
+			unset($args['icon_set']);
+		}
 
 		// special case for when we don't want ANY core wp metaboxes
 		if ( somaFunctions::fetch_index( $data['args'], 'blank_slate' ) ) {
@@ -313,10 +326,17 @@ class somaTypes extends somaticFramework {
 		global $pagenow, $post_type;
 		if (!$post_type) $post_type = somaFunctions::fetch_index($_GET, 'post_type');
 
-		if ( !somaFunctions::fetch_index(self::$type_data, $post_type ) ) return null;    // abort if custom post type hasn't been defined for whatever type we're viewing
-		if ( !somaFunctions::fetch_index(self::$type_data[$post_type], 'icons' ) ) return null;  // abort if custom icons path hasn't been provided
+		// abort if custom post type hasn't been defined for whatever type we're viewing
+		if ( !somaFunctions::fetch_index(self::$type_data, $post_type ) ) return null;
 
-		$url = self::$type_data[$post_type]['icons'] . $post_type;
+		// built-in icon sets or custom path
+		if ( !somaFunctions::fetch_index(self::$type_data[$post_type], 'custom_icon_path' ) ) {
+			$obj = get_post_type_object($post_type);
+			$url = SOMA_IMG . "cpt-icons/" . $obj->icon_set;
+		} else {
+			$url = self::$type_data[$post_type]['custom_icon_path'] . $post_type;
+		}
+
 		$sortpage = "sort-" . $post_type;
 
 		switch (true) {

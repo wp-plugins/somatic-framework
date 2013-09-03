@@ -32,6 +32,12 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.8.3 =
+* NEW: custom post type icons integrated - can now be picked with the arg "icon_set" (makes it easier to place soma-config.php in mu-plugins folder, as no additional images have to be included)
+* CHANGE: soma_init_type arg "icons" is now "custom_icon_path", to differentiate from built-in icon sets (all old configs will need to be updated, or use the new integrated sets)
+* gallery field items now show less attachment meta fields for filetypes other than images
+* sanitizing form field values less, allowing for decimals
+
 = 1.8.2 =
 * FIX: action and filter hooks in somaSave class with same name resulted in nuked data upon save
 * NEW: filter hook to construct save data in special field cases: "soma_field_new_save_data"

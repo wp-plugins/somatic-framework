@@ -27,8 +27,9 @@ function mysite_type_data() {
 				"sort_group_slug" => 'format',									// required if sort_group_type is set - which object to group by (in this case, a specific taxonomy)
 				"create_nav_item"=> true,										// automatically generate a nav menu item for this type in Appearance->Menus which you can rearrange - NOTE: will re-create the nav item if you manually delete it!
 				"blank_slate" => true,											// disables all default metaboxes, so you'll have to declare custom ones. leave out the "supports" arg with this one, and use "hide_publish" if you want the edit page to be totally blank
+				"icon_set" => "person"											// loads set of icons in framework/images/cpt-icons/
 			),
-		"icons" => "http://mysite.com/mytheme/img/",							// set url path to where your custom icons are located
+		"custom_icon_path" => "http://mysite.com/mytheme/img/",					// ONLY if you aren't using the built-in icon sets above, set url path to where your custom icons are located
 		"columns" => array(														// custom columns for edit.php listing
 				"thumb" => "Cover",
 				"title" => "Title",
