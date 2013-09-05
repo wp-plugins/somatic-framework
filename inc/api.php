@@ -145,7 +145,7 @@ function soma_metabox_data( $args ) {
 
 
 // outputs this: array(array('name'=>'1','value'=>'1'),array('name'=>'2','value'=>'2')) etc
-function soma_select_number_generator($max, $date = false, $zero = false) {
+function soma_select_number_generator($max, $zero = false, $date = false ) {
 	$numbers = array();
 	$zero ? $i = 0 : $i = 1;
 
