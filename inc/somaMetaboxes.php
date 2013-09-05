@@ -159,6 +159,9 @@ class somaMetaboxes extends somaticFramework {
 		// build the form
 		echo '<table class="form-table">';
 
+
+		//** START FIELD LOOP
+		//-------------------
 		foreach ($meta_box['fields'] as $field) {
 			$meta = null;																			// reset the value of $meta each loop, otherwise an empty iteration can pass on $meta to the next one
 
@@ -1001,6 +1004,10 @@ class somaMetaboxes extends somaticFramework {
 				echo '</td></tr>';
 			}
 		}
+
+		//---------------------------------------------
+		//** END FIELD LOOP
+
 		echo '</table>';
 		// hook for insertion after box content
 		do_action('after_'.$box['id'], $post);

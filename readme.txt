@@ -34,6 +34,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 = 1.8.4 =
 * NEW: api function soma_fetch_file() returns bunch of really handy info about an attachment's file
+* swapped order of params on soma_select_number_generator() to make including 'zero' second
 
 = 1.8.3 =
 * NEW: custom post type icons integrated - can now be picked with the arg "icon_set" (makes it easier to place soma-config.php in mu-plugins folder, as no additional images have to be included)
