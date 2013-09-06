@@ -1587,10 +1587,10 @@ SQL;
 		if ( $type != "attachment" ) return false;
 
 		$file_path = get_attached_file( $pid );
-		$file = pathinfo( $file_path );  							// returns array of dirname, basename, extension, filename
-		$file['mime'] = get_post_mime_type( $pid );					// returns mime type
-		$file['url'] = wp_get_attachment_url( $pid );				// returns full URL for downloading
-		$file['secure'] = get_option('siteurl') . "?download=".$pid."&security=" . wp_create_nonce( "soma-download" );		// returns secure download URL
+		$file = pathinfo( $file_path );  											// returns array of dirname, basename, extension, filename
+		$file['mime'] = get_post_mime_type( $pid );									// returns mime type
+		$file['url'] = wp_get_attachment_url( $pid );								// returns full URL for downloading
+		$file['secure'] = self::build_request_link('legacy-download', $pid);		// returns secure download URL
 		if ( is_file( SOMA_DIR . "images/file-icons/" . $file['extension'] . ".png" ) ) {
 			$file['icon'] = SOMA_IMG . 'file-icons/'. $file['extension'].'.png';
 		} else {
@@ -1649,6 +1649,24 @@ SQL;
 		$unsanID = preg_replace('/uuuuu+/', '_', $id);			// to preserve some backwards compatibility, we'll make special replacements for dashes and underscores, so they'll get preserved
 		$unsanID = preg_replace('/ddddd+/', '-', $unsanID);
 		return $unsanID;
+	}
+
+
+	/**
+	* Constructs URL string to be used to trigger the soma_request_ action hook of the somaRequest Class
+	* typically used to pass an array of data to a custom function
+	*
+	* @since 1.8.5
+	*
+	* @param - $action - (string) identifier used to assemble the action hook
+	* @return - $data - (string/array) - stuff to be sent to the hooked function
+	*/
+
+	function build_request_link($action = null, $data = null) {
+		if (empty($action) || empty($data)) return new WP_Error('error', 'action or data missing for the request!');
+		$safedata = http_build_query(array('data' => $data));			// prepare data contents (even associative or indexed arrays) for inclusion in the URL
+		$link = get_option('siteurl') . "?soma_request=$action&$safedata&security=" . wp_create_nonce( "soma-request" );
+		return $link;
 	}
 
 }

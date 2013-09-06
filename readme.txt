@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 1.8.4
+Stable tag: 1.8.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,8 +32,13 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.8.5 =
+* NEW: somaRequest class and soma_request_[*] dynamic action hook -- works much like wp_ajax_ hooks, but without the ajax. Triggered with the 'soma_request' query_var or as simple URL query params via $_GET. Very handy for export/download functions to fire without leaving current page!
+* NEW: somaFunctions::build_request_link() creates link to trigger soma_request_[*] action hook and pass along data (string or array)
+* all functionality of the old somaDownload class is now incorporated in an soma_request_legacy-download action hook (though the old "download" query var remains for backwards compatibility)
+
 = 1.8.4 =
-* NEW: api function soma_fetch_file() returns bunch of really handy info about an attachment's file
+* NEW: api function soma_fetch_file() returns bunch of really handy info about an attachment's file, including download link
 * swapped order of params on soma_select_number_generator() to make including 'zero' second
 
 = 1.8.3 =

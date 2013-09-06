@@ -3,7 +3,7 @@
 Plugin Name: Somatic Framework
 Plugin URI: http://wordpress.org/extend/plugins/somatic-framework/
 Description: Adds useful classes for getting the most out of Wordpress' advanced CMS features
-Version: 1.8.4
+Version: 1.8.5
 Author: Israel Curtis
 Author URI: mailto:israel@somaticstudios.com
 */
@@ -357,15 +357,21 @@ class somaticFramework {
 
 	// adds custom vars to query
 	function query_vars($qvars) {
-		$qvars[] = "download";
+		$qvars[] = "soma_request";
+		$qvars[] = "download";  // backwards compatibility with old direct calls to somaDownload class (pre-1.8.5)
 		return $qvars;
 	}
 
+	// listen for special query vars, which must be declared above first, then init Classes and pass data
 	function parse_request($wp) {
-		// listen for download query, init class, pass ID's
-		if (array_key_exists('download', $wp->query_vars )) {
-			new somaDownload($wp->query_vars['download']);
+		if (array_key_exists('soma_request', $wp->query_vars )) {
+			new somaRequest($wp->query_vars['soma_request']);
 		}
+		if (array_key_exists('download', $wp->query_vars )) {		// backwards compatibility with old direct calls to somaDownload class (pre-1.8.5)
+			// new somaDownload($wp->query_vars['download']);
+			new somaRequest('legacy-download');						// redirect to the new somaRequest class
+		}
+
 	}
 
 	function requires_wordpress_version() {
@@ -373,10 +379,10 @@ class somaticFramework {
 		$plugin = plugin_basename( __FILE__ );
 		$plugin_data = get_plugin_data( __FILE__, false );
 
-		if ( version_compare($wp_version, "3.3", "<" ) ) {
+		if ( version_compare($wp_version, "3.5", "<" ) ) {
 			if( is_plugin_active($plugin) ) {
 				deactivate_plugins( $plugin );
-				wp_die( "'".$plugin_data['Name']."' requires WordPress 3.3 or higher, and has been deactivated! Please upgrade WordPress and try again.<br /><br />Back to <a href='".admin_url()."'>WordPress admin</a>." );
+				wp_die( "'".$plugin_data['Name']."' requires WordPress 3.5 or higher, and has been deactivated! Please upgrade WordPress and try again.<br /><br />Back to <a href='".admin_url()."'>WordPress admin</a>." );
 			}
 		}
 	}
