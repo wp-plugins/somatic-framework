@@ -106,14 +106,10 @@ function soma_legacy_download($get) {
 
 	//-- generic request, just grab serialized array of posts from the current query passed in _GET
 	} else {
-		if ( isset( $data ) ) {
-			$items = maybe_unserialize( $data );
-			// convert to array if not yet
-			if (!is_array($items)) {
-				$items = array($items);
-			}
-		} else {
-			wp_die('no items to download!');
+		$items = maybe_unserialize( $data );
+		// convert to array if not yet
+		if (!is_array($items)) {
+			$items = array($items);
 		}
 	}
 
@@ -143,6 +139,7 @@ function soma_legacy_download($get) {
 		header("Content-type: {$item['mime']}");
 		header("Content-Length: $size");
 		readfile($item['source']);
+
 	} else {
 	// group of files, create a zip
 		$zipfile = new zipfile();						// use zip_min.inc.php class
@@ -163,4 +160,6 @@ function soma_legacy_download($get) {
 	// save zip to server instead
 	// $contents = $zipfile -> file();
 	// file_put_contents("test.zip", $contents);
+
+	exit;
 }

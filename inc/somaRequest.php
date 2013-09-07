@@ -21,9 +21,18 @@ class somaRequest extends somaticFramework {
 			if ( !isset( $_GET['security'] ) || !wp_verify_nonce( $_GET['security'], 'soma-request' ) ) wp_die( "Sorry, security token missing or invalid.", "Security Error", array('back_link' => true)); 				// will die if invalid or missing nonce
 		}
 
+		// make sure request has a point
 		if ( empty($action) ) wp_die( "Sorry, no action was passed with the request.", "Action Failure", array( 'back_link' => true ) );
 
-		// trigger action hook, pass along the params
-		do_action( 'soma_request_' . $action, $_GET );
+		// only work for logged in users or allow if request indicates public
+		if (  is_user_logged_in() || soma_fetch_index( $_GET ,'public' ) == true ) {
+			// trigger action hook, pass along the params
+			do_action( 'soma_request_' . $action, $_GET );
+			// die gracefully in case action hook fails to go anywhere
+			wp_die( "Sorry, but this link goes nowhere. Contact the developer.", "Link Error", array( 'back_link' => true ) );
+			// header('Location: ' . $_SERVER['HTTP_REFERER']);	// just goes back quietly
+		} else {
+			 wp_die( "Sorry, you must be logged in to access this content.", "Security Error", array( 'back_link' => true ) );
+		}
 	}
 }
