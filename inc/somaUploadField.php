@@ -64,7 +64,7 @@ class somaUploadField extends somaticFramework {
 			'multiple_queues' => true,
 			'max_file_size' => wp_max_upload_size() . 'b',
 			'unique_names' => true,
-			'url' => admin_url('admin-ajax.php'),
+			'url' => network_admin_url('admin-ajax.php'),
 			'flash_swf_url' => includes_url('js/plupload/plupload.flash.swf'),
 			'silverlight_xap_url' => includes_url('js/plupload/plupload.silverlight.xap'),
 			'urlstream_upload' => true,

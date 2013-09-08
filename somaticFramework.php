@@ -82,6 +82,7 @@ class somaticFramework {
 		register_activation_hook( __FILE__, array(__CLASS__,'activate') );
 		register_deactivation_hook( __FILE__, array(__CLASS__,'deactivate') );
 		register_uninstall_hook( __FILE__, array(__CLASS__,'uninstall') );
+		add_action( 'wpmu_new_blog', array(__CLASS__, 'new_blog_activation'), 10, 6);
 
 		// mapping wp hooks to internal functions
 		add_action( 'init', array(__CLASS__,'init') );
@@ -190,7 +191,7 @@ class somaticFramework {
 			'SOMA_IMG' => SOMA_IMG,
 			'SOMA_URL' => SOMA_URL,
 			'SOMA_INC' => SOMA_INC,
-			'loading-spin' => admin_url('images/wpspin_light.gif'),
+			'loading-spin' => network_admin_url('images/wpspin_light.gif'),
 			'loading-bar' => includes_url('js/thickbox/loadingAnimation.gif'),
 			'pid' => $pid,
 			'type' => $type,
@@ -199,7 +200,7 @@ class somaticFramework {
 			'debug' => $debug,
 			'debug_panel' => $debug_panel,
 			'colorbox' => $colorbox,
-			'ajaxurl' => admin_url('admin-ajax.php'),	 						// need to define because ajaxurl isn't defined on front-end, only admin
+			'ajaxurl' => network_admin_url('admin-ajax.php'),	 						// need to define because ajaxurl isn't defined on front-end, only admin
 			'$_POST' => json_encode($_POST),
 			'$_GET' => json_encode($_GET)
 		);
@@ -304,13 +305,33 @@ class somaticFramework {
 		echo get_num_queries() . " queries. " . timer_stop(0,3) . " seconds.";
 	}
 
-	function activate() {
-		// somaOptions::set_wp_options();			// dangerous - only use on a fresh wp install!!
-		somaOptions::init_soma_options();
-		// somaOptions::setup_capabilities();		// creates/modifies user roles
-		flush_rewrite_rules();
+	// http://shibashake.com/wordpress-theme/write-a-plugin-for-wordpress-multi-site
+	//
+	function activate( $network_wide ) {
+		// See if being activated on the entire network or one blog
+		if ( is_multisite() && $network_wide ) {
+			global $wpdb;
+
+			// Get this so we can switch back to it later
+			$current_blog = $wpdb->blogid;
+
+			// Get all blogs in the network and activate plugin on each one
+			$sql = "SELECT blog_id FROM $wpdb->blogs";
+			$blog_ids = $wpdb->get_col($wpdb->prepare($sql));
+			foreach ($blog_ids as $blog_id) {
+				switch_to_blog($blog_id);
+				self::activation_items();
+			}
+
+			// Switch back to the current blog
+			switch_to_blog($current_blog);
+		} else {
+			// single blog, not multisite
+			self::activation_items();
+		}
 	}
 
+	// in the future, need to set this up to cycle thru all network blogs just like activate
 	function deactivate() {
 
 	}
@@ -320,6 +341,23 @@ class somaticFramework {
 		somaOptions::delete_soma_options();
 		// get rid of any framework-generated pages?
 		// get rid of custom user roles?
+	}
+
+	function new_blog_activation($blog_id, $user_id, $domain, $path, $site_id, $meta ) {
+	    global $wpdb;
+	    if (is_plugin_active_for_network('somatic-framework/somaticFramework.php')) {
+	        $old_blog = $wpdb->blogid;
+	        switch_to_blog($blog_id);
+	        self::activation_items();
+	        switch_to_blog($old_blog);
+	    }
+	}
+
+	function activation_items() {
+		somaOptions::init_soma_options();
+		flush_rewrite_rules();
+		// somaOptions::set_wp_options();			// dangerous - only use on a fresh wp install!!
+		// somaOptions::setup_capabilities();		// creates/modifies user roles
 	}
 
 	function login_head() {
@@ -390,7 +428,7 @@ class somaticFramework {
 	// Display a Settings link on the main Plugins page, under our plugin
 	function soma_plugin_action_links( $links, $file ) {
 		if ( $file == plugin_basename( __FILE__ ) ) {
-			$soma_links = '<a href="'.get_admin_url().'admin.php?page=somatic-framework-options">'.__('Settings').'</a>';
+			$soma_links = '<a href="'.network_admin_url().'admin.php?page=somatic-framework-options">'.__('Settings').'</a>';
 			// make the 'Settings' link appear first
 			array_unshift( $links, $soma_links );
 		}

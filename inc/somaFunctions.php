@@ -177,10 +177,10 @@ class somaFunctions extends somaticFramework {
 
 		if ($output == "link") {
 			if (is_admin()) {
-				$url = admin_url() . "edit.php?author=" . $user->ID;
+				$url = network_admin_url() . "edit.php?author=" . $user->ID;
 				$url .=  $type ? "&post_type=".$type : "";
 			} else {
-				$url = home_url() . "?author=" . $user->ID;
+				$url = network_home_url() . "?author=" . $user->ID;
 				$url .=  $type ? "&post_type=" . $type : "";
 			}
 			return "<a href=\"" . $url . "\">". $user->display_name . "</a>";
@@ -206,10 +206,10 @@ class somaFunctions extends somaticFramework {
 
 		if ($output == "link") {
 			if (is_admin()) {
-				$url = admin_url() . "edit.php?author=" . $user->ID;
+				$url = network_admin_url() . "edit.php?author=" . $user->ID;
 				$url .=  $type ? "&post_type=".$type : "";
 			} else {
-				$url = home_url() . "?author=" . $user->ID;
+				$url = network_home_url() . "?author=" . $user->ID;
 				$url .=  $type ? "&post_type=" . $type : "";
 			}
 			return "<a href=\"" . $url . "\">". $user->display_name . "</a>";
@@ -226,10 +226,10 @@ class somaFunctions extends somaticFramework {
 
 		if ($output == "link") {
 			if (is_admin()) {
-				$url = admin_url() . "edit.php?author=" . $current_user->ID;
+				$url = network_admin_url() . "edit.php?author=" . $current_user->ID;
 				$url .=  $type ? "&post_type=".$type : "";
 			} else {
-				$url = home_url() . "?author=" . $current_user->ID;
+				$url = network_home_url() . "?author=" . $current_user->ID;
 				$url .=  $type ? "&post_type=" . $type : "";
 			}
 			return "<a href=\"" . $url . "\">". $current_user->display_name . "</a>";
@@ -252,7 +252,7 @@ class somaFunctions extends somaticFramework {
 			foreach ( $terms as $term ) {
 				// within admin, link to the admin edit post list screen, but filtering for this taxonomy term
 				if (is_admin()) {
-					$link = admin_url() . "edit.php?" . $taxonomy . "=" . $term->slug . "&post_type=" . $type;
+					$link = network_admin_url() . "edit.php?" . $taxonomy . "=" . $term->slug . "&post_type=" . $type;
 				} else {
 					$link = get_term_link( $term, $taxonomy );
 				}
@@ -282,7 +282,7 @@ class somaFunctions extends somaticFramework {
 				} else {
 					$table .= "<tr><td>";
 				}
-				$link = admin_url() . "edit.php?" . $taxonomy . "=" . $term->slug . "&post_type=" . $type;
+				$link = network_admin_url() . "edit.php?" . $taxonomy . "=" . $term->slug . "&post_type=" . $type;
 				$table .= "<a href=\"".$link."\" rel=\"tag\">$term->name</a></td></tr>";
 				$i++;
 			}
@@ -916,7 +916,7 @@ class somaFunctions extends somaticFramework {
 		// 	add_action('admin_notices', 'theme_install_error_msg' );
 		// 	function theme_install_error_msg() {
 		// 		echo '<div id="message" class="error" style="font-weight: bold">';
-		// 		echo '<p>THEME MISSING: "Stock Media Asset Manager" - please <a href="' . admin_url() .'/themes.php">install!</a></p>';
+		// 		echo '<p>THEME MISSING: "Stock Media Asset Manager" - please <a href="' . network_admin_url() .'/themes.php">install!</a></p>';
 		// 		echo '</div>';
 		// 	}
 		// }
@@ -924,7 +924,7 @@ class somaFunctions extends somaticFramework {
 		// 	add_action('admin_notices', 'theme_active_error_msg' );
 		// 	function theme_active_error_msg() {
 		// 		echo '<div id="message" class="updated" style="font-weight: bold">';
-		// 		echo '<p>THEME NOT ACTIVE: "Stock Media Asset Manager" - please <a href="' . admin_url() .'/themes.php">activate!</a></p>';
+		// 		echo '<p>THEME NOT ACTIVE: "Stock Media Asset Manager" - please <a href="' . network_admin_url() .'/themes.php">activate!</a></p>';
 		// 		echo '</div>';
 		// 	}
 		// }

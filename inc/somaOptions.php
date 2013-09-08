@@ -647,7 +647,7 @@ class somaOptions extends somaticFramework  {
 			<?php if ( $active_tab == 'advanced' ) :            // third tab output ?>
 
 			<!-- export .dat via admin_action_export hook -->
-			<form action="<?php echo admin_url( 'admin.php' ); ?>" method="post">
+			<form action="<?php echo network_admin_url( 'admin.php' ); ?>" method="post">
 				<ul>
 					<h3>Export Somatic Framework Settings</h3>
 					<li>This will download a text file to your computer containing the current settings</li>
@@ -661,7 +661,7 @@ class somaOptions extends somaticFramework  {
 			<br />
 
 			<!-- import .dat via admin_action_import hook -->
-			<form action="<?php echo admin_url( 'admin.php' ); ?>" method="post" enctype="multipart/form-data">
+			<form action="<?php echo network_admin_url( 'admin.php' ); ?>" method="post" enctype="multipart/form-data">
 				<ul>
 					<h3>Import Somatic Framework Settings</h3>
 					<li>Select a file to restore all the options</li>
@@ -678,7 +678,7 @@ class somaOptions extends somaticFramework  {
 			<br/>
 
 			<!-- flush via admin_action_flush hook -->
-			<form action="<?php echo admin_url( 'admin.php' ); ?>" method="post">
+			<form action="<?php echo network_admin_url( 'admin.php' ); ?>" method="post">
 				<ul>
 					<h3>Flush Rewrite Rules</h3>
 					<li>handy if you've changed your custom post type config sometime after having activated this framework</li>
@@ -968,7 +968,7 @@ class somaOptions extends somaticFramework  {
 		global $soma_options, $wp_query;
 		$go = soma_fetch_index($wp_query->query_vars, 'go');					// possibly redirect an erroneous /go/ link, whether or not option is on...
 		if (is_null($go)) return;												// go query var isn't set, so do nothing and wp continues on...
-		if ($go == ""): wp_redirect( home_url(), 301 ); exit(); endif;			// go exists, but is empty, so just go back home
+		if ($go == ""): wp_redirect( network_home_url(), 301 ); exit(); endif;			// go exists, but is empty, so just go back home
 		if ( somaFunctions::fetch_index( $soma_options, 'go_redirect' ) ) {
 			$codes = array();
 			$codes = apply_filters('soma_go_redirect_codes', $codes);			// allow expansion - add another associative slug/url array key/value
@@ -979,7 +979,7 @@ class somaOptions extends somaticFramework  {
 					exit();
 				}
 			}
-			wp_redirect( home_url(), 301 );										// no matches, so just go back home
+			wp_redirect( network_home_url(), 301 );										// no matches, so just go back home
 			exit;
 		}
 	}
