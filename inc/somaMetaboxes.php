@@ -452,7 +452,7 @@ class somaMetaboxes extends somaticFramework {
 						echo '<li class="meta-attachment-item">';
 						echo '<a href="'.wp_get_attachment_url($meta).'" class="colorbox">'. wp_get_attachment_image($meta, 'medium', false, array('title'=>'Click to Zoom', 'class' => 'pic')) . '</a>';
 						echo '<ul class="meta-attachment-actions">';
-						echo '<li><a class="delete-attachment" href="#" rel="'.$meta.'" title="Delete this file" data-nonce="'.wp_create_nonce("soma-delete-attachment").'" data-featured="true">Remove Image</a><img src="'.network_admin_url()('images/wpspin_light.gif').'" class="kill-animation" style="display:none;" alt="" /></li>';
+						echo '<li><a class="delete-attachment" href="#" rel="'.$meta.'" title="Delete this file" data-nonce="'.wp_create_nonce("soma-delete-attachment").'" data-featured="true">Remove Image</a><img src="'.network_admin_url('images/wpspin_light.gif').'" class="kill-animation" style="display:none;" alt="" /></li>';
 						echo '</ul></li></ul>';
 					}
 					$uploader = new somaUploadField($field, $ft, $meta);
@@ -542,7 +542,7 @@ class somaMetaboxes extends somaticFramework {
 						// action buttons
 						echo '<ul class="meta-attachment-actions">';
 							echo "<li><a class=\"download-attachment\" href=\"".$file['secure']."\" title=\"Download ".$file['basename']."\">Download File</a></li>";
-							echo '<li><a class="delete-attachment" href="#" rel="'.$att->ID.'" title="Delete '.$file['basename'].'" data-nonce="'.wp_create_nonce("soma-delete-attachment").'">Delete File</a><img src="'.network_admin_url()('images/wpspin_light.gif').'" class="kill-animation" style="display:none;" alt="" /></li>';
+							echo '<li><a class="delete-attachment" href="#" rel="'.$att->ID.'" title="Delete '.$file['basename'].'" data-nonce="'.wp_create_nonce("soma-delete-attachment").'">Delete File</a><img src="'.network_admin_url('images/wpspin_light.gif').'" class="kill-animation" style="display:none;" alt="" /></li>';
 						echo '</ul>';
 						echo '</li>';
 						$i++;
