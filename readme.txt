@@ -32,8 +32,10 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
-= 1.8.5.1 =
+= 1.8.6 =
 * multi-site support. Changed various URL calls to the network-enabled versions. Activation hook accomodates network-wide scenario.
+* private site option. forces login on front-end to view anything at all.
+* disable RSS feed option
 
 = 1.8.5 =
 * NEW: somaRequest class and soma_request_[*] dynamic action hook -- works much like wp_ajax_ hooks, but without the ajax. Triggered with the 'soma_request' query_var or as simple URL query params via $_GET. Very handy for export/download functions to fire without leaving current page!

@@ -34,6 +34,15 @@ class somaOptions extends somaticFramework  {
 		// add_filter( 'screen_options_show_screen', array( __CLASS__, 'disable_screen_options' ), 10, 2 );  // optional disable screen options tab NOT WORKING
 		add_action( "user_register", array( __CLASS__, "user_admin_bar_false_by_default" ), 10, 1 ); // force option off when new user created
 		add_filter( 'the_content', array( __CLASS__, 'always_colorbox'), 50);
+		add_action( 'template_redirect', array(__CLASS__,'fully_private') );
+
+		add_action('do_feed', array( __CLASS__, 'disable_feeds' ) );
+		add_action('do_feed_rdf', array( __CLASS__, 'disable_feeds' ) );
+		add_action('do_feed_rss', array( __CLASS__, 'disable_feeds' ) );
+		add_action('do_feed_rss2', array( __CLASS__, 'disable_feeds' ) );
+		add_action('do_feed_atom', array( __CLASS__, 'disable_feeds' ) );
+		add_action('do_feed_rss2_comments', array( __CLASS__, 'disable_feeds' ) );
+		add_action('do_feed_atom_comments', array( __CLASS__, 'disable_feeds' ) );
 
 		// add_action( 'show_user_profile', array(__CLASS__, 'show_extra_profile_fields') );  // unused
 		// add_action( 'edit_user_profile', array(__CLASS__, 'show_extra_profile_fields') );  // unused
@@ -49,27 +58,29 @@ class somaOptions extends somaticFramework  {
 	function init_soma_options() {
 
 		$defaults = array(
-			"favicon" => "",            // full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
-			"login_logo" => "",            // full url path to a .png, usually set in a theme - framework will output inline CSS to display login logo, overriding default WP one
-			"debug" => 1,             // debug mode output enabled (renders to debug bar if installed, ouput inline if not)
-			"p2p" => 0,              // require posts 2 posts plugin by scribu
-			"colorbox" => 0,            // enqueue Colorbox lightbox JS on front-end pages too (always active in admin)
-			"meta_prefix" => "_soma",          // prefix added to post_meta keys
-			"meta_serialize" => 0,           // whether to serialize somatic post_meta
-			// 'bottom_admin_bar' => 0,          // pin the admin bar to the bottom of the window
-			// "always_show_bar" => 0,           // show the top admin bar on the front-end always, even if not logged in, but still respect user preferences
-			"kill_paging" => array(),          // array of post types slugs to filter wp_query to prevent automatic paging and always list all items
-			"kill_autosave" => array(),          // array of post types slugs to disable autosave
-			"kill_revisions" => array(),         // array of post types slugs to disable autosave
+			"favicon" => "",            				// full url path to a .png or .ico, usually set in a theme - framework will output <head> tags
+			"login_logo" => "", 			           	// full url path to a .png, usually set in a theme - framework will output inline CSS to display login logo, overriding default WP one
+			"debug" => 1,             					// debug mode output enabled (renders to debug bar if installed, ouput inline if not)
+			"p2p" => 0, 				            	// require posts 2 posts plugin by scribu
+			"colorbox" => 0,            				// enqueue Colorbox lightbox JS on front-end pages too (always active in admin)
+			"meta_prefix" => "_soma",          			// prefix added to post_meta keys
+			"meta_serialize" => 0,           			// whether to serialize somatic post_meta
+			// 'bottom_admin_bar' => 0,          		// pin the admin bar to the bottom of the window
+			// "always_show_bar" => 0,          		// show the top admin bar on the front-end always, even if not logged in, but still respect user preferences
+			"kill_paging" => array(),          			// array of post types slugs to filter wp_query to prevent automatic paging and always list all items
+			"kill_autosave" => array(),        			// array of post types slugs to disable autosave
+			"kill_revisions" => array(),         		// array of post types slugs to disable autosave
 			"disable_menus" => array( 'links', 'tools' ),                             // hide admin sidebar menu items from everyone (but you could still go to the page directly)
 			"disable_dashboard" => array( 'quick_press', 'recent_drafts', 'recent_comments', 'incoming_links', 'plugins', 'primary', 'secondary', 'thesis_news_widget' ),  // hide dashboard widgets from everyone
 			"disable_metaboxes" => array( 'thesis_seo_meta', 'thesis_image_meta', 'thesis_multimedia_meta', 'thesis_javascript_meta', 'tb_page_options' ),         // hide metaboxes in post editor from everyone
-			"disable_drag_metabox" => 0,         // prevent users from dragging/rearranging metaboxes (even dashboard widgets)
+			"disable_drag_metabox" => 0,         		// prevent users from dragging/rearranging metaboxes (even dashboard widgets)
 			"go_redirect" => 0,
 			"fulldisplayname" => 1,
-			// "disable_screen_options" => 0,         // hide the screen options tab
-			"reset_default_options" => 0,         // will reset options to defaults next time plugin is activated
+			// "disable_screen_options" => 0, 	        // hide the screen options tab
+			"reset_default_options" => 0,      			// will reset options to defaults next time plugin is activated
 			"plugin_db_version" => SOMA_VERSION,
+			"private" => 0,								// force login to view anything
+			"disable_feeds" => 0,						// turns off all RSS and atom feeds
 		);
 
 		/* core WP metabox slugs for disabling:
@@ -435,6 +446,8 @@ class somaOptions extends somaticFramework  {
 							General Options</th>
 						<td>
 							<label><input name="somatic_framework_options[debug]" type="checkbox" value="1" <?php if ( isset( $soma_options['debug'] ) ) { checked( '1', $soma_options['debug'] ); } ?> /> Debug Mode</label><br />
+							<label><input name="somatic_framework_options[private]" type="checkbox" value="1" <?php if ( isset( $soma_options['private'] ) ) { checked( '1', $soma_options['private'] ); } ?> /> Fully Private Mode - requires login at all times</label><br />
+							<label><input name="somatic_framework_options[disable_feeds]" type="checkbox" value="1" <?php if ( isset( $soma_options['disable_feeds'] ) ) { checked( '1', $soma_options['disable_feeds'] ); } ?> /> Disable RSS & Atom Feeds</label><br />
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if ( isset( $soma_options['p2p'] ) ) { checked( '1', $soma_options['p2p'] ); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
 							<label><input name="somatic_framework_options[colorbox]" type="checkbox" value="1" <?php if ( isset( $soma_options['colorbox'] ) ) { checked( '1', $soma_options['colorbox'] ); } ?> /> Enable Colorbox JS lightbox for front-end content image links (not just admin)</label><br />
 							<label><input name="somatic_framework_options[go_redirect]" type="checkbox" value="1" <?php if ( isset( $soma_options['go_redirect'] ) ) { checked( '1', $soma_options['go_redirect'] ); } ?> /> Enable custom redirects via go/[code]</label><br />
@@ -1003,6 +1016,24 @@ class somaOptions extends somaticFramework  {
 			$content = preg_replace($pattern, $replacement, $content);
 		}
 		return $content;
+	}
+
+	function fully_private() {
+		global $soma_options;
+		if ( somaFunctions::fetch_index( $soma_options, 'private' ) ) {
+			if (!is_user_logged_in() && !is_feed()) {
+				auth_redirect();
+			}
+		}
+		return;
+	}
+
+	function disable_feeds() {
+		global $soma_options;
+		if ( somaFunctions::fetch_index( $soma_options, 'disable_feeds' ) ) {
+			wp_die( 'No feed available, please visit our <a href="'. get_bloginfo('url') .'">site</a> directly!' );
+		}
+		return;
 	}
 
 	/////////////// END CLASS
