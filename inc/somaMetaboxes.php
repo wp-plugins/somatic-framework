@@ -472,29 +472,29 @@ class somaMetaboxes extends somaticFramework {
 							switch ($att->post_mime_type) {
 								case "application/pdf" :
 									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode($file['url']).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. $file['icon'] .'" title="Click to view PDF file with Google Docs" /></a>';
-									echo $file['filename'];
+									echo "<div class='filename'>{$file['filename']}</div>";
 								break;
 								case "application/msword" :
 								case "application/vnd.ms-word" :
 								case "application/vnd.openxmlformats-officedocument.wordprocessingml.document" :
 									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode($file['url']).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. $file['icon'] .'" title="Click to view Microsoft Word Doc with Google Docs" /></a>';
-									echo $file['filename'];
+									echo "<div class='filename'>{$file['filename']}</div>";
 								break;
 								case "application/msexcel" :
 								case "application/vnd.ms-excel" :
 								case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" :
 									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode($file['url']).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. $file['icon'] .'" title="Click to view Microsoft Excel Spreadsheet with Google Docs" /></a>';
-									echo $file['filename'];
+									echo "<div class='filename'>{$file['filename']}</div>";
 								break;
 								case "application/mspowerpoint" :
 								case "application/vnd.ms-powerpoint" :
 								case "application/vnd.openxmlformats-officedocument.presentationml.presentation" :
 									echo '<a class="filetype-icon" href="http://docs.google.com/viewer?url='.urlencode($file['url']).'&embedded=true" class="colorbox" rel="gallery-'.$field['id'].' iframe="true"><img src="'. $file['icon'] .'" title="Click to view PowerPoint Presentation with Google Docs" /></a>';
-									echo $file['filename'];
+									echo "<div class='filename'>{$file['filename']}</div>";
 								break;
 								case "application/zip" :
 									echo '<a class="filetype-icon" href="'.$file['url'].'" target="blank"><img src="'. $file['icon'] .'" /></a><br>';
-									echo $file['filename'];
+									echo "<div class='filename'>{$file['filename']}</div>";
 								break;
 								case "image/jpeg" :
 								case "image/jpg" :
@@ -515,18 +515,18 @@ class somaMetaboxes extends somaticFramework {
 									echo "<input type='text' value='{$att->post_title}' /><br />";
 									echo do_shortcode('[audio src="'.$file['url'].'"]');
 									echo "</div>";
-									echo $file['filename'];
+									echo "<div class='filename'>{$file['filename']}</div>";
 								break;
 								case 'video/mp4':
 									echo "<div class='videoplayer'>";
 									echo "<input type='text' value='{$att->post_title}' /><br />";
 									echo do_shortcode('[video src="'.$file['url'].'"]');
 									echo "</div>";
-									echo $file['filename'];
+									echo "<div class='filename'>{$file['filename']}</div>";
 								break;
 								default :
 									echo '<div class="filetype-icon"><img src="'.$file['icon'].'" /></div><br>';
-									echo $file['filename'];
+									echo "<div class='filename'>{$file['filename']}</div>";
 								break;
 							}
 						// collapsed meta fields
