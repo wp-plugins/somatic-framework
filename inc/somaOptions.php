@@ -35,6 +35,7 @@ class somaOptions extends somaticFramework  {
 		add_action( "user_register", array( __CLASS__, "user_admin_bar_false_by_default" ), 10, 1 ); // force option off when new user created
 		add_filter( 'the_content', array( __CLASS__, 'always_colorbox'), 50);
 		add_action( 'template_redirect', array(__CLASS__,'fully_private') );
+		add_action( 'rightnow_end', array(__CLASS__, 'dashboard_option_notices') );
 
 		add_action('do_feed', array( __CLASS__, 'disable_feeds' ) );
 		add_action('do_feed_rdf', array( __CLASS__, 'disable_feeds' ) );
@@ -1024,6 +1025,14 @@ class somaOptions extends somaticFramework  {
 			if (!is_user_logged_in() && !is_feed()) {
 				auth_redirect();
 			}
+		}
+		return;
+	}
+
+	function dashboard_option_notices() {
+		global $soma_options;
+		if ( somaFunctions::fetch_index( $soma_options, 'private' ) ) {
+			echo "<strong>Site is visible to logged-in users only</strong>";
 		}
 		return;
 	}

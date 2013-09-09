@@ -364,7 +364,7 @@ class somaticFramework {
 		global $soma_options;
 		if (!empty($soma_options['login_logo'])) {
 			echo '<style type="text/css">.login h1 a {
-					background-image: url('.$soma_options['login_logo'].') !important;
+					background-image: url("'.$soma_options['login_logo'].'") !important;
 					width: 320px !important;
 				    height: 80px !important;
 					background-size: auto auto !important;
@@ -372,6 +372,12 @@ class somaticFramework {
 					background-repeat: no-repeat;
 				    padding-bottom: 0 !important;
 					margin-bottom: 15px;
+				}</style>';
+		}
+
+		if ( somaFunctions::fetch_index($soma_options, 'private') ) {
+			echo '<style type="text/css">#backtoblog {
+					display: none;
 				}</style>';
 		}
 	}
