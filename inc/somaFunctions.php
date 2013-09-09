@@ -177,10 +177,10 @@ class somaFunctions extends somaticFramework {
 
 		if ($output == "link") {
 			if (is_admin()) {
-				$url = network_admin_url() . "edit.php?author=" . $user->ID;
+				$url = admin_url() . "edit.php?author=" . $user->ID;
 				$url .=  $type ? "&post_type=".$type : "";
 			} else {
-				$url = network_home_url() . "?author=" . $user->ID;
+				$url = home_url() . "?author=" . $user->ID;
 				$url .=  $type ? "&post_type=" . $type : "";
 			}
 			return "<a href=\"" . $url . "\">". $user->display_name . "</a>";
@@ -206,10 +206,10 @@ class somaFunctions extends somaticFramework {
 
 		if ($output == "link") {
 			if (is_admin()) {
-				$url = network_admin_url() . "edit.php?author=" . $user->ID;
+				$url = admin_url() . "edit.php?author=" . $user->ID;
 				$url .=  $type ? "&post_type=".$type : "";
 			} else {
-				$url = network_home_url() . "?author=" . $user->ID;
+				$url = home_url() . "?author=" . $user->ID;
 				$url .=  $type ? "&post_type=" . $type : "";
 			}
 			return "<a href=\"" . $url . "\">". $user->display_name . "</a>";
@@ -226,10 +226,10 @@ class somaFunctions extends somaticFramework {
 
 		if ($output == "link") {
 			if (is_admin()) {
-				$url = network_admin_url() . "edit.php?author=" . $current_user->ID;
+				$url = admin_url() . "edit.php?author=" . $current_user->ID;
 				$url .=  $type ? "&post_type=".$type : "";
 			} else {
-				$url = network_home_url() . "?author=" . $current_user->ID;
+				$url = home_url() . "?author=" . $current_user->ID;
 				$url .=  $type ? "&post_type=" . $type : "";
 			}
 			return "<a href=\"" . $url . "\">". $current_user->display_name . "</a>";
@@ -252,7 +252,7 @@ class somaFunctions extends somaticFramework {
 			foreach ( $terms as $term ) {
 				// within admin, link to the admin edit post list screen, but filtering for this taxonomy term
 				if (is_admin()) {
-					$link = network_admin_url() . "edit.php?" . $taxonomy . "=" . $term->slug . "&post_type=" . $type;
+					$link = admin_url() . "edit.php?" . $taxonomy . "=" . $term->slug . "&post_type=" . $type;
 				} else {
 					$link = get_term_link( $term, $taxonomy );
 				}
@@ -282,7 +282,7 @@ class somaFunctions extends somaticFramework {
 				} else {
 					$table .= "<tr><td>";
 				}
-				$link = network_admin_url() . "edit.php?" . $taxonomy . "=" . $term->slug . "&post_type=" . $type;
+				$link = admin_url() . "edit.php?" . $taxonomy . "=" . $term->slug . "&post_type=" . $type;
 				$table .= "<a href=\"".$link."\" rel=\"tag\">$term->name</a></td></tr>";
 				$i++;
 			}

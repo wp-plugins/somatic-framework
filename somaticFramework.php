@@ -191,7 +191,7 @@ class somaticFramework {
 			'SOMA_IMG' => SOMA_IMG,
 			'SOMA_URL' => SOMA_URL,
 			'SOMA_INC' => SOMA_INC,
-			'loading-spin' => network_admin_url('images/wpspin_light.gif'),
+			'loading-spin' => admin_url('images/wpspin_light.gif'),
 			'loading-bar' => includes_url('js/thickbox/loadingAnimation.gif'),
 			'pid' => $pid,
 			'type' => $type,
@@ -200,7 +200,7 @@ class somaticFramework {
 			'debug' => $debug,
 			'debug_panel' => $debug_panel,
 			'colorbox' => $colorbox,
-			'ajaxurl' => network_admin_url('admin-ajax.php'),	 						// need to define because ajaxurl isn't defined on front-end, only admin
+			'ajaxurl' => admin_url('admin-ajax.php'),	 						// need to define because ajaxurl isn't defined on front-end, only admin
 			'$_POST' => json_encode($_POST),
 			'$_GET' => json_encode($_GET)
 		);
@@ -434,7 +434,7 @@ class somaticFramework {
 	// Display a Settings link on the main Plugins page, under our plugin
 	function soma_plugin_action_links( $links, $file ) {
 		if ( $file == plugin_basename( __FILE__ ) ) {
-			$soma_links = '<a href="'.network_admin_url().'admin.php?page=somatic-framework-options">'.__('Settings').'</a>';
+			$soma_links = '<a href="'.admin_url().'admin.php?page=somatic-framework-options">'.__('Settings').'</a>';
 			// make the 'Settings' link appear first
 			array_unshift( $links, $soma_links );
 		}

@@ -370,7 +370,7 @@ class somaTypes extends somaticFramework {
 		if ( $post_type != '' ) {
 			$post_type_url = get_post_type_archive_link( $post_type );
 			$check = strpos( $post_type_url, $item->url );
-			if ( $check !== false && $check == 0 && $item->url != trailingslashit( network_site_url() ) ) {
+			if ( $check !== false && $check == 0 && $item->url != trailingslashit( site_url() ) ) {
 				$classes[] = 'current_page_parent';
 				$classes[] = 'current_page_item';
 				$classes[] = 'current-menu-item';
