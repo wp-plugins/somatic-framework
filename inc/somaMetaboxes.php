@@ -509,18 +509,20 @@ class somaMetaboxes extends somaticFramework {
 									$showmetafields = true;
 								break;
 								case 'audio/mpeg':
+								case 'audio/wav':
+								case 'audio/x-wave':
 									echo "<div class='audioplayer'>";
 									echo "<input type='text' value='{$att->post_title}' /><br />";
 									echo do_shortcode('[audio src="'.$file['url'].'"]');
-									echo $file['filename'];
 									echo "</div>";
+									echo $file['filename'];
 								break;
 								case 'video/mp4':
 									echo "<div class='videoplayer'>";
 									echo "<input type='text' value='{$att->post_title}' /><br />";
 									echo do_shortcode('[video src="'.$file['url'].'"]');
-									echo $file['filename'];
 									echo "</div>";
+									echo $file['filename'];
 								break;
 								default :
 									echo '<div class="filetype-icon"><img src="'.$file['icon'].'" /></div><br>';

@@ -33,7 +33,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 == Changelog ==
 
 = 1.8.6 =
-* multi-site support. Changed various URL calls to the network-enabled versions. Activation hook accomodates network-wide scenario.
+* multi-site support. Activation hook accomodates network-wide scenario.
 * private site option. forces login on front-end to view anything at all.
 * disable RSS feed option
 
