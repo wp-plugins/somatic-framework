@@ -204,8 +204,8 @@ class somaticFramework {
 			'$_POST' => json_encode($_POST),
 			'$_GET' => json_encode($_GET)
 		);
-		wp_localize_script( 'soma-public-jquery', 'soma_vars', $params); 	// will place in footer because of jquery registered in footer
-		wp_localize_script( 'soma-admin-jquery', 'soma_vars', $params); 	// will place in footer because of jquery registered in footer
+		wp_localize_script( 'soma-public-jquery', 'soma_vars', apply_filters( 'soma_js_vars', $params ) ); 	// will place in footer because of jquery registered in footer
+		wp_localize_script( 'soma-admin-jquery', 'soma_vars', apply_filters( 'soma_js_vars', $params ) ); 	// will place in footer because of jquery registered in footer
 
 	}
 
