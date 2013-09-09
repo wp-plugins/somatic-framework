@@ -144,11 +144,6 @@ label.missing {
 
 /* input styling */
 
-input[type='text'],
-textarea {
-	background: inherit;;
-}
-
 textarea {
 	width: 100%;
 }
