@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 1.8.5
+Stable tag: 1.8.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,9 +33,9 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 == Changelog ==
 
 = 1.8.6 =
-* multi-site support. Activation hook accomodates network-wide scenario.
-* private site option. forces login on front-end to view anything at all.
-* disable RSS feed option
+* Multi-Site support. Activation hook accomodates network-wide scenario.
+* fully private site option. forces login on front-end to view anything at all.
+* disable RSS feeds option
 * NEW: filter 'soma_js_vars' allows changes/additions to the variables passed to javascript
 
 = 1.8.5 =
