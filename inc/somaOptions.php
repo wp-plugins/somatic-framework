@@ -855,8 +855,9 @@ class somaOptions extends somaticFramework  {
 		if ( !is_admin_bar_showing() ) return;					// no point if there's no bar
 		global $wp_admin_bar, $template, $soma_options;
 
-		if ( somaFunctions::fetch_index( $soma_options, 'debug' ) ) {
-			// show current template next to debug link
+		// show current template next to debug link on front-end
+		if ( somaFunctions::fetch_index( $soma_options, 'debug' ) && !is_admin() ) {
+
 			$template_name = substr( $template, ( strpos( $template, 'wp-content/') + 10 ) );		// clean up path
 			$wp_admin_bar->add_menu( array(
 				'title' => $template_name,
