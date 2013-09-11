@@ -22,8 +22,9 @@ class somaOptions extends somaticFramework  {
 		add_action( 'admin_action_flush', array( __CLASS__, 'flush_rules' ) );   					// dynamically generated hook created by the ID on forms POSTed from admin.php
 		add_action( 'admin_action_export', array( __CLASS__, 'export_settings' ) );   				// dynamically generated hook created by the ID on forms POSTed from admin.php
 		add_action( 'admin_action_import', array( __CLASS__, 'import_settings' ) );   				// dynamically generated hook created by the ID on forms POSTed from admin.php
-		add_action( 'wp_dashboard_setup', array( __CLASS__, 'disable_dashboard_widgets' ), 100 );  // disable dashboard widgets
-		add_action( 'admin_menu', array( __CLASS__, 'disable_admin_menus' ) );      // hide the admin sidebar menu items
+		add_action( 'wp_dashboard_setup', array( __CLASS__, 'disable_dashboard_widgets' ), 100 );	// disable dashboard widgets
+		add_action( 'admin_bar_menu', array( __CLASS__, 'add_admin_bar_links'), 100);				// add new admin bar items
+		add_action( 'admin_menu', array( __CLASS__, 'disable_admin_menus' ) );      				// hide the admin sidebar menu items
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'disable_autosave' ) );    // optional disable autosave
 		add_action( 'init', array( __CLASS__, 'disable_revisions' ), 50 );       // optional disable revisions
 		add_filter( 'parse_query', array( __CLASS__, 'disable_paging' ) );        // optional disable auto-paging
@@ -850,6 +851,22 @@ class somaOptions extends somaticFramework  {
 			$wp_admin_bar->remove_menu( 'new-page' );
 	}
 
+	function add_admin_bar_links() {
+		if ( !is_admin_bar_showing() ) return;					// no point if there's no bar
+		global $wp_admin_bar, $template, $soma_options;
+
+		if ( somaFunctions::fetch_index( $soma_options, 'debug' ) ) {
+			// show current template next to debug link
+			$template_name = substr( $template, ( strpos( $template, 'wp-content/') + 10 ) );		// clean up path
+			$wp_admin_bar->add_menu( array(
+				'title' => $template_name,
+				'href' => false,
+				'parent' => 'top-secondary',
+				'id' => 'current_template',
+			));
+		}
+	}
+
 	//
 	function disable_paging( $query ) {
 		global $soma_options;
@@ -1044,6 +1061,8 @@ class somaOptions extends somaticFramework  {
 		}
 		return;
 	}
+
+
 
 	/////////////// END CLASS
 }
