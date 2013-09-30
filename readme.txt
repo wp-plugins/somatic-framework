@@ -32,6 +32,9 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.8.7 =
+* NEW: option field for TypeKit ID, sets up javascript for you
+
 = 1.8.6 =
 * Multi-Site support. Activation hook accomodates network-wide scenario.
 * fully private site option. forces login on front-end to view anything at all.
