@@ -37,6 +37,7 @@ class somaOptions extends somaticFramework  {
 		add_filter( 'the_content', array( __CLASS__, 'always_colorbox'), 50);
 		add_action( 'template_redirect', array(__CLASS__,'fully_private') );
 		add_action( 'rightnow_end', array(__CLASS__, 'dashboard_option_notices') );
+		add_action( 'wp_head', array(__CLASS__, 'typekit_output') );								// renders necessary javascript for typekit operation
 
 		add_action('do_feed', array( __CLASS__, 'disable_feeds' ) );
 		add_action('do_feed_rdf', array( __CLASS__, 'disable_feeds' ) );
@@ -83,6 +84,7 @@ class somaOptions extends somaticFramework  {
 			"plugin_db_version" => SOMA_VERSION,
 			"private" => 0,								// force login to view anything
 			"disable_feeds" => 0,						// turns off all RSS and atom feeds
+			"typekit" => "",							// stores typekit ID and outputs necessary scripts
 		);
 
 		/* core WP metabox slugs for disabling:
@@ -479,6 +481,16 @@ class somaOptions extends somaticFramework  {
 						</td>
 					</tr>
 
+					<!-- Textfield -->
+					<tr valign="top">
+						<th scope="row">
+							Typekit ID
+						</th>
+						<td>
+							<label><input type="text" size="7" maxlength="7" name="somatic_framework_options[typekit]" value="<?php echo $soma_options['typekit']; ?>" /> <em>Enter the 7-character Kit ID</em></label>
+						</td>
+					</tr>
+
 					<!-- Checkbox Buttons -->
 					<tr valign="top">
 						<th scope="row">
@@ -606,28 +618,7 @@ class somaOptions extends somaticFramework  {
 
 
 					<!-- Textbox Control -->
-					<tr>
-						<th scope="row">
-							Post Meta
-						</th>
-						<td>
-							<strong>CAUTION!</strong> <em>don't change these values after you've already saved a post with metadata - you won't lose anything (it will still exist in the database) but it won't be visible anymore...</em><br />
-							<label>Post Meta Prefix <input type="text" size="7" name="somatic_framework_options[meta_prefix]" value="<?php echo $soma_options['meta_prefix']; ?>" /> <em>(just a few letters, can begin with but not end in underscore)</em></label><br />
-							<label><input name="somatic_framework_options[meta_serialize]" type="checkbox" value="1" <?php if ( isset( $soma_options['meta_serialize'] ) ) { checked( '1', $soma_options['meta_serialize'] ); } ?> /> Serialize post-meta when saving?</label><br />
-							<input type="submit" class="clicker" value="Save Changes" />
-						</td>
-					</tr>
 
-					<tr>
-						<th scope="row">
-							Reset Options
-						</th>
-						<td>
-							<label><input name="somatic_framework_options[reset_default_options]" type="checkbox" value="1" <?php if ( isset( $soma_options['reset_default_options'] ) ) { checked( '1', $soma_options['reset_default_options'] ); } ?> /> Restore defaults upon plugin deactivation/reactivation</label><br />
-							<em>Only check this if you want to reset plugin settings the NEXT TIME this plugin is activated</em><br />
-							<input type="submit" class="clicker" value="Save Changes" />
-						</td>
-					</tr>
 				</table>
 
 				<!-- Settings to be retained but not shown -->
@@ -660,6 +651,36 @@ class somaOptions extends somaticFramework  {
 			<?php endif; ?>
 
 			<?php if ( $active_tab == 'advanced' ) :            // third tab output ?>
+
+			<form action="options.php" method="post">
+				<?php settings_fields( 'somatic_framework_plugin_options' ); // adds hidden form elements, nonce ?>
+			<table class="form-table">
+				<tr>
+					<th scope="row">
+						Post Meta
+					</th>
+					<td>
+						<strong>CAUTION!</strong> <em>don't change these values after you've already saved a post with metadata - you won't lose anything (it will still exist in the database) but it won't be visible anymore...</em><br />
+						<label>Post Meta Prefix <input type="text" size="7" name="somatic_framework_options[meta_prefix]" value="<?php echo $soma_options['meta_prefix']; ?>" /> <em>(just a few letters, can begin with but not end in underscore)</em></label><br />
+						<label><input name="somatic_framework_options[meta_serialize]" type="checkbox" value="1" <?php if ( isset( $soma_options['meta_serialize'] ) ) { checked( '1', $soma_options['meta_serialize'] ); } ?> /> Serialize post-meta when saving?</label><br />
+						<input type="submit" class="clicker" value="Save Changes" />
+					</td>
+				</tr>
+
+				<tr>
+					<th scope="row">
+						Reset Options
+					</th>
+					<td>
+						<label><input name="somatic_framework_options[reset_default_options]" type="checkbox" value="1" <?php if ( isset( $soma_options['reset_default_options'] ) ) { checked( '1', $soma_options['reset_default_options'] ); } ?> /> Restore defaults upon plugin deactivation/reactivation</label><br />
+						<em>Only check this if you want to reset plugin settings the NEXT TIME this plugin is activated</em><br />
+						<input type="submit" class="clicker" value="Save Changes" />
+					</td>
+				</tr>
+			</table>
+			<input type="hidden" name="somatic_framework_options[plugin_db_version]" value="<?php echo $soma_options['plugin_db_version']; ?>">
+
+			</form>
 
 			<!-- export .dat via admin_action_export hook -->
 			<form action="<?php echo admin_url( 'admin.php' ); ?>" method="post">
@@ -1063,6 +1084,17 @@ class somaOptions extends somaticFramework  {
 		return;
 	}
 
+	function typekit_output() {
+		global $soma_options;
+		$kit = somaFunctions::fetch_index( $soma_options, 'typekit' );
+		if ( !empty($kit) ) :	?>
+<!--TYPEKIT-->
+<script type="text/javascript" src="//use.typekit.net/<?php echo $kit; ?>.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+<!--/TYPEKIT-->
+<?php
+		endif;
+	}
 
 
 	/////////////// END CLASS
