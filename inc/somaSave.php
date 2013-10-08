@@ -582,15 +582,31 @@ class somaSave extends somaticFramework {
 							// set missing state at least this once for assigning incomplete metadata later
 							$missing = true;
 						}
+
+
+						if ( $field['data'] == 'core' ) {
+
+							// unhook this function so it doesn't loop infinitely
+							remove_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
+
+							// update the post, which calls save_post again
+							$update_post = array();
+							$update_post['ID'] = $pid;
+							if ( $field['id'] == 'post_title' ) {
+								$new = "Untitled";
+								$update_post['post_name'] = wp_unique_post_slug( 'untitled', $pid, $post->post_status, $post->post_type, $post->post_parent );
+							}
+							$update_post[$field['id']] = $new;
+							wp_update_post( $update_post );
+
+							// re-hook this function
+							add_action('save_post', array(__CLASS__, 'save_asset'), 10, 2);
+						}
+
 						// move on - no additional save routines needed
 						continue;
 					}
 
-					// special case for post titles, as normally wp has already updated it, and it wouldn't trigger our save routines
-					if ($field['data'] == 'core' && $field['id'] == 'post_title') {
-						$slug = sanitize_title( $new );												// build new post slug if title changes
-						$wpdb->update( $wpdb->posts, array( 'post_name' => $slug ), array( 'ID' => $pid ));
-					}
 
 
 					// ---- field isn't blank and it's changed from old ---- //
@@ -695,6 +711,12 @@ class somaSave extends somaticFramework {
 							$update_post = array();
 							$update_post['ID'] = $pid;
 							$update_post[$field['id']] = $new;
+							// special case for making slugs
+							if ( $field['id'] == 'post_title' ) {
+								$slug = sanitize_title( $new );
+								$slug = wp_unique_post_slug( $slug, $pid, $post->post_status, $post->post_type, $post->post_parent );
+								$update_post['post_name'] = $slug;
+							}
 							wp_update_post( $update_post );
 
 							// re-hook this function

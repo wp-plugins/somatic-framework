@@ -32,6 +32,11 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.8.8 =
+* FIX: finally solved the issue with post titles and slugs not getting saved when custom post type doesn't "support" title
+* FIX: deleting content from core data fields actually clears the saved field now
+* when using custom post title fields (not wp's title field), and field is left blank, title is changed to "Untitled"
+
 = 1.8.7 =
 * NEW: option field for TypeKit ID, sets up javascript for you
 
