@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 1.8.6
+Stable tag: 1.8.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,13 +32,12 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
-= 1.8.8 =
+= 1.8.7 =
+* NEW: option field for TypeKit ID, sets up javascript for you
 * FIX: finally solved the issue with post titles and slugs not getting saved when custom post type doesn't "support" title
 * FIX: deleting content from core data fields actually clears the saved field now
 * when using custom post title fields (not wp's title field), and field is left blank, title is changed to "Untitled"
-
-= 1.8.7 =
-* NEW: option field for TypeKit ID, sets up javascript for you
+* new CPT icons
 
 = 1.8.6 =
 * Multi-Site support. Activation hook accomodates network-wide scenario.
