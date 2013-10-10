@@ -195,6 +195,9 @@ class somaMetaboxes extends somaticFramework {
 				continue;
 			}
 
+			// preserve original field id, because we might mess with this later
+			$field['id_orig'] = $field ['id'];
+
 			// get current taxonomy data
 			if ($field['data'] == 'taxonomy') {
 				if (empty($field['options']) && $field['type'] != 'readonly') {
@@ -252,6 +255,7 @@ class somaMetaboxes extends somaticFramework {
 				}
 				// gotta make our own field ID that won't conflict with core ID's, which otherwise might get hijacked (confused for the actual core metabox data) during save
 				$field['id'] = "core_".$field['id'];
+
 			}
 
 			// get all media attachments (minus featured image)
@@ -383,6 +387,9 @@ class somaMetaboxes extends somaticFramework {
 
 			// keep it true to execute the code at the end that displays the "desc" row (allows us to bypass within these cases)
 			$dodesc = true;
+
+			// last chance to manipulate the data itself
+			$meta = apply_filters( "soma_field_data_" . $field['id_orig'], $meta, $post->ID, $box['id'], $field['id'], $field['type'], $field['data'], $field['options'] );
 
 			// build each field content by type
 			switch ($field['type']) {
@@ -816,7 +823,7 @@ class somaMetaboxes extends somaticFramework {
 						echo implode(", ", $meta);
 					} else {
 						// echo '<strong>', $meta ? $meta : $field['default'], '</strong>';
-						echo $meta ? $meta : $field['default'];
+						echo $meta ? apply_filters('the_content', $meta) : $field['default'];
 					}
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //

@@ -38,6 +38,8 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * FIX: deleting content from core data fields actually clears the saved field now
 * when using custom post title fields (not wp's title field), and field is left blank, title is changed to "Untitled"
 * new CPT icons
+* NEW: filter for custom metabox field data, "soma_field_data_[id]". Allows manipulation of $meta right before fields get rendered
+* readonly field type text gets run thru the_content filter, so formatting actually works
 
 = 1.8.6 =
 * Multi-Site support. Activation hook accomodates network-wide scenario.
