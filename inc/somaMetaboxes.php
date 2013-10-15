@@ -515,7 +515,7 @@ class somaMetaboxes extends somaticFramework {
 								case 'audio/x-wave':
 									echo "<div class='audioplayer'>";
 									echo "<input type='text' value='{$att->post_title}' /><br />";
-									echo do_shortcode('[audio src="'.$file['url'].'"]');
+									echo do_shortcode('[audio src="'.$file['url'].'" id="'.$att->ID.'"]');
 									echo "</div>";
 								break;
 								case 'video/mp4':
@@ -606,7 +606,7 @@ class somaMetaboxes extends somaticFramework {
 						} else {
 							$select = false;
 						}
-						echo '<li><label><input type="radio" name="', $field['id'], '" value="', $option['value'], '"' , checked($select), ' />', $option['name'],'</label></li>';
+						echo '<li><label><input type="radio" name="', $field['id'], '" value="', $option['value'], '"' , checked($select), ' />', $select ? "<strong>" : null , $option['name'], $select ? "</strong>" : null ,'</label></li>';
 					}
 					echo '</ul>';
 					break;
