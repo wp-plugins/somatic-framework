@@ -77,6 +77,13 @@ function mysite_metabox_data() {
 				'desc' => 'Enter a name for this item',
 			),
 			array(
+				'id' => 'mybutton',
+				'type' => 'button',
+				'data' => 'link',											// note: unlike other types, this data arg does not fetch anything, but indicates what the button will do ("save" will output a form submit button)
+				'options' => array('label' => 'Apple', 'url' => 'http://apple.com'),
+				'desc' => 'Push to visit something',
+			),
+			array(
 				'name' => 'External Media URL',
 				'id' => 'media',
 				'type' => 'external_media',

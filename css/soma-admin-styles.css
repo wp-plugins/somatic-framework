@@ -17,9 +17,13 @@
 	text-shadow: rgba(0,0,0,.4) 0 1px 0;
 	margin-right: 6px;
 	margin-bottom: 6px;
-	border-width: 1px;
+	border: 1px solid #ccc;
+	display: inline-block;
+	text-decoration: none;
 }
-
+.field-data .clicker {
+	margin-bottom: 0;
+}
 .form-table .clicker:hover {
 	background: #277699;
 	color: #fff;

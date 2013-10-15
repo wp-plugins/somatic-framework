@@ -80,7 +80,7 @@ class somaMetaboxes extends somaticFramework {
 	name 		- text shown in left column of field row
 	id 			- (when data is taxonomy, this id must match the taxonomy slug!)
 	type 		- (see below)
-	data 		- meta, taxonomy, core, p2p, attachment
+	data 		- meta, taxonomy, core, p2p, attachment, [save, link (only buttons)]
 	options 	- array of name => value pairs
 	once 		- only allows data to be set one time, then becomes readonly
 	multiple 	- set to false to prevent more than one selection being saved
@@ -118,6 +118,7 @@ class somaMetaboxes extends somaticFramework {
 	external_media (video)
 	external_image
 	oEmbed (upcoming)
+	button
  * DATA:
  	taxonomy
  	meta
@@ -377,7 +378,7 @@ class somaMetaboxes extends somaticFramework {
 			echo '<tr id="', $field['id'] , '-row" class="', $rowclass, '"', $reveal ? $revealdata : null,' ', $initshow ? null : 'style="display:none;" ' ,'>';
 
 			// include column for field name if included
-			if ($field['name']) {
+			if ($field['name'] || $field['type'] == 'button') {
 				echo '<td class="field-label"><label for="', $field['id'], '" class="', $complete ? null : $missing, '" >', $field['name'], '</label></td>';
 				echo '<td class="field-data">';
 			// no name given, so span both columns
@@ -515,7 +516,7 @@ class somaMetaboxes extends somaticFramework {
 								case 'audio/x-wave':
 									echo "<div class='audioplayer'>";
 									echo "<input type='text' value='{$att->post_title}' /><br />";
-									echo do_shortcode('[audio src="'.$file['url'].'" id="'.$att->ID.'"]');
+									echo do_shortcode('[audio src="'.$file['url'].'" id="'.$att->ID.'" ]');
 									echo "</div>";
 								break;
 								case 'video/mp4':
@@ -993,6 +994,18 @@ class somaMetaboxes extends somaticFramework {
 						echo $field['type'] ? "" : "<em>Must specify a format first!</em>";		/// what is this for?
 					}
 				}
+				break;
+				// ----------------------------------------------------------------------------------------------------------------------------- //
+				case 'button':
+					if ($field['data'] == 'save') {
+						if ($meta_box['always-publish'] || $meta_box['publish']) {
+							echo '<input type="hidden" name="post_status" id="post_status" value="publish" />';
+						}
+						submit_button( $field['options']['label'], 'clicker', 'save', false, array( 'id' => $field["id"]));		// outputs generic submit button
+					}
+					if ($field['data'] == 'link') {
+						echo "<a href='{$field['options']['url']}' class='clicker'>{$field['options']['label']}</a>";
+					}
 				break;
 			}
 

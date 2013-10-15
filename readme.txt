@@ -32,6 +32,11 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.8.8 =
+* NEW: field type "button", outputs clicker buttons in the field row, can pass label and URL (or show a submit button)
+* audio shortcodes in fields now include ID of the attachment for more data than just the file src
+* radio field types now show emphasis on the selected radio label
+
 = 1.8.7 =
 * NEW: option field for TypeKit ID, sets up javascript for you
 * FIX: finally solved the issue with post titles and slugs not getting saved when custom post type doesn't "support" title
