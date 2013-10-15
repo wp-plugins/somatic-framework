@@ -34,7 +34,10 @@ class somaMetaboxes extends somaticFramework {
 			if ($warning) add_action( 'admin_notices', call_user_func('soma_notices','update','No metaboxes have been defined! Make use of soma_metabox_data() [consult meta-config-example.php]'));
 		}
 
-		// hook for insertion before any box content
+		// trigger all calls to soma_metabox_data() which will each populate somaMetaboxes::$data[]
+		do_action('soma_metabox_data_init', $post);
+
+		// hook for insertion of stuff before any metaboxes are rendered
 		do_action('soma_before_all_metaboxes', $post);
 
 		$typehasabox = false;	// init marker

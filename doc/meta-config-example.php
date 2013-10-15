@@ -3,10 +3,8 @@
 //** it won't do you much good if you don't have the Somatic Framework installed **//
 
 
-add_action( 'admin_init', 'mysite_metabox_data' );										// define metabox vars only in admin
-add_action( 'add_meta_boxes_product', array('somaMetaboxes', 'add_boxes') );			// use our somatic metabox generator for another post type (maybe defined by another plugin)
-
-
+add_action( 'soma_metabox_data_init', 'mysite_metabox_data' );										// define metabox vars only in admin
+add_action( 'add_meta_boxes_product', array('somaMetaboxes', 'add_boxes') );						// use our somatic metabox generator for another post type (maybe defined by another plugin)
 
 // add_action('soma_field_type_case', 'media_field_type', 10, 4);
 // add_filter('soma_field_fetch_meta', 'fetch_media_field', 10, 3);
@@ -20,9 +18,8 @@ add_action( 'add_meta_boxes_product', array('somaMetaboxes', 'add_boxes') );			/
 //**  END options  **//
 
 
-
 // outline and inject metaboxes and fields into the somaMetaboxes data container
-function mysite_metabox_data() {
+function mysite_metabox_data($post) {
 	if ( !class_exists("somaticFramework") ) return null; // only proceed if framework plugin is active
 
 	// call the framework function for each individual metabox to be rendered
@@ -80,8 +77,8 @@ function mysite_metabox_data() {
 				'id' => 'mybutton',
 				'type' => 'button',
 				'data' => 'link',											// note: unlike other types, this data arg does not fetch anything, but indicates what the button will do ("save" will output a form submit button)
-				'options' => array('label' => 'Apple', 'url' => 'http://apple.com'),
-				'desc' => 'Push to visit something',
+				'options' => array('label' => 'Execute', 'url' => somaFunctions::build_request_link( 'execute-export', $post->ID ) ),
+				'desc' => 'Push to execute something',
 			),
 			array(
 				'name' => 'External Media URL',

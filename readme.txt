@@ -33,6 +33,8 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 == Changelog ==
 
 = 1.8.8 =
+* NEW: action hook soma_metabox_data_init, provides better location to hook all usage of soma_metabox_data() when declaring metabox field arrays. * soma_metabox_data_init passes $post as an argument, so can finally use functions to provide data to field arguments!
+* NOTE: you should never use "admin_init" as the hook for soma_metabox_data() anymore. Fires too early, no $post data possible
 * NEW: field type "button", outputs clicker buttons in the field row, can pass label and URL (or show a submit button)
 * audio shortcodes in fields now include ID of the attachment for more data than just the file src
 * radio field types now show emphasis on the selected radio label
