@@ -378,7 +378,7 @@ class somaMetaboxes extends somaticFramework {
 			echo '<tr id="', $field['id'] , '-row" class="', $rowclass, '"', $reveal ? $revealdata : null,' ', $initshow ? null : 'style="display:none;" ' ,'>';
 
 			// include column for field name if included
-			if ($field['name'] || $field['type'] == 'button') {
+			if ($field['name'] || $field['type'] == 'button' || $field['type'] == 'help') {
 				echo '<td class="field-label"><label for="', $field['id'], '" class="', $complete ? null : $missing, '" >', $field['name'], '</label></td>';
 				echo '<td class="field-data">';
 			// no name given, so span both columns
