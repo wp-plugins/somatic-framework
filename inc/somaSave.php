@@ -122,7 +122,7 @@ class somaSave extends somaticFramework {
 
 	//** Collect and save data from meta box fields -----------------------------------------------------------------------------------------------------------------------------------------------//
 	// NOTE: debugging any values within this function must be done with wp_die() not var_dump() otherwise won't show
-	function save_asset($pid, $post = null) {
+	function save_asset($pid, $post) {
 
 		global $wpdb, $hook_suffix;
 
@@ -135,19 +135,22 @@ class somaSave extends somaticFramework {
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) return;
 		// Check user permissions
 		if ( ! current_user_can( 'edit_post', $pid ) ) return;
+
 		// Return if it's a post revision
 		if ( false !== wp_is_post_revision( $pid ) ) return;
 
 		if ( $post->post_status == 'auto-draft' ) return;
+
 		if ( somaFunctions::fetch_index($_GET,'action') == 'trash' ) return;
 
 		// don't fire unless this form has our signature on it (and thus contains our custom fields to save)
 		if ( is_null(somaFunctions::fetch_index($_POST, 'somatic'))) return;
 
-		// only run our custom save routines if custom metabox data has been defined
-		if (empty(somaMetaboxes::$data) || !somaMetaboxes::$data) return;
-			// wp_die('missing custom metabox data...', 'Save Error!', array('back_link' => true));
+		// trigger all calls to soma_metabox_data() which will each populate somaMetaboxes::$data[] -- IMPORTANT without this there is no metabox data to work with!
+		do_action('soma_metabox_data_init', $post);
 
+		// only run our custom save routines if custom metabox data has been defined at least once
+		if (empty(somaMetaboxes::$data)) wp_die("Can't save this without custom metabox data...", "Save Error!", array('back_link' => true));
 
 		// let's go!
 
@@ -165,7 +168,7 @@ class somaSave extends somaticFramework {
 
 		// check permissions
 		if (!current_user_can($cap_type, $pid)) {
-			// wp_die('You are not allowed to edit '.$type, 'Save Error!', array('back_link' => true));		/// DISABLED - this was breaking woocommerce paypal digital goods checkout... maybe move this where it only executes when post type matches
+			wp_die('You are not allowed to edit '.$type, 'Save Error!', array('back_link' => true));		/// DISABLED - this was breaking woocommerce paypal digital goods checkout... maybe move this where it only executes when post type matches
 		}
 
 		// reset holding var for determining if fields are empty
