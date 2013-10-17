@@ -358,6 +358,10 @@ class somaOptions extends somaticFramework  {
 
 		$types = get_post_types( array( '_builtin' => false, 'somatic' => true ), 'objects' );
 		$helptext = get_option( 'soma_help_text' );
+
+		// trigger all calls to soma_metabox_data() which will each populate somaMetaboxes::$data[] -- IMPORTANT without this there is no metabox data to work with!
+		do_action('soma_metabox_data_init', $post);
+
 		foreach ( $types as $type ) {
 			echo "<h4>$type->label</h4>";
 			foreach ( somaMetaboxes::$data as $box ) {
