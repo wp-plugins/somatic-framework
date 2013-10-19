@@ -1596,7 +1596,7 @@ SQL;
 		} else {
 			$file['icon'] = SOMA_IMG . 'file-icons/bin.png';
 		}
-
+		$file['time'] = get_post_time("U", true, $pid);
 		return $file;
 	}
 

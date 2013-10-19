@@ -1,5 +1,6 @@
 /* @override
-	http://plenty.wpengine.com/wp-content/plugins/somatic-framework/css/soma-metabox-styles.css?ver=1.7.9 */
+	http://plenty.wpengine.com/wp-content/plugins/somatic-framework/css/soma-metabox-styles.css?ver=1.7.9
+	http://spaceribs.com/wp-content/plugins/somatic-framework/css/soma-metabox-styles.css?ver=1.8.8 */
 
 /* metabox fields */
 
@@ -165,10 +166,11 @@ ul.featured-image {
 }
 li.meta-attachment-item {
 	margin: 0 1em 2em 0;
+	min-width: 120px;
 	vertical-align: top;
 	list-style-type: none;
 	display: inline-block;
-	padding: 1em;
+	padding: 8px;
 	position: relative;
 	background: #eee;
 	border: 1px solid #ddd;
@@ -200,9 +202,18 @@ li.meta-attachment-item textarea {
 	margin-bottom: 0;
 	display: inline-block;
 }
-
+ul.meta-attachment-meta li {
+	padding-left: 3px;
+	margin: 0;
+}
+li.uptime {
+	font-size: 10px;
+	font-style: italic;
+	color: #aaa;
+}
 li.meta-attachment-item .filetype-icon {
 	display: inline-block;
+	padding-top: 4px;
 }
 li.meta-attachment-item img {
 	display: block;
@@ -228,6 +239,7 @@ li.meta-attachment-item .videoplayer {
 
 #poststuff .meta-attachment-actions {
 	margin-top: 4px;
+	margin-left: -2px;
 	position: relative;
 }
 #poststuff .meta-attachment-actions li {
@@ -239,6 +251,8 @@ li.meta-attachment-item .videoplayer {
 .meta-attachment-actions .kill-animation {
 	margin-left: 4px;
 	position: absolute;
+	right: 4px;
+	bottom: 4px;
 }
 
 .meta-attachment-actions .download-attachment {
@@ -338,7 +352,6 @@ input:disabled {
 	display: inline-block;
 	vertical-align: top;
 	position: relative;
-	max-width: 100px;
 }
 .plupload-thumbs .thumb img {
     width: auto;

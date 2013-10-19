@@ -529,10 +529,13 @@ class somaMetaboxes extends somaticFramework {
 									echo "</div>";
 								break;
 								default :
-									echo '<div class="filetype-icon"><img src="'.$file['icon'].'" /></div><br>';
+									echo "<div class=\"filetype-icon\"><a class=\"download-attachment\" href=\"{$file['secure']}\" title=\"Download {$file['basename']}\"><img src=\"{$file['icon']}\" /></a></div><br>";
 								break;
 							}
-						echo "<div class='filename'>{$file['filename']}</div>";
+						echo '<ul class="meta-attachment-meta">';
+						echo "<li class='filename'>{$file['filename']}</li>";
+						echo "<li class='uptime'>Uploaded ".human_time_diff($file['time'])." ago</li>";
+						echo '</ul>';
 						// collapsed meta fields
 						if ($showmetafields == true) {
 							echo '<ul class="meta-attachment-text">';
