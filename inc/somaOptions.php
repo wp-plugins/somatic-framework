@@ -682,7 +682,7 @@ class somaOptions extends somaticFramework  {
 					</td>
 				</tr>
 			</table>
-			<input type="hidden" name="somatic_framework_options[plugin_db_version]" value="<?php echo $soma_options['plugin_db_version']; ?>">
+			<input type="hidden" name="somatic_framework_options[plugin_db_version]" value="<?php echo SOMA_VERSION; ?>">
 
 			</form>
 
