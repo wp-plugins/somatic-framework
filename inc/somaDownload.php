@@ -123,7 +123,7 @@ function soma_legacy_download($get) {
 			// retrieve path to original file
 			'source' => get_attached_file($item),
 			// name to be given to downloaded file
-			'title' => get_post_meta($item, '_wp_attached_file', true),
+			'title' => basename(get_post_meta($item, '_wp_attached_file', true)),
 			// mime-type
 			'mime' => get_post_mime_type($item)
 		);
