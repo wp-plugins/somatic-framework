@@ -20,7 +20,7 @@ class somaFunctions extends somaticFramework {
 		add_filter( 'edit_posts_per_page', array(__CLASS__, 'edit_list_length'));
 		add_action( 'wp_ajax_unlink_file', array(__CLASS__, 'ajax_unlink_file'));
 		add_action( 'wp_ajax_delete_attachment', array(__CLASS__, 'ajax_delete_attachment'));
-		// add_action( 'admin_notices', array(__CLASS__,'soma_notices'));
+		add_action( 'admin_notices', array(__CLASS__,'soma_admin_notices'), 100);
 	}
 
 	function init() {
@@ -31,8 +31,38 @@ class somaFunctions extends somaticFramework {
 		self::check_staff();
 	}
 
-	function soma_notices($func, $msg) {
-		echo "<div class=\"error\"><p><strong>SOMATIC FRAMEWORK ERROR:</strong> $func()</p><p><em>$msg</em></p></div>";
+	// displays notices using the core wp messge box.
+	function soma_admin_notices() {
+		// if (soma_fetch_index($_GET['soma-notify']) == true) {
+		// if (get_query_var('soma_notify') == true) {
+		$notices = get_transient( 'soma_notices' );						// check if any waiting
+			if ($notices === false) return;
+			foreach ($notices as $notice) {
+				if (empty($notice['msg'])) continue;
+				if (empty($notice['type'])) $notice['type'] == 'updated';
+				echo "<div class='{$notice['type']}'>";
+				echo "<p>{$notice['msg']}</p>";
+				echo "</div>";
+			}
+		// }
+		delete_transient('soma_notices');
+	}
+
+	// adds an admin notice message to the queue. can use 'updated', or 'error'
+	function queue_notice($type = 'updated', $msg) {
+		$notices = get_transient( 'soma_notices' );							// grab any existing notices
+		if ($notices === false || !is_array($notices)) $notices = array();	// or init
+		$notices[] = array('type' => $type, 'msg' => $msg);					// add to the queue
+		set_transient( 'soma_notices', $notices );							// store it
+	}
+
+	// adds an admin notice as well as reloads the page to display the notice. good for returning the result of a custom manipulation function without leaving the page
+	function completion_notice($type, $msg) {
+		somaFunctions::queue_notice($type, $msg);
+		// $result = add_query_arg( 'soma_notify', 'true', $_SERVER['HTTP_REFERER'] );		// used to be needed to trigger, but now we just check for the transient itself
+		// wp_redirect( $result );
+  		wp_redirect( $_SERVER['HTTP_REFERER'] );
+  		exit;	// this halts everything, so this better be your last function call
 	}
 
 	// set if user has staff privileges (default to editors)

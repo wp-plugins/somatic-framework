@@ -32,6 +32,9 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.8.9 =
+* NEW: api functions soma_queue_notice() and soma_completion_notice(). stores and displays admin notices in the core wp "message box" format.
+
 = 1.8.8 =
 * NEW: action hook soma_metabox_data_init, provides better location to hook all usage of soma_metabox_data() when declaring metabox field arrays. * soma_metabox_data_init passes $post as an argument, so can finally use functions to provide data to field arguments!
 * NOTE: you should never use "admin_init" as the hook for soma_metabox_data() anymore. Fires too early, no $post data possible

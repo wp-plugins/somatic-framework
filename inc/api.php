@@ -544,3 +544,27 @@ function soma_fetch_file( $id = null ) {
 	$file = somaFunctions::fetch_file( $id );
 	return $file;
 }
+
+/**
+ * Send notices to the queue to be displayed as "admin_notices"
+ *
+ * @since 1.8.9
+ * @param $type - colors the box, can be 'updated' or 'error'
+ * @param $msg - string of text to display in the message box
+ */
+
+function soma_queue_notice( $type, $msg ) {
+	somaFunctions::queue_notice( $type, $msg );
+}
+
+/**
+ * Queues a notice as well as reloads the current page to trigger display of the admin notices.
+ * Handy for returning the result of a custom manipulation function without leaving the page
+ * @since 1.8.9
+ * @param $type - colors the box, can be 'updated' or 'error'
+ * @param $msg - string of text to display in the message box
+ */
+
+function soma_completion_notice( $type, $msg ) {
+	somaFunctions::completion_notice( $type, $msg );
+}
