@@ -38,6 +38,7 @@ class somaOptions extends somaticFramework  {
 		add_action( 'template_redirect', array(__CLASS__,'fully_private') );
 		add_action( 'rightnow_end', array(__CLASS__, 'dashboard_option_notices') );
 		add_action( 'wp_head', array(__CLASS__, 'typekit_output') );								// renders necessary javascript for typekit operation
+		add_action( 'wp_footer', array(__CLASS__, 'google_analytics_output'), 999 );				// renders necessary javascript for google analytics
 
 		add_action('do_feed', array( __CLASS__, 'disable_feeds' ) );
 		add_action('do_feed_rdf', array( __CLASS__, 'disable_feeds' ) );
@@ -85,6 +86,7 @@ class somaOptions extends somaticFramework  {
 			"private" => 0,								// force login to view anything
 			"disable_feeds" => 0,						// turns off all RSS and atom feeds
 			"typekit" => "",							// stores typekit ID and outputs necessary scripts
+			"google_analytics" => "",					// stores google analytics ID and outputs necessary scripts
 		);
 
 		/* core WP metabox slugs for disabling:
@@ -272,8 +274,8 @@ class somaOptions extends somaticFramework  {
 	function add_pages() {
 		add_menu_page( 'Somatic Framework Options', 'Somatic', 'update_core', 'somatic-framework-options', null, SOMA_IMG.'soma-options-menu.png', '91' );
 		add_submenu_page( 'somatic-framework-options', 'Framework Options', 'Options', 'update_core', 'somatic-framework-options', create_function( null, 'somaOptions::soma_options_page("options");' ) );
-		add_submenu_page( 'somatic-framework-options', 'Declarations', 'Declarations', 'update_core', 'somatic-framework-declarations', create_function( null, 'somaOptions::soma_options_page("declarations");' ) );
 		add_submenu_page( 'somatic-framework-options', 'Advanced', 'Advanced', 'update_core', 'somatic-framework-advanced', create_function( null, 'somaOptions::soma_options_page("advanced");' ) );
+		add_submenu_page( 'somatic-framework-options', 'System Reports', 'Reports', 'update_core', 'somatic-framework-reports', create_function( null, 'somaOptions::soma_options_page("reports");' ) );
 		// add_submenu_page('options-general.php', 'Help Text', 'Help Text', 'update_core', 'soma-help-editor', array(__CLASS__,'soma_help_page'), SOMA_IMG.'soma-downloads-menu.png');
 	}
 
@@ -437,16 +439,18 @@ class somaOptions extends somaticFramework  {
 			<!-- page title and tabbed navigation -->
 			<h2 class="nav-tab-wrapper">
 				<a href="?page=somatic-framework-options" class="nav-tab <?php echo $active_tab == 'options' ? 'nav-tab-active' : ''; ?>">Framework Options</a>
-				<a href="?page=somatic-framework-declarations" class="nav-tab <?php echo $active_tab == 'declarations' ? 'nav-tab-active' : ''; ?>">Declarations</a>
 				<a href="?page=somatic-framework-advanced" class="nav-tab <?php echo $active_tab == 'advanced' ? 'nav-tab-active' : ''; ?>">Advanced Functions</a>
+				<a href="?page=somatic-framework-reports" class="nav-tab <?php echo $active_tab == 'reports' ? 'nav-tab-active' : ''; ?>">System Reports</a>
 			</h2>
-
-			<?php if ( $active_tab == 'options' ) :              // first tab output ?>
 
 			<!-- soma options -->
 			<form action="options.php" method="post">
-				<?php settings_fields( 'somatic_framework_plugin_options' ); // adds hidden form elements, nonce ?>
 				<table class="form-table">
+
+			<?php if ( $active_tab == 'options' ) :              // first tab output ?>
+
+				<?php settings_fields( 'somatic_framework_plugin_options' ); // adds hidden form elements, nonce ?>
+
 
 					<!-- Checkbox Buttons -->
 					<tr valign="top">
@@ -495,6 +499,16 @@ class somaOptions extends somaticFramework  {
 						</td>
 					</tr>
 
+					<!-- Textfield -->
+					<tr valign="top">
+						<th scope="row">
+							Google Analytics ID
+						</th>
+						<td>
+							<label><input type="text" size="13" maxlength="13" name="somatic_framework_options[google_analytics]" value="<?php echo $soma_options['google_analytics']; ?>" /> <em>Enter your Google Analytics ID for this property [UA-1234567-89]</em></label>
+						</td>
+					</tr>
+
 					<!-- Checkbox Buttons -->
 					<tr valign="top">
 						<th scope="row">
@@ -507,7 +521,6 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="comments" <?php if ( is_array( $soma_options['disable_menus'] ) ) { checked( '1', in_array( 'comments', $soma_options['disable_menus'] ) ); } ?> /> Comments</label><br />
 							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="media" <?php if ( is_array( $soma_options['disable_menus'] ) ) { checked( '1', in_array( 'media', $soma_options['disable_menus'] ) ); } ?> /> Media</label><br />
 							<label><input name="somatic_framework_options[disable_menus][]" type="checkbox" value="tools" <?php if ( is_array( $soma_options['disable_menus'] ) ) { checked( '1', in_array( 'tools', $soma_options['disable_menus'] ) ); } ?> /> Tools</label><br />
-							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 					</tr>
 
@@ -521,7 +534,6 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="recent_drafts" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'recent_drafts', $soma_options['disable_dashboard'] ) ); } ?> /> Recent Drafts </label><br />
 							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="recent_comments" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'recent_comments', $soma_options['disable_dashboard'] ) ); } ?> /> Recent Comments </label><br />
 							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="incoming_links" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'incoming_links', $soma_options['disable_dashboard'] ) ); } ?> /> Incoming Links </label><br />
-							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 						<td>
 							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="plugins" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'plugins', $soma_options['disable_dashboard'] ) ); } ?> /> Plugins </label><br />
@@ -545,7 +557,6 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="revisionsdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'revisionsdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Revisions</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="authordiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'authordiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Author</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="tb_page_options" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'tb_page_options', $soma_options['disable_metaboxes'] ) ); } ?> /> Jump Start Page Options</label><br />
-							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 						<td>
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="postexcerpt" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'postexcerpt', $soma_options['disable_metaboxes'] ) ); } ?> /> Post Excerpt</label><br />
@@ -587,7 +598,6 @@ class somaOptions extends somaticFramework  {
 		foreach ( $types as $type ) :?>
 								<label><input name="somatic_framework_options[kill_paging][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if ( is_array( $soma_options['kill_paging'] ) ) { checked( '1', in_array( $type->name, $soma_options['kill_paging'] ) ); } ?> /> <?php echo $type->label; ?></label><br />
 							<?php endforeach; ?>
-							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 					</tr>
 
@@ -602,7 +612,6 @@ class somaOptions extends somaticFramework  {
 		foreach ( $types as $type ) :?>
 								<label><input name="somatic_framework_options[kill_autosave][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if ( is_array( $soma_options['kill_autosave'] ) ) { checked( '1', in_array( $type->name, $soma_options['kill_autosave'] ) ); } ?> /> <?php echo $type->label; ?></label><br />
 							<?php endforeach; ?>
-							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 					</tr>
 					<!-- Checkbox Buttons -->
@@ -616,49 +625,9 @@ class somaOptions extends somaticFramework  {
 		foreach ( $types as $type ) : ?>
 							<label><input name="somatic_framework_options[kill_revisions][]" type="checkbox" value="<?php echo $type->name; ?>" <?php if ( is_array( $soma_options['kill_revisions'] ) ) { checked( '1', in_array( $type->name, $soma_options['kill_revisions'] ) ); } ?> /> <?php echo $type->label; ?></label><br />
 							<?php endforeach; ?>
-							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 					</tr>
 
-
-					<!-- Textbox Control -->
-
-				</table>
-
-				<!-- Settings to be retained but not shown -->
-				<input type="hidden" name="somatic_framework_options[plugin_db_version]" value="<?php echo $soma_options['plugin_db_version']; ?>">
-
-			</form>
-			<br/>
-
-			<?php endif; ?>
-
-			<?php if ( $active_tab == 'declarations' ) :             // second tab output ?>
-
-			<table class="form-table">
-				<tr valign="top">
-					<th scope="row">Custom Post Types</th>
-					<td>
-						<?php echo implode( ', ', $custom_types ); ?>
-					</td>
-				</tr>
-				<tr valign="top">
-					<th scope="row">Custom Taxonomies</th>
-					<td>
-						<?php echo implode( ', ', $custom_taxes ); ?>
-					</td>
-				</tr>
-
-			</table>
-			<br />
-
-			<?php endif; ?>
-
-			<?php if ( $active_tab == 'advanced' ) :            // third tab output ?>
-
-			<form action="options.php" method="post">
-				<?php settings_fields( 'somatic_framework_plugin_options' ); // adds hidden form elements, nonce ?>
-			<table class="form-table">
 				<tr>
 					<th scope="row">
 						Post Meta
@@ -667,7 +636,6 @@ class somaOptions extends somaticFramework  {
 						<strong>CAUTION!</strong> <em>don't change these values after you've already saved a post with metadata - you won't lose anything (it will still exist in the database) but it won't be visible anymore...</em><br />
 						<label>Post Meta Prefix <input type="text" size="7" name="somatic_framework_options[meta_prefix]" value="<?php echo $soma_options['meta_prefix']; ?>" /> <em>(just a few letters, can begin with but not end in underscore)</em></label><br />
 						<label><input name="somatic_framework_options[meta_serialize]" type="checkbox" value="1" <?php if ( isset( $soma_options['meta_serialize'] ) ) { checked( '1', $soma_options['meta_serialize'] ); } ?> /> Serialize post-meta when saving?</label><br />
-						<input type="submit" class="clicker" value="Save Changes" />
 					</td>
 				</tr>
 
@@ -678,13 +646,27 @@ class somaOptions extends somaticFramework  {
 					<td>
 						<label><input name="somatic_framework_options[reset_default_options]" type="checkbox" value="1" <?php if ( isset( $soma_options['reset_default_options'] ) ) { checked( '1', $soma_options['reset_default_options'] ); } ?> /> Restore defaults upon plugin deactivation/reactivation</label><br />
 						<em>Only check this if you want to reset plugin settings the NEXT TIME this plugin is activated</em><br />
+					</td>
+				</tr>
+
+				<tr>
+					<th scope="row">
+
+					</th>
+					<td>
 						<input type="submit" class="clicker" value="Save Changes" />
 					</td>
 				</tr>
 			</table>
-			<input type="hidden" name="somatic_framework_options[plugin_db_version]" value="<?php echo SOMA_VERSION; ?>">
+
+				<!-- Settings to be retained but not shown -->
+				<input type="hidden" name="somatic_framework_options[plugin_db_version]" value="<?php echo $soma_options['plugin_db_version']; ?>">
 
 			</form>
+
+			<?php endif; ?>
+
+			<?php if ( $active_tab == 'advanced' ) :            // third tab output ?>
 
 			<!-- export .dat via admin_action_export hook -->
 			<form action="<?php echo admin_url( 'admin.php' ); ?>" method="post">
@@ -729,6 +711,28 @@ class somaOptions extends somaticFramework  {
 					</li>
 				</ul>
 			</form>
+
+			<?php endif; ?>
+
+
+			<?php if ( $active_tab == 'reports' ) :             // second tab output ?>
+
+			<table class="form-table">
+				<tr valign="top">
+					<th scope="row">Custom Post Types</th>
+					<td>
+						<?php echo implode( ', ', $custom_types ); ?>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row">Custom Taxonomies</th>
+					<td>
+						<?php echo implode( ', ', $custom_taxes ); ?>
+					</td>
+				</tr>
+
+			</table>
+			<br />
 
 			<?php endif; ?>
 
@@ -1091,13 +1095,36 @@ class somaOptions extends somaticFramework  {
 	function typekit_output() {
 		global $soma_options;
 		$kit = somaFunctions::fetch_index( $soma_options, 'typekit' );
-		if ( !empty($kit) ) :	?>
+		if ( empty( $kit ) ) return;
+?>
 <!--TYPEKIT-->
 <script type="text/javascript" src="//use.typekit.net/<?php echo $kit; ?>.js"></script>
 <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 <!--/TYPEKIT-->
 <?php
-		endif;
+	}
+
+	function google_analytics_output() {
+		if (is_admin()) return;
+		global $soma_options;
+		$ga = somaFunctions::fetch_index( $soma_options, 'google_analytics' );
+		if (empty( $ga ) ) return;
+		$site = get_site_url();
+		$site = preg_replace('#^https?://#', '', $site);
+?>
+<!--GOOGLE-->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', '<?php echo $ga; ?>', '<?php echo $site; ?>');
+  ga('send', 'pageview');
+
+</script>
+<!--/GOOGLE-->
+<?php
 	}
 
 
