@@ -4,7 +4,7 @@ Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 1.8.8
+Stable tag: 1.8.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,10 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 = 1.8.9 =
 * NEW: api functions soma_queue_notice() and soma_completion_notice(). stores and displays admin notices in the core wp "message box" format.
+* FIX: saving framework options from the advanced tab was clearing all options. now all such options are on the same tab. renamed declarations tab > reports
+* cleaned up various css issues with metabox attachment items
+* added "uploaded X ago" to file attachment display
+* added google analytics tracking ID option field and javascript code output
 
 = 1.8.8 =
 * NEW: action hook soma_metabox_data_init, provides better location to hook all usage of soma_metabox_data() when declaring metabox field arrays. * soma_metabox_data_init passes $post as an argument, so can finally use functions to provide data to field arguments!
