@@ -1,0 +1,435 @@
+/* @override
+	http://plenty.wpengine.com/wp-content/plugins/somatic-framework/css/soma-metabox-styles.css?ver=1.7.9
+	http://spaceribs.com/wp-content/plugins/somatic-framework/css/soma-metabox-styles.css?ver=1.8.8 */
+
+/* metabox fields */
+
+.metabox-holder td.field-label,
+.metabox-holder td.field-data {
+	margin-bottom: 0;
+	padding: 14px 0;
+	line-height: 20px;
+	font-size: 1em;
+}
+
+.metabox-holder td.field-label {
+	min-width: 50px;
+	width: 150px;
+	padding-right: 10px;
+	vertical-align: top;
+	font-weight: bold;
+}
+
+.metabox-holder td.field-data {
+	width: 100%;
+	display: block;
+}
+.metabox-holder td.field-data ul {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.metabox-holder td.field-data #post_title {
+	font-size: 2em;
+}
+
+.metabox-holder td.field-data img,
+.metabox-holder td.field-data a img {
+	max-width: 100%;
+}
+
+.metabox-holder .form-table tr.fieldrow {
+	border-top: 1px dotted #ddd;
+}
+
+.metabox-holder .form-table tr:first-child {
+	border-top: none;
+}
+
+.metabox-holder .field-option {
+	margin-bottom: 0;
+	padding-bottom: 0;
+	padding-top: 0;
+	display: block;
+}
+.metabox-holder .field-option label {
+	margin-left: .5em;
+}
+
+.metabox-holder .field-desc {
+	color: #acacac;
+	font-style: italic;
+	line-height: 1.2em;
+	padding: 0;
+	display: block;
+	margin-top: .5em;
+	margin-bottom: .5em;
+}
+
+.metabox-holder td.field-data input[type='text'],
+.metabox-holder td.field-data input[type='file'] {
+	width: 100%;
+}
+
+.metabox-holder td.field-data input[alt='numeric'] {
+	width: 110px;
+}
+/*	html5 media tags (mediaelement handles)*/
+.metabox-holder td.field-data video {
+	display: block;
+	background: #666;
+	max-width: 100%;
+	height: auto;
+}
+
+.metabox-holder td.field-data audio {
+	width:100%;
+	display: block;
+}
+
+.metabox-holder p.help {
+	margin: 0;
+	color: #999;
+}
+
+.metabox-holder .datemirror,
+.metabox-holder .timemirror {
+	border: none;
+	background: none;
+	padding: 0;
+	width: auto !important;
+	margin-left: 4px;
+}
+
+.metabox-holder .form-table img.ui-datepicker-trigger {
+	display: inline-block;
+	cursor: pointer;
+	margin: 0 3px 0 0;
+	vertical-align: middle;
+}
+
+.metabox-holder .datereset,
+.metabox-holder .timereset {
+	display: inline-block;
+	cursor: pointer;
+	width: 16px;
+	height: 16px;
+	background: url(../js/ui/cross.png) no-repeat left center;
+	position: relative;
+	top: 4px;
+}
+
+#side-sortables td.field-label,
+#side-sortables td.field-data,
+#side-sortables .field-desc {
+	padding: 10px 0 0 0;
+	display: block;
+	width: 100%;
+}
+/* missing data highlighting */
+
+input.missing,
+select.missing,
+ul.missing,
+li.missing,
+td.missing {
+	border: 1px #c00 solid !important;
+	background-color: #ffebe8 !important;
+	min-width: 10px;
+	padding: 0 6px;
+}
+
+label.missing {
+	color: #c00;
+}
+
+/* input styling */
+
+textarea {
+	width: 100%;
+}
+#side-sortables textarea {
+	max-width: 180px;
+}
+
+/* force tinymce visual editor background color */
+.mceLayout {
+	background: #fff;
+}
+
+
+/* attachments metabox display */
+ul.meta-attachment-gallery,
+ul.featured-image {
+	position: relative;
+	margin: 0;
+}
+li.meta-attachment-item {
+	margin: 0 1em 2em 0;
+	min-width: 120px;
+	vertical-align: top;
+	list-style-type: none;
+	display: inline-block;
+	padding: 8px;
+	position: relative;
+	background: #eee;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	line-height: 1.5em;
+}
+
+li.meta-attachment-item .att-text a {
+	text-transform: uppercase;
+	color: #bbb;
+	font-weight: bold;
+	min-width: 60px;
+	display: inline-block;
+	text-decoration: none;
+	background: transparent url('../images/bullet_toggle_plus.png') no-repeat left top;
+	padding-left: 16px;
+}
+li.meta-attachment-item .att-text a:hover {
+	color: #666;
+}
+li.meta-attachment-item input,
+li.meta-attachment-item textarea {
+	margin-top: 6px;
+	display: none;
+	margin-left: 0;
+}
+.featured-image .meta-attachment-item {
+	margin-right: 0;
+	margin-bottom: 0;
+	display: inline-block;
+}
+ul.meta-attachment-meta li {
+	padding-left: 3px;
+	margin: 0;
+}
+li.uptime {
+	font-size: 10px;
+	font-style: italic;
+	color: #aaa;
+}
+li.meta-attachment-item .filetype-icon {
+	display: inline-block;
+	padding-top: 4px;
+}
+li.meta-attachment-item img {
+	display: block;
+}
+
+li.meta-attachment-item .pic {
+	border: 1px solid #ddd;
+}
+
+li.meta-attachment-item .imageviewer {
+	width: 150px;
+}
+li.meta-attachment-item .imageviewer img {
+	margin-bottom: 1em;
+}
+li.meta-attachment-item .audioplayer {
+	width: 300px;
+}
+
+li.meta-attachment-item .videoplayer {
+	width: 800px;
+}
+
+#poststuff .meta-attachment-actions {
+	margin-top: 4px;
+	margin-left: -2px;
+	position: relative;
+}
+#poststuff .meta-attachment-actions li {
+	margin: 0;
+}
+.meta-attachment-actions li a {
+	display: inline-block;
+}
+.meta-attachment-actions .kill-animation {
+	margin-left: 4px;
+	position: absolute;
+	right: 4px;
+	bottom: 4px;
+}
+
+.meta-attachment-actions .download-attachment {
+	background: transparent url('../images/bullet_down.png') no-repeat left top;
+	padding-left: 16px;
+}
+.meta-attachment-actions .delete-attachment {
+	background: transparent url('../images/bullet_delete.png') no-repeat left top;
+	padding-left: 16px;
+}
+
+.meta-checkbox-multi {
+	-moz-column-count: 2;
+	-moz-column-gap: 20px;
+	-webkit-column-count: 2;
+	-webkit-column-gap: 20px;
+	column-count: 2;
+	column-gap: 20px;
+}
+
+#side-sortables .meta-checkbox-multi {
+	-moz-column-count: 1;
+	-moz-column-gap: 0;
+	-webkit-column-count: 1;
+	-webkit-column-gap: 0;
+	column-count: 1;
+	column-gap: 0;
+}
+.meta-checkbox-multi label input,
+input.meta-checkbox-single,
+.meta-radio label input {
+	margin-right: 6px;
+}
+
+.radio-horizontal li {
+	float: left;
+	margin-right: 1.2em;
+}
+
+#normal-sortables .meta-link {
+	width: 80%;
+	display: inline-block;
+	margin-left: 5em;
+}
+
+span.sub-label {
+	font-weight: bold;
+	position: absolute;
+	color: #aaa;
+}
+
+#poststuff input.meta-select-input {
+ 	width: auto;
+ 	min-width: 120px;
+ 	margin: 0 0 0 1em;
+	display: none;
+}
+
+input:disabled {
+	background: #efefef;
+	border-style: dashed;
+}
+
+/* play button overlay */
+.trigger {
+	display: block;
+	background: transparent url('../images/play-static.png') no-repeat center center;
+}
+.trigger:hover {
+	background: transparent url('../images/play-hover.png') no-repeat center center;
+}
+
+/*pluploader*/
+
+.field-data img.ajax-loading {
+	display: block !important;
+}
+.filelist {
+    width: 100%;
+}
+.filelist .file {
+    padding: 5px;
+    background: #ececec;
+    border: solid 1px #ccc;
+    margin-bottom: 4px;
+}
+.filelist .fileprogress {
+    width: 0%;
+	height: 5px;
+	background-color: #5b9cc8;
+}
+.plupload-thumbs {
+ 	margin-top: 0;
+}
+.plupload-thumbs .thumb {
+    margin: 0 10px 10px 0;
+	display: inline-block;
+	vertical-align: top;
+	position: relative;
+}
+.plupload-thumbs .thumb img {
+    width: auto;
+    height: auto;
+    max-height: 100px;
+    max-width: 100px;
+	display: block;
+}
+
+.plupload-featured .thumb img {
+	max-height: 400px;
+	max-width: 400px;
+}
+
+.plupload-thumbs .thumb.audio .icon {
+    width: 100px;
+    height: 100px;
+	display: block;
+	background: transparent url('../images/icon-audio.png') no-repeat left top;
+	background-size: 100%;
+}
+
+.plupload-thumbs .thumb.video .icon {
+    width: 100px;
+    height: 100px;
+	display: block;
+	background: transparent url('../images/icon-video.png') no-repeat left top;
+	background-size: 100%;
+}
+
+.plupload-thumbs .thumb.file .icon {
+    width: 32px;
+    height: 32px;
+	display: block;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	background-position-x: left;
+	background-position-y: top;
+	background-size: 100%;
+}
+
+
+.dropzone {
+	text-align: center;
+	padding: 10px 10px 6px 10px;
+	border: 3px dashed #ddd;
+	height: auto;
+	width: 274px;
+}
+.dropzone-help {
+	color: #888;
+	font-weight: bold;
+	background: transparent url('../images/Arrow_Down_32.png') no-repeat center bottom;
+	height: 32px;
+	padding-bottom: 2em;
+	margin-bottom: 4px;
+}
+
+#side-sortables .dropzone {
+	width: auto;
+}
+
+
+.plupload-thumbs .pendinginfo {
+	display: inline-block;
+	margin-top: 2px;
+}
+
+.plupload-thumbs .thumb .kill-animation {
+	margin-left: 4px;
+	margin-top: 2px;
+	float: right;
+}
+
+/* remove post editor metabox columns on tiny screens */
+@media only screen and (max-width: 640px) {
+	.inner-sidebar{float:none;clear:right;display:none;width:281px;position:relative;}
+	#post-body-content{margin-right:0px !important;}
+}
+
+
