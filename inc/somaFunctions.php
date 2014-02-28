@@ -341,6 +341,14 @@ class somaFunctions extends somaticFramework {
 		if ($label == 'name') {
 			return $term[0]->name;
 		}
+		if ($label == 'link') {
+			if (is_admin()) {
+				$link = admin_url() . "edit.php?" . $taxonomy . "=" . $term[0]->slug . "&post_type=" . get_post_type($pid);
+			} else {
+				$link = get_term_link( $term[0], $taxonomy );
+			}
+			return '<a href="' . $link . '">' . $term[0]->name . '</a>';
+		}
 		if ($label == 'id' || $label == 'term_id') {
 			return $term[0]->term_id;
 		}
