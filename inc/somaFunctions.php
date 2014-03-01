@@ -334,7 +334,7 @@ class somaFunctions extends somaticFramework {
 		}
 
 		$term = wp_get_object_terms( $pid, $taxonomy );
-		if (is_wp_error($term)) return null;
+		if (is_wp_error($term) || empty($term)) return null;			// taxonomy doesn't exist OR there are no terms assigned
 		if ($label == 'slug') {
 			return $term[0]->slug;
 		}
@@ -345,7 +345,7 @@ class somaFunctions extends somaticFramework {
 			if (is_admin()) {
 				$link = admin_url() . "edit.php?" . $taxonomy . "=" . $term[0]->slug . "&post_type=" . get_post_type($pid);
 			} else {
-				$link = get_term_link( $term[0], $taxonomy );
+				$link = get_term_link( $term[0] );
 			}
 			return '<a href="' . $link . '">' . $term[0]->name . '</a>';
 		}
