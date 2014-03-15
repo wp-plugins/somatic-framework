@@ -17,7 +17,11 @@ class somaMetaboxes extends somaticFramework {
 	// modify redirect behavior after post saving
 	function redirect_post_location($location, $pid) {
 		if (soma_fetch_index($_POST, 'save_and_go_back')) {
+			// wp_die(var_dump($_POST));
 			$location = soma_fetch_index($_POST, 'referredby');
+			$title = get_the_title($pid);
+			$link = get_edit_post_link( $pid );
+			somaFunctions::queue_notice( "updated", "Changes Saved to <a href='$link'>$title</a>" );
 		}
 		return $location;
 	}
