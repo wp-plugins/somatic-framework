@@ -6,6 +6,7 @@ class somaMetaboxes extends somaticFramework {
 		add_action( 'post_edit_form_tag' , array(__CLASS__,'post_edit_form_tag' ) );
 		add_action( 'add_meta_boxes_post', array(__CLASS__, 'add_boxes'), 10, 1 );		// use our somatic metabox rendering for core post type
 		add_action( 'add_meta_boxes_page', array(__CLASS__, 'add_boxes'), 10, 1 );		// use our somatic metabox rendering for core page type
+		add_filter( 'redirect_post_location', array(__CLASS__, 'redirect_post_location' ), 20, 2 );
 	}
 
 	// needed to allow file upload inputs (input[type="file"]) within post.php
@@ -13,6 +14,13 @@ class somaMetaboxes extends somaticFramework {
 	    echo ' enctype="multipart/form-data"';
 	}
 
+	// modify redirect behavior after post saving
+	function redirect_post_location($location, $pid) {
+		if (soma_fetch_index($_POST, 'save_and_go_back')) {
+			$location = soma_fetch_index($_POST, 'referredby');
+		}
+		return $location;
+	}
 
 	static $data = array();				// container for other plugins and themes to store custom metabox and field data - SHOULD WE STORE THIS IN THE DB INSTEAD???
 
@@ -83,7 +91,7 @@ class somaMetaboxes extends somaticFramework {
 	name 		- text shown in left column of field row
 	id 			- (when data is taxonomy, this id must match the taxonomy slug!)
 	type 		- (see below)
-	data 		- meta, taxonomy, core, p2p, attachment, [save, link (only buttons)]
+	data 		- meta, taxonomy, core, p2p, attachment, [save, save-back, link (only buttons)]
 	options 	- array of name => value pairs
 	once 		- only allows data to be set one time, then becomes readonly
 	multiple 	- set to false to prevent more than one selection being saved
@@ -1003,9 +1011,12 @@ class somaMetaboxes extends somaticFramework {
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'button':
-					if ($field['data'] == 'save') {
+					if ($field['data'] == ( 'save' || 'save-back' ) ) {
 						if ($meta_box['always-publish'] || $meta_box['publish']) {
 							echo '<input type="hidden" name="post_status" id="post_status" value="publish" />';
+						}
+						if ($field['data'] == 'save-back') {
+							echo '<input type="hidden" name="save_and_go_back" value="1">';										// additional var to redirect back to referring page, detected by redirect_post_location() function
 						}
 						submit_button( $field['options']['label'], 'clicker', 'save', false, array( 'id' => $field["id"]));		// outputs generic submit button
 					}
