@@ -614,7 +614,7 @@ class somaFunctions extends somaticFramework {
 	// changes words throughout wordpress
 	function modify_core_language( $translated ) {
 	     // $translated = str_replace( 'Publish', 'Ingest', $translated );
-	     $translated = str_replace( 'Dashboard', 'Overview', $translated );
+	     // $translated = str_replace( 'Dashboard', 'Overview', $translated );
 	     $translated = str_replace( 'featured', 'assigned', $translated );
 	     $translated = str_replace( 'Start typing the title of a post', 'Start typing the title of an asset', $translated );	// p2p metabox
 	     // $translated = str_replace( 'Post', 'Article', $translated );
