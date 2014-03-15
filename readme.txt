@@ -32,6 +32,9 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.8.10 =
+* NEW: metabox button "save-back" outputs a save button which immediately redirects back to referring page after saving
+
 = 1.8.9 =
 * NEW: api functions soma_queue_notice() and soma_completion_notice(). stores and displays admin notices in the core wp "message box" format.
 * FIX: saving framework options from the advanced tab was clearing all options. now all such options are on the same tab. renamed declarations tab > reports
