@@ -2,9 +2,9 @@
 Contributors: somatic
 Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
-Requires at least: 3.3
-Tested up to: 3.5
-Stable tag: 1.8.9
+Requires at least: 3.9
+Tested up to: 3.9
+Stable tag: 1.8.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 = 1.8.10 =
 * NEW: metabox button "save-back" outputs a save button which immediately redirects back to referring page after saving
+* FIX: upload boxes work again with the new plUpload 2.1 that is bundled with wordpress 3.9
 
 = 1.8.9 =
 * NEW: api functions soma_queue_notice() and soma_completion_notice(). stores and displays admin notices in the core wp "message box" format.

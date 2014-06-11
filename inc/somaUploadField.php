@@ -62,7 +62,6 @@ class somaUploadField extends somaticFramework {
 			'filters' => array(array('title' => 'Allowed Files', 'extensions' => $this->allowed)),
 			'max_file_count' => $this->max,
 			'multiple_queues' => true,
-			'max_file_size' => wp_max_upload_size() . 'b',
 			'unique_names' => true,
 			'url' => admin_url('admin-ajax.php'),
 			'flash_swf_url' => includes_url('js/plupload/plupload.flash.swf'),
@@ -73,7 +72,10 @@ class somaUploadField extends somaticFramework {
 				'_ajax_nonce' => wp_create_nonce($this->field['id'] . '_plupload'),		// security nonce
 				'action' => 'plupload_action',											// the ajax action name
 				'fieldID' => $this->field['id'],										// gets passed to ajax callback in $_POST
-			)
+			),
+			'filters' => array(
+				'max_file_size' => wp_max_upload_size() . 'b',
+    		),
 		);
 		if (isset($this->field['width']) && isset($this->field['height'])) {
 			$plupload_init['resize'] = array(											// resizes incoming images to max height and width (no crop)

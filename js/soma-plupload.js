@@ -67,7 +67,7 @@ jQuery(document).ready(function($) {
 			uploader.bind('UploadProgress', function(up, file) {
 
 				$('#' + file.id + " .fileprogress").width(file.percent + "%");
-				$('#' + file.id + " span").html(plupload.formatSize(parseInt(file.size * file.percent / 100)));
+				$('#' + file.id + " span").html(plupload.formatSize(parseInt(file.size * file.percent / 100), 10));
 			});
 
 			// set index for hidden input names. Gets incremented with each upload, and does not reset until page reload
@@ -87,10 +87,9 @@ jQuery(document).ready(function($) {
 				}
 				$('#' + file.id).fadeOut();
 
-
-				// grab the input id from the settings
+				// grab the input element from the settings (stored as actual DOM element now, not just ID string)
 				// retrieve the form element that this input is embedded in
-				var thisform = document.getElementById(uploader.settings.browse_button).form;
+				var thisform = uploader.settings.browse_button[0].form;
 
 				// create new hidden inputs and append to this form, to store wp_handle_upload data
 				$('<input>').attr({
@@ -237,10 +236,10 @@ function plu_add_thumbs(fieldID, index, max) {
 
 	// SORTABLE REENABLE LATER
 	// if (images.length > 1) {
-	// 	thumbsContainer.sortable({
+	//	thumbsContainer.sortable({
 	// 		update: function(event, ui) {
-	// 			var kimages = [];
-	// 			thumbsContainer.find("img").each(function() {
+	//			var kimages = [];
+	//			thumbsContainer.find("img").each(function() {
 	// 				kimages[kimages.length] = $(this).attr("src");
 	// 				$("#" + fieldID).val(kimages.join());
 	// 				plu_show_thumbs(fieldID);
