@@ -108,7 +108,7 @@ class somaticFramework {
 		add_action( 'login_footer', array(__CLASS__,'change_login_footer') );
 
 		add_filter( 'query_vars', array(__CLASS__,'query_vars' ) );
-		add_action( 'parse_request', array(__CLASS__, 'parse_request' ) );
+		add_action( 'parse_request', array(__CLASS__, 'parse_request' ), 100, 2 ); 		// affects only the main query not queries made with wp_query!
 
 		// admin scripts and styles
 		wp_register_script( 'soma-admin-jquery', SOMA_JS.'soma-admin-jquery.js', array('jquery', 'jquery-ui-core'), SOMA_VERSION, true);

@@ -1120,6 +1120,7 @@ class somaOptions extends somaticFramework  {
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
   ga('create', '<?php echo $ga; ?>', '<?php echo $site; ?>');
+  ga('require', 'displayfeatures');
   ga('send', 'pageview');
 
 </script>

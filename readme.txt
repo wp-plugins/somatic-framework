@@ -32,6 +32,10 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 
 == Changelog ==
 
+= 1.8.11 =
+* FIX: parse_query action hook repaired, had stopped working oddly
+* added demographics tracking line to google analytics code
+
 = 1.8.10 =
 * NEW: metabox button "save-back" outputs a save button which immediately redirects back to referring page after saving
 * FIX: upload boxes work again with the new plUpload 2.1 that is bundled with wordpress 3.9
