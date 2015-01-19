@@ -9,6 +9,7 @@ class somaOptions extends somaticFramework  {
 	function __construct() {
 		add_action( 'init', array( __CLASS__, 'soma_global_options' ), 7 );     	  				// populate global variable with options to avoid additional DB queries - try to hook earlier than normal...
 		add_action( 'init', array( __CLASS__, 'soma_go_endpoint') );								// creates new permalink endpoint of /go/[slug], used for redirects
+		add_action( 'init', array( __CLASS__, 'enable_page_excerpts' ) );							// turns on excerpts for built-in "page" post type
 		add_action( 'template_redirect', array( __CLASS__, 'soma_go_redirect' ) );					// logic to redirect
 		add_filter( 'soma_go_redirect_codes', array( __CLASS__, 'soma_default_links' ), 1, 1 );		// default redirect links
 		// add_action( 'init', array( __CLASS__, 'show_admin_bar' ), 9 );        					// gotta get in early to execute before _wp_admin_bar_init()
@@ -463,6 +464,7 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[p2p]" type="checkbox" value="1" <?php if ( isset( $soma_options['p2p'] ) ) { checked( '1', $soma_options['p2p'] ); } ?> /> Require Posts 2 Posts Plugin <em>(often necessary when using custom post types)</em></label><br />
 							<label><input name="somatic_framework_options[colorbox]" type="checkbox" value="1" <?php if ( isset( $soma_options['colorbox'] ) ) { checked( '1', $soma_options['colorbox'] ); } ?> /> Enable Colorbox JS lightbox for front-end content image links (not just admin)</label><br />
 							<label><input name="somatic_framework_options[go_redirect]" type="checkbox" value="1" <?php if ( isset( $soma_options['go_redirect'] ) ) { checked( '1', $soma_options['go_redirect'] ); } ?> /> Enable custom redirects via go/[code]</label><br />
+							<label><input name="somatic_framework_options[enable_page_excerpts]" type="checkbox" value="1" <?php if ( isset( $soma_options['enable_page_excerpts'] ) ) { checked( '1', $soma_options['enable_page_excerpts'] ); } ?> /> Enable excerpts for built-in Pages</label><br />
 							<label><input name="somatic_framework_options[fulldisplayname]" type="checkbox" value="1" <?php if ( isset( $soma_options['fulldisplayname'] ) ) { checked( '1', $soma_options['fulldisplayname'] ); } ?> /> Force display name to be Firstname Lastname (wp default is the username)</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
@@ -1128,6 +1130,13 @@ class somaOptions extends somaticFramework  {
 <?php
 	}
 
+
+function enable_page_excerpts() {
+	global $soma_options;
+	if ( somaFunctions::fetch_index( $soma_options, 'enable_page_excerpts' ) ) {
+		add_post_type_support( 'page', 'excerpt' );
+	}
+}
 
 	/////////////// END CLASS
 }

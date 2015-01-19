@@ -35,6 +35,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 = 1.8.11 =
 * FIX: parse_query action hook repaired, had stopped working oddly
 * added demographics tracking line to google analytics code
+* NEW: option to enable built-in page excerpts
 
 = 1.8.10 =
 * NEW: metabox button "save-back" outputs a save button which immediately redirects back to referring page after saving
