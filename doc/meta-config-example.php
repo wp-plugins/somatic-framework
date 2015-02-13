@@ -45,7 +45,7 @@ function mysite_metabox_data($post) {
 			),
 			array(
 				'name' => 'Actor Name',										// text displayed alongside field input
-				'id' => 'actors', 											// used when saving, should be the name of the post_meta (key) or taxonomy (exact slug) we're manipulating
+				'id' => 'actors', 											// used when saving, should be the name of the post_meta (key) or taxonomy (exact slug) we're manipulating. NOTE: if using with upload-files, never put a hyphen in the ID string!
 				'type' => 'select',											// field type (usually input: text, area, select, checkbox, radio), sometimes output (posts, other readonly data)
 				'data' => 'taxonomy',										// what kind of data is being retrieved and saved for this post (meta [wp_postmeta table], core [wp_posts table], taxonomy, user, p2p, attachment, comment)
 				'options' => soma_select_taxonomy_terms('actors'),			// array of options to populate html form input objects (in this case, generated automatically from available taxonomy terms)
