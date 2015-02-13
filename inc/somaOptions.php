@@ -48,6 +48,7 @@ class somaOptions extends somaticFramework  {
 		add_action('do_feed_atom', array( __CLASS__, 'disable_feeds' ) );
 		add_action('do_feed_rss2_comments', array( __CLASS__, 'disable_feeds' ) );
 		add_action('do_feed_atom_comments', array( __CLASS__, 'disable_feeds' ) );
+		add_action('template_redirect', array( __CLASS__, 'attachment_page_redirect'), 1);				// nukes the "attachment page" by redirecting any views to the parent
 
 		// add_action( 'show_user_profile', array(__CLASS__, 'show_extra_profile_fields') );  // unused
 		// add_action( 'edit_user_profile', array(__CLASS__, 'show_extra_profile_fields') );  // unused
@@ -76,7 +77,7 @@ class somaOptions extends somaticFramework  {
 			"kill_autosave" => array(),        			// array of post types slugs to disable autosave
 			"kill_revisions" => array(),         		// array of post types slugs to disable autosave
 			"disable_menus" => array( 'links', 'tools' ),                             // hide admin sidebar menu items from everyone (but you could still go to the page directly)
-			"disable_dashboard" => array( 'quick_press', 'recent_drafts', 'recent_comments', 'incoming_links', 'plugins', 'primary', 'secondary', 'thesis_news_widget' ),  // hide dashboard widgets from everyone
+			"disable_dashboard" => array( 'quick_press', 'recent_drafts', 'recent_comments', 'incoming_links', 'plugins', 'primary', 'secondary', 'thesis_news_widget', 'tribe_dashboard_widget' ),  // hide dashboard widgets from everyone
 			"disable_metaboxes" => array( 'thesis_seo_meta', 'thesis_image_meta', 'thesis_multimedia_meta', 'thesis_javascript_meta', 'tb_page_options' ),         // hide metaboxes in post editor from everyone
 			"disable_drag_metabox" => 0,         		// prevent users from dragging/rearranging metaboxes (even dashboard widgets)
 			"go_redirect" => 0,
@@ -88,6 +89,7 @@ class somaOptions extends somaticFramework  {
 			"disable_feeds" => 0,						// turns off all RSS and atom feeds
 			"typekit" => "",							// stores typekit ID and outputs necessary scripts
 			"google_analytics" => "",					// stores google analytics ID and outputs necessary scripts
+			"kill_attachment_pages" => 1 				// redirects attachment pages to parent
 		);
 
 		/* core WP metabox slugs for disabling:
@@ -466,6 +468,7 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[go_redirect]" type="checkbox" value="1" <?php if ( isset( $soma_options['go_redirect'] ) ) { checked( '1', $soma_options['go_redirect'] ); } ?> /> Enable custom redirects via go/[code]</label><br />
 							<label><input name="somatic_framework_options[enable_page_excerpts]" type="checkbox" value="1" <?php if ( isset( $soma_options['enable_page_excerpts'] ) ) { checked( '1', $soma_options['enable_page_excerpts'] ); } ?> /> Enable excerpts for built-in Pages</label><br />
 							<label><input name="somatic_framework_options[fulldisplayname]" type="checkbox" value="1" <?php if ( isset( $soma_options['fulldisplayname'] ) ) { checked( '1', $soma_options['fulldisplayname'] ); } ?> /> Force display name to be Firstname Lastname (wp default is the username)</label><br />
+							<label><input name="somatic_framework_options[kill_attachment_pages]" type="checkbox" value="1" <?php if ( isset( $soma_options['kill_attachment_pages'] ) ) { checked( '1', $soma_options['kill_attachment_pages'] ); } ?> /> Disable solo attachment pages by redirecting to parent post</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 					</tr>
@@ -532,17 +535,22 @@ class somaOptions extends somaticFramework  {
 							Disable Dashboard Widgets
 						</th>
 						<td>
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="quick_press" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'quick_press', $soma_options['disable_dashboard'] ) ); } ?> /> Quick Press </label><br />
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="recent_drafts" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'recent_drafts', $soma_options['disable_dashboard'] ) ); } ?> /> Recent Drafts </label><br />
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="recent_comments" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'recent_comments', $soma_options['disable_dashboard'] ) ); } ?> /> Recent Comments </label><br />
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="incoming_links" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'incoming_links', $soma_options['disable_dashboard'] ) ); } ?> /> Incoming Links </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="quick_press" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'quick_press', $soma_options['disable_dashboard'] ) ); } ?> /> Quick Press</label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="recent_drafts" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'recent_drafts', $soma_options['disable_dashboard'] ) ); } ?> /> Recent Drafts</label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="recent_comments" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'recent_comments', $soma_options['disable_dashboard'] ) ); } ?> /> Recent Comments</label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="incoming_links" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'incoming_links', $soma_options['disable_dashboard'] ) ); } ?> /> Incoming Links</label><br />
 						</td>
 						<td>
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="plugins" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'plugins', $soma_options['disable_dashboard'] ) ); } ?> /> Plugins </label><br />
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="primary" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'primary', $soma_options['disable_dashboard'] ) ); } ?> /> Wordpress Blog </label><br />
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="secondary" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'secondary', $soma_options['disable_dashboard'] ) ); } ?> /> Other Wordpress News </label><br />
-							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="thesis_news_widget" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'thesis_news_widget', $soma_options['disable_dashboard'] ) ); } ?> /> Thesis News </label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="plugins" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'plugins', $soma_options['disable_dashboard'] ) ); } ?> /> Plugins</label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="primary" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'primary', $soma_options['disable_dashboard'] ) ); } ?> /> Wordpress Blog</label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="secondary" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'secondary', $soma_options['disable_dashboard'] ) ); } ?> /> Other Wordpress News</label><br />
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="thesis_news_widget" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'thesis_news_widget', $soma_options['disable_dashboard'] ) ); } ?> /> Thesis News</label><br />
 						</td>
+						<td>
+							<label><input name="somatic_framework_options[disable_dashboard][]" type="checkbox" value="tribe_dashboard_widget" <?php if ( is_array( $soma_options['disable_dashboard'] ) ) { checked( '1', in_array( 'tribe_dashboard_widget', $soma_options['disable_dashboard'] ) ); } ?> /> Modern Tribe News</label><br />
+						</td>
+
+
 					</tr>
 
 					<!-- Checkbox Buttons -->
@@ -558,7 +566,6 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="commentstatusdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'commentstatusdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Comment Status</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="revisionsdiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'revisionsdiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Revisions</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="authordiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'authordiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Author</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="tb_page_options" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'tb_page_options', $soma_options['disable_metaboxes'] ) ); } ?> /> Jump Start Page Options</label><br />
 						</td>
 						<td>
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="postexcerpt" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'postexcerpt', $soma_options['disable_metaboxes'] ) ); } ?> /> Post Excerpt</label><br />
@@ -570,15 +577,20 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="categorydiv" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'categorydiv', $soma_options['disable_metaboxes'] ) ); } ?> /> Post Categories</label><br />
 						</td>
 						<td>
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="tb_page_options" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'tb_page_options', $soma_options['disable_metaboxes'] ) ); } ?> /> Jump Start Page Options</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="tb_post_options" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'tb_post_options', $soma_options['disable_metaboxes'] ) ); } ?> /> ThemeBlvd Post Options</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="tb_banner_options" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'tb_banner_options', $soma_options['disable_metaboxes'] ) ); } ?> /> ThemeBlvd Banner</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="tb_sidebars" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'tb_sidebars', $soma_options['disable_metaboxes'] ) ); } ?> /> ThemeBlvd Sidebar Overrides</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="tb_layout_options" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'tb_layout_options', $soma_options['disable_metaboxes'] ) ); } ?> /> ThemeBlvd Theme Layout</label><br />
+							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="pto" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'pto', $soma_options['disable_metaboxes'] ) ); } ?> /> ThemeBlvd Post Template Options</label><br />
+						</td>
+						<td>
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_seo_meta" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_seo_meta', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis SEO</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_image_meta" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_image_meta', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis Image</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_multimedia_meta" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_multimedia_meta', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis Multimedia</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_javascript_meta" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_javascript_meta', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis Javascript</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_title_tag" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_title_tag', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Custom Title</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_meta_description" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_meta_description', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Meta Description</label><br />
-							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_meta_keywords" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_meta_keywords', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Meta Keywords</label><br />
 						</td>
-						<td>
+<!-- 						<td>
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_meta_robots" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_meta_robots', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Meta Robots</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_canonical_link" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_canonical_link', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Canonical URL</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_html_body" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_html_body', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Body Class</label><br />
@@ -586,7 +598,7 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_post_image" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_post_image', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Post Image</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_post_thumbnail" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_post_thumbnail', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 Post Thumbnail</label><br />
 							<label><input name="somatic_framework_options[disable_metaboxes][]" type="checkbox" value="thesis_redirect" <?php if ( is_array( $soma_options['disable_metaboxes'] ) ) { checked( '1', in_array( 'thesis_redirect', $soma_options['disable_metaboxes'] ) ); } ?> /> Thesis 2.0 301 Redirect</label><br />
-						</td>
+						</td> -->
 					</tr>
 
 					<!-- Checkbox Buttons -->
@@ -830,6 +842,7 @@ class somaOptions extends somaticFramework  {
 		if ( in_array( "primary", $soma_options['disable_dashboard'] ) ) remove_meta_box( 'dashboard_primary', 'dashboard', 'side' );
 		if ( in_array( "secondary", $soma_options['disable_dashboard'] ) ) remove_meta_box( 'dashboard_secondary', 'dashboard', 'side' );
 		if ( in_array( "thesis_news_widget", $soma_options['disable_dashboard'] ) ) remove_meta_box( 'thesis_news_widget', 'dashboard', 'normal' );
+		if ( in_array( "tribe_dashboard_widget", $soma_options['disable_dashboard'] ) ) remove_meta_box( 'tribe_dashboard_widget', 'dashboard', 'normal' );
 	}
 
 	// removes unwanted metaboxes from post editor
@@ -1135,6 +1148,21 @@ function enable_page_excerpts() {
 	global $soma_options;
 	if ( somaFunctions::fetch_index( $soma_options, 'enable_page_excerpts' ) ) {
 		add_post_type_support( 'page', 'excerpt' );
+	}
+}
+
+function attachment_page_redirect() {
+	global $soma_options, $post;
+	if ( somaFunctions::fetch_index( $soma_options, 'kill_attachment_pages' ) ) {
+		if ( is_attachment() && isset($post->post_parent) && is_numeric($post->post_parent) && ($post->post_parent != 0) ) {
+			// permanent redirect to post/page where image or document was uploaded
+			wp_redirect( get_permalink( $post->post_parent ), 301 );
+			exit;
+		} elseif ( is_attachment() && isset($post->post_parent) && is_numeric($post->post_parent) && ($post->post_parent < 1) ) {   // for some reason it doesnt works checking for 0, so checking lower than 1 instead...
+			// temp redirect to home for image or document not associated to any post/page
+			wp_redirect( get_bloginfo( 'url' ), 302 );
+			exit;
+		}
 	}
 }
 
