@@ -2,9 +2,9 @@
 Contributors: somatic
 Tags: CMS, custom post type, metabox, custom taxonomy
 Donate link: http://somaticstudios.com/code
-Requires at least: 3.9
-Tested up to: 3.9
-Stable tag: 1.8.10
+Requires at least: 4.0
+Tested up to: 4.1
+Stable tag: 1.8.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,8 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * FIX: parse_query action hook repaired, had stopped working oddly
 * added demographics tracking line to google analytics code
 * NEW: option to enable built-in page excerpts
+* NEW: option to disable attachment pages (redirecting to parent post)
+* more metabox disabling for themeblvd stuff
 
 = 1.8.10 =
 * NEW: metabox button "save-back" outputs a save button which immediately redirects back to referring page after saving
