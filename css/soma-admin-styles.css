@@ -1,0 +1,86 @@
+/* clicker button */
+
+.form-table .clicker {
+	font-size: 16px;
+	color: #fff;
+	text-transform: uppercase;
+	font-weight: bold;
+	height: 40px;
+	padding: 0 2em;
+	background-color: #52a4c8;
+	border-color: #52879e;
+	margin-right: 6px;
+	margin-bottom: 6px;
+	display: inline-block;
+	text-decoration: none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+	
+}
+.field-data .clicker {
+	margin-bottom: 0;
+}
+.form-table .clicker:hover {
+	background: #277699;
+	border-color: #52879e;
+	color: #fff;
+	cursor: pointer;
+}
+
+.form-table .clicker:active {
+	background: #1b435e;
+	text-shadow: none;
+}
+
+.form-table .clicker.neutral {
+	background: #aaa;
+	border-top: 1px solid #ccc;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+
+.form-table .clicker.neutral:hover {
+	border-top-color: #777;
+	background: #555;
+}
+
+
+/* edit.php column styles */
+.wp-list-table .column-thumb {
+	padding: 6px;
+/*	note: width is set dynamically depending on thumbnail size*/
+}
+.wp-list-table .column-thumb img {
+	display: block;
+	border: 1px solid #ddd;
+	background: #eee;
+	max-height: 200px;
+	max-width: 200px;
+}
+
+
+/* settings page tweaks */
+.somatic-options .form-table th {
+	padding-left: 0;
+	color: #666;
+	font-weight: bold;
+}
+.somatic-options .form-table tr {
+	border-bottom: 1px dotted #cdcdcd;
+	display: block;
+	padding: .5em 0 .5em 0;
+}
+.somatic-options .form-table tr:last-child {
+	border-bottom: none;
+}
+.somatic-options .form-table .clicker {
+	margin-top: 1em;
+}
+
+/* admin notice box mod */
+div.success {
+	background-color: #dfd;
+	border-color: #006505;
+}
