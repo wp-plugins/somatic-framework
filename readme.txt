@@ -37,6 +37,7 @@ deactivate and reactivate your theme/plugin that contains the function call, as 
 * added demographics tracking line to google analytics code
 * NEW: option to enable built-in page excerpts
 * NEW: option to disable attachment pages (redirecting to parent post)
+* NEW: option to prevent WP from automatically titling new image uploads with the filename
 * more metabox disabling for themeblvd stuff
 
 = 1.8.10 =

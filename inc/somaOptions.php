@@ -48,7 +48,8 @@ class somaOptions extends somaticFramework  {
 		add_action('do_feed_atom', array( __CLASS__, 'disable_feeds' ) );
 		add_action('do_feed_rss2_comments', array( __CLASS__, 'disable_feeds' ) );
 		add_action('do_feed_atom_comments', array( __CLASS__, 'disable_feeds' ) );
-		add_action('template_redirect', array( __CLASS__, 'attachment_page_redirect'), 1);				// nukes the "attachment page" by redirecting any views to the parent
+		add_action( 'template_redirect', array( __CLASS__, 'attachment_page_redirect'), 1);			// nukes the "attachment page" by redirecting any views to the parent
+		add_action( 'add_attachment', array( __CLASS__, 'blank_file_title' ) );						// wp fills in title field with filename by default when uploading. this kills that.
 
 		// add_action( 'show_user_profile', array(__CLASS__, 'show_extra_profile_fields') );  // unused
 		// add_action( 'edit_user_profile', array(__CLASS__, 'show_extra_profile_fields') );  // unused
@@ -89,7 +90,8 @@ class somaOptions extends somaticFramework  {
 			"disable_feeds" => 0,						// turns off all RSS and atom feeds
 			"typekit" => "",							// stores typekit ID and outputs necessary scripts
 			"google_analytics" => "",					// stores google analytics ID and outputs necessary scripts
-			"kill_attachment_pages" => 1 				// redirects attachment pages to parent
+			"kill_attachment_pages" => 1, 				// redirects attachment pages to parent
+			"blank_file_title" => 0 					// stops wp from making the title the filename
 		);
 
 		/* core WP metabox slugs for disabling:
@@ -468,7 +470,8 @@ class somaOptions extends somaticFramework  {
 							<label><input name="somatic_framework_options[go_redirect]" type="checkbox" value="1" <?php if ( isset( $soma_options['go_redirect'] ) ) { checked( '1', $soma_options['go_redirect'] ); } ?> /> Enable custom redirects via go/[code]</label><br />
 							<label><input name="somatic_framework_options[enable_page_excerpts]" type="checkbox" value="1" <?php if ( isset( $soma_options['enable_page_excerpts'] ) ) { checked( '1', $soma_options['enable_page_excerpts'] ); } ?> /> Enable excerpts for built-in Pages</label><br />
 							<label><input name="somatic_framework_options[fulldisplayname]" type="checkbox" value="1" <?php if ( isset( $soma_options['fulldisplayname'] ) ) { checked( '1', $soma_options['fulldisplayname'] ); } ?> /> Force display name to be Firstname Lastname (wp default is the username)</label><br />
-							<label><input name="somatic_framework_options[kill_attachment_pages]" type="checkbox" value="1" <?php if ( isset( $soma_options['kill_attachment_pages'] ) ) { checked( '1', $soma_options['kill_attachment_pages'] ); } ?> /> Disable solo attachment pages by redirecting to parent post</label><br />
+							<label><input name="somatic_framework_options[kill_attachment_pages]" type="checkbox" value="1" <?php if ( isset( $soma_options['kill_attachment_pages'] ) ) { checked( '1', $soma_options['kill_attachment_pages'] ); } ?> /> Disable linking to attachment pages by redirecting to parent post</label><br />
+							<label><input name="somatic_framework_options[blank_file_title]" type="checkbox" value="1" <?php if ( isset( $soma_options['blank_file_title'] ) ) { checked( '1', $soma_options['blank_file_title'] ); } ?> /> Leave "title" field blank when uploading files (stop automatic insertion of filename)</label><br />
 							<input type="submit" class="clicker" value="Save Changes" />
 						</td>
 					</tr>
@@ -1163,6 +1166,16 @@ function attachment_page_redirect() {
 			wp_redirect( get_bloginfo( 'url' ), 302 );
 			exit;
 		}
+	}
+}
+
+function blank_file_title( $attachment_ID ) {
+	global $soma_options;
+	if ( somaFunctions::fetch_index( $soma_options, 'blank_file_title' ) ) {
+	    $the_post = array();
+	    $the_post['ID'] = $attachment_ID;
+	    $the_post['post_title'] = '';
+	    wp_update_post( $the_post );
 	}
 }
 
