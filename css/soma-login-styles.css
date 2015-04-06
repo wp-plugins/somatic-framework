@@ -51,7 +51,7 @@ body.login #backtoblog a:hover { color: #000 !important }
 	font: bold 14px "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
 }
 
-#wpengine-login-footer {
+#hosting-login-footer {
 	position: fixed;
 	width: 100%;
 	bottom: 80px;

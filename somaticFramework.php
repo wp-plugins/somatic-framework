@@ -392,8 +392,13 @@ class somaticFramework {
 
 	function change_login_footer() {
 		if (class_exists('WpePlugin_common')) {
-			echo "<div id=\"wpengine-login-footer\">";
+			echo "<div id=\"hosting-login-footer\">";
 			echo '<img src="'.SOMA_IMG.'wpengine.png" alt="Hosted by WP Engine"/>';
+			echo "</div>\n";
+		}
+		if (class_exists('SG_CachePress')) {
+			echo "<div id=\"hosting-login-footer\">";
+			echo '<img src="'.SOMA_IMG.'siteground.png" alt="Hosted by SiteGround"/>';
 			echo "</div>\n";
 		}
 		echo "<div id=\"soma-login-footer\">Somatic Framework</div>\n";
