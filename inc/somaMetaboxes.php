@@ -132,7 +132,7 @@ class somaMetaboxes extends somaticFramework {
 	media (uses old thickbox dialog media manager)
 	external_media (video)
 	external_image
-	oEmbed (upcoming)
+	oembed (upcoming)
 	button
  * DATA:
  	taxonomy
@@ -411,6 +411,7 @@ class somaMetaboxes extends somaticFramework {
 			switch ($field['type']) {
 				// ----------------------------------------------------------------------------------------------------------------------------- //
 				case 'text':
+				case 'oembed':
 					echo '<input type="text" name="', $field['id'], '" id="', $field['id'], '" value="', $meta ? $meta : $field['default'], '" class="meta-text', $complete ? null : $missing, '" />';
 				break;
 				// ----------------------------------------------------------------------------------------------------------------------------- //
