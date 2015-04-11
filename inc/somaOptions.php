@@ -277,7 +277,7 @@ class somaOptions extends somaticFramework  {
 
 	// adds menu items to wp-admin
 	function add_pages() {
-		add_menu_page( 'Somatic Framework Options', 'Somatic', 'update_core', 'somatic-framework-options', null, SOMA_IMG.'soma-options-menu.png', '91' );
+		add_menu_page( 'Somatic Framework Options', 'Somatic', 'update_core', 'somatic-framework-options', null, 'dashicons-admin-generic', '91' );
 		add_submenu_page( 'somatic-framework-options', 'Framework Options', 'Options', 'update_core', 'somatic-framework-options', create_function( null, 'somaOptions::soma_options_page("options");' ) );
 		add_submenu_page( 'somatic-framework-options', 'Advanced', 'Advanced', 'update_core', 'somatic-framework-advanced', create_function( null, 'somaOptions::soma_options_page("advanced");' ) );
 		add_submenu_page( 'somatic-framework-options', 'System Reports', 'Reports', 'update_core', 'somatic-framework-reports', create_function( null, 'somaOptions::soma_options_page("reports");' ) );
@@ -351,7 +351,6 @@ class somaOptions extends somaticFramework  {
 			echo "<div id='notice_post' class='updated fade'><p>Text Saved...</p></div>";
 		}  ?>
 		<div class="wrap">
-			<div id="icon-soma-editor" class="icon32"><br/></div>
 			<h2>Help Text Editor</h2>
 
 			<form action="options.php" method="post">
@@ -431,16 +430,12 @@ class somaOptions extends somaticFramework  {
 			echo "<div class='updated fade'><p><strong>NOTICE:</strong> Settings are set be reset to defaults next time this plugin is activated!</p></div>";
 		}
 
-		echo "<style>#wpbody-content .icon32 { background: transparent url(\"".SOMA_IMG."soma-options.png\") no-repeat; !important }</style>";
-
 		// retrieve custom post types
 		$custom_types = get_post_types( array( "_builtin" => false, "somatic" => true ) );
 		$custom_taxes = get_taxonomies( array( "_builtin" => false, "somatic" => true ) );
 
 ?>
 		<div class="wrap somatic-options">
-			<!-- page icon -->
-			<div id="icon-options-general" class="icon32"></div>
 			<!-- page title and tabbed navigation -->
 			<h2 class="nav-tab-wrapper">
 				<a href="?page=somatic-framework-options" class="nav-tab <?php echo $active_tab == 'options' ? 'nav-tab-active' : ''; ?>">Framework Options</a>

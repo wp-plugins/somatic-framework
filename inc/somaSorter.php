@@ -26,7 +26,6 @@ class somaSorter extends somaticFramework {
 		$type_obj = get_post_type_object($type);
 ?>
 	<div class="wrap">
-		<div id="icon-edit" class="icon32"></div>
 		<h2><?php echo $type_obj->labels->singular_name ?> Sort Order</h2>
 <?php
 		// default query args
